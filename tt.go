@@ -104,48 +104,11 @@ func encodev1(d Data, values *bytes.Buffer) {
 	values.WriteByte(byte(tv + 1))
 }
 
-func decodev1(b []byte, d *Data) (err error) {
-	vlen := int(b[len(b)-1])
-
-	locs := make([]uint16, vlen)
-	locs[0] = 0
-
-	for i := 1; i < vlen; i++ {
-		locs[i] = locs[i-1] + uint16(b[locs[i-1]]) + 1
-	}
-
-	//decoding the actual values
-	var v Value
-
-	v.fromBytes(b[locs[vlen-1]+1:])
-
-	if *d == nil {
-		*d = make(Data, len(v.Children)*3)
-	}
-
-	data := d
-	childs := v.Children
-	for ck := range childs {
-		var err error
-		v.fromBytes(b[locs[childs[ck]]+1:])
-
-		err = valueToMapv1(&v, *data, locs, b)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-
-}
-
 func encodemapv1(values *bytes.Buffer, d Data, nextValue *ikeytype) ([]ikeytype, error) {
 	createdObjects := make([]ikeytype, len(d))
 	i := 0
 
 	for k := range d {
-
 		err := encodevaluev1(values, d[k], k, nextValue)
 		if err != nil {
 			return nil, err
@@ -154,6 +117,7 @@ func encodemapv1(values *bytes.Buffer, d Data, nextValue *ikeytype) ([]ikeytype,
 		i++
 		*nextValue++
 	}
+
 	return createdObjects, nil
 }
 
@@ -176,7 +140,6 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 		value.Children = make([]ikeytype, len(v))
 
 		for i := 0; i < len(v); i++ {
-
 			err := encodevaluev1(values, v[i], nil, nextValue)
 			if err != nil {
 				return err
@@ -184,6 +147,7 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			value.Children[i] = *nextValue
 			*nextValue++
 		}
+
 		value.Vtype = v1Arr
 	case map[string]interface{}:
 		value.Children = make([]ikeytype, len(v))
@@ -232,18 +196,8 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			return ErrInvalidInput
 		}
 	}
-
 	addValue(values, &value)
-
 	return nil
-}
-
-func stringToBytes(s string) []byte {
-	return []byte(s)
-}
-
-func stringFromBytes(b []byte) interface{} {
-	return interface{}(string(b))
 }
 
 func addValue(slice *bytes.Buffer, v *Value) {
@@ -256,6 +210,40 @@ func addValue(slice *bytes.Buffer, v *Value) {
 	slice.Grow(ln)
 	slice.WriteByte(byte(ln))
 	v.tobytes(slice)
+}
+
+func decodev1(b []byte, d *Data) (err error) {
+	vlen := int(b[len(b)-1])
+
+	locs := make([]uint16, vlen)
+	locs[0] = 0
+
+	for i := 1; i < vlen; i++ {
+		locs[i] = locs[i-1] + uint16(b[locs[i-1]]) + 1
+	}
+
+	//decoding the actual values
+	var v Value
+
+	v.fromBytes(b[locs[vlen-1]+1:])
+
+	if *d == nil {
+		*d = make(Data, len(v.Children)*3)
+	}
+
+	data := d
+	childs := v.Children
+	for ck := range childs {
+		var err error
+		v.fromBytes(b[locs[childs[ck]]+1:])
+
+		err = valueToMapv1(&v, *data, locs, b)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
@@ -431,6 +419,14 @@ func (v *Value) fromBytes(data []byte) {
 			v.Children[i/2] = ikeyfrombytes(data[int(klen+vlen+4)+i : int(klen+vlen+4)+i+2])
 		}
 	}
+}
+
+func stringToBytes(s string) []byte {
+	return []byte(s)
+}
+
+func stringFromBytes(b []byte) interface{} {
+	return interface{}(string(b))
 }
 
 func ikeytobytes(key ikeytype) (buf [ikeylen]byte) {
