@@ -3,6 +3,7 @@ package tt
 import (
 	"bytes"
 	"encoding/binary"
+	"reflect"
 
 	"errors"
 )
@@ -42,6 +43,7 @@ const (
 	v1String     = 's'
 	v1FinalValue = 'v'
 	v1Map        = 'm'
+	v1Arr        = 'a'
 )
 
 const corruptinputdata = "byte length not long enough, contact the authors for a solution"
@@ -143,48 +145,86 @@ func encodemapv1(values *bytes.Buffer, d Data, nextValue *ikeytype) ([]ikeytype,
 	i := 0
 
 	for k := range d {
-		var value Value
 
+		encodevaluev1(values, d[k], k, nextValue)
+
+		createdObjects[i] = *nextValue
+		i++
+		*nextValue++
+	}
+	return createdObjects, nil
+}
+
+func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue *ikeytype) error {
+	var value Value
+
+	if k != nil {
 		switch v := k.(type) {
 		case string:
 			value.Key.Value = stringToBytes(v)
 			value.Key.Vtype = v1String
 		}
-
-		switch v := d[k].(type) {
-		case string:
-			value.Value = stringToBytes(v)
-			value.Vtype = v1String
-
-		default:
-			if v, ok := d[k].(Data); ok {
-				childs, err := encodemapv1(values, v, nextValue)
-				if err != nil {
-					return nil, err
-				}
-
-				value.Children = childs
-				value.Vtype = v1Map
-
-			} else if v, ok := d[k].(Transmitter); ok {
-				var err error
-				value.Value, err = v.Encode()
-				if err != nil {
-					return nil, err
-				}
-				value.Vtype = v.GetCode()
-			} else {
-				return nil, ErrInvalidInput
-			}
-		}
-
-		createdObjects[i] = *nextValue
-		i++
-
-		addValue(values, &value)
-		*nextValue++
 	}
-	return createdObjects, nil
+
+	switch v := d.(type) {
+	case string:
+		value.Value = stringToBytes(v)
+		value.Vtype = v1String
+	case []interface{}:
+		value.Children = make([]ikeytype, len(v))
+
+		for i := 0; i < len(v); i++ {
+
+			err := encodevaluev1(values, v[i], nil, nextValue)
+			if err != nil {
+				return err
+			}
+			value.Children[i] = *nextValue
+			*nextValue++
+		}
+		value.Vtype = v1Arr
+
+	default:
+		if v, ok := d.(Data); ok {
+			childs, err := encodemapv1(values, v, nextValue)
+			if err != nil {
+				return err
+			}
+
+			value.Children = childs
+			value.Vtype = v1Map
+
+		} else if val := reflect.ValueOf(d); val.Kind() == reflect.Array {
+			value.Children = make([]ikeytype, val.Len())
+
+			for i := 0; i < val.Len(); i++ {
+				//fmt.Println("new slice value!")
+
+				e := val.Index(i).Interface()
+				err := encodevaluev1(values, e, nil, nextValue)
+				if err != nil {
+					//fmt.Println("error:", err)
+					return err
+				}
+				value.Children[i] = *nextValue
+				*nextValue++
+			}
+			value.Vtype = v1Arr
+		} else if v, ok := d.(Transmitter); ok {
+			var err error
+			value.Value, err = v.Encode()
+			if err != nil {
+				return err
+			}
+			value.Vtype = v.GetCode()
+		} else {
+			return ErrInvalidInput
+		}
+	}
+
+	addValue(values, &value)
+
+	return nil
 }
 
 func stringToBytes(s string) []byte {
@@ -227,6 +267,19 @@ func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
 				return err
 			}
 		}
+	case v1Arr:
+		val := make([]interface{}, len(v.Children))
+		childs := v.Children
+		for i := range childs {
+			var err error
+			v.fromBytes(buf[locs[childs[i]]+1:])
+			err = valueToArrayv1(v, interface{}((val)).([]interface{}), i, locs, buf)
+			if err != nil {
+				return err
+			}
+		}
+		data[key] = val
+
 	default:
 		t := transmitters[int(v.Vtype)]
 		if t == nil {
@@ -238,6 +291,49 @@ func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint16, buf []byte) error {
+	switch v.Vtype {
+	case v1String:
+		arr[i] = stringFromBytes(v.Value)
+	case v1Map:
+		arr[i] = make(Data, len(v.Children))
+		childs := v.Children
+		for ck := range childs {
+			var err error
+			v.fromBytes(buf[locs[childs[ck]]+1:])
+			err = valueToMapv1(v, arr[i].(Data), locs, buf)
+			if err != nil {
+				return err
+			}
+		}
+	case v1Arr:
+		val := make([]interface{}, len(v.Children))
+		childs := v.Children
+		for i := range childs {
+			var err error
+			v.fromBytes(buf[locs[childs[i]]+1:])
+			err = valueToArrayv1(v, interface{}((val)).([]interface{}), i, locs, buf)
+			if err != nil {
+				return err
+			}
+		}
+		arr[i] = val
+
+	default:
+		t := transmitters[int(v.Vtype)]
+		if t == nil {
+			return errors.New("no transmitter for type:" + string(v.Vtype))
+		}
+		var err error
+		arr[i], err = t.Decode(v.Value)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

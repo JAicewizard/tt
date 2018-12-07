@@ -17,6 +17,13 @@ var testData = Data{
 		"more": "d5ata",
 	},
 }
+var testDataSlice = Data{
+	"Da5ta": "n0thing",
+	"Data2": []interface{}{
+		"hey",
+		"jude",
+	},
+}
 
 type loop struct {
 	Data    []byte
@@ -52,31 +59,18 @@ func TestGob(t *testing.T) {
 		fmt.Println(testData)
 		t.FailNow()
 	}
-}
 
-func TestGobLoop(t *testing.T) {
-	var data Data
+	data = Data{}
+	buf = new(bytes.Buffer)
+	enc = gob.NewEncoder(buf)
+	dec = gob.NewDecoder(buf)
 
-	var byt []byte
-	buf := bytes.NewBuffer(byt)
-	enc := gob.NewEncoder(buf)
-
-	enc.Encode(testData)
-
-	dat := buf.Bytes()
-	l := loop{
-		Data:    dat,
-		pointer: 0,
-		length:  len(dat),
-	}
-
-	enc = gob.NewEncoder(ioutil.Discard)
-	dec := gob.NewDecoder(&l)
-
+	enc.Encode(testDataSlice)
 	dec.Decode(&data)
-	if !reflect.DeepEqual(data, testData) {
+
+	if !reflect.DeepEqual(data, testDataSlice) {
 		fmt.Println(data)
-		fmt.Println(testData)
+		fmt.Println(testDataSlice)
 		t.FailNow()
 	}
 }
@@ -118,7 +112,6 @@ func BenchmarkGobData(b *testing.B) {
 		pointer: 0,
 		length:  len(dat),
 	}
-	fmt.Println(len(dat))
 
 	enc = gob.NewEncoder(ioutil.Discard)
 	dec := gob.NewDecoder(&l)
@@ -168,6 +161,77 @@ func BenchmarkGobMap(b *testing.B) {
 func BenchmarkGobMapEncode(b *testing.B) {
 	b.StopTimer()
 	var testdata = map[interface{}]interface{}(testData)
+	enc := gob.NewEncoder(ioutil.Discard)
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		enc.Encode(testdata)
+	}
+}
+
+func BenchmarkGobDataS(b *testing.B) {
+	b.StopTimer()
+	var data Data
+	var byt []byte
+
+	buf := bytes.NewBuffer(byt)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testData)
+	dat := buf.Bytes()
+
+	l := loop{
+		Data:    dat,
+		pointer: 0,
+		length:  len(dat),
+	}
+
+	enc = gob.NewEncoder(ioutil.Discard)
+	dec := gob.NewDecoder(&l)
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		enc.Encode(testDataSlice)
+		dec.Decode(&data)
+	}
+}
+
+func BenchmarkGobDataEncodeS(b *testing.B) {
+	b.StopTimer()
+	enc := gob.NewEncoder(ioutil.Discard)
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		enc.Encode(testDataSlice)
+	}
+}
+
+func BenchmarkGobMapS(b *testing.B) {
+	b.StopTimer()
+
+	var data map[interface{}]interface{}
+	var testdata = map[interface{}]interface{}(testDataSlice)
+	var byt []byte
+
+	buf := bytes.NewBuffer(byt)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testdata)
+
+	dat := buf.Bytes()
+	l := loop{
+		Data:    dat,
+		pointer: 0,
+		length:  len(dat),
+	}
+
+	enc = gob.NewEncoder(ioutil.Discard)
+	dec := gob.NewDecoder(&l)
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		enc.Encode(testdata)
+		dec.Decode(&data)
+	}
+}
+
+func BenchmarkGobMapEncodeS(b *testing.B) {
+	b.StopTimer()
+	var testdata = map[interface{}]interface{}(testDataSlice)
 	enc := gob.NewEncoder(ioutil.Discard)
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
