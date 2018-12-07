@@ -146,8 +146,10 @@ func encodemapv1(values *bytes.Buffer, d Data, nextValue *ikeytype) ([]ikeytype,
 
 	for k := range d {
 
-		encodevaluev1(values, d[k], k, nextValue)
-
+		err := encodevaluev1(values, d[k], k, nextValue)
+		if err != nil {
+			return nil, err
+		}
 		createdObjects[i] = *nextValue
 		i++
 		*nextValue++
@@ -183,27 +185,36 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			*nextValue++
 		}
 		value.Vtype = v1Arr
+	case map[string]interface{}:
+		value.Children = make([]ikeytype, len(v))
+		i := 0
+		for k := range v {
+
+			encodevaluev1(values, v[k], k, nextValue)
+
+			value.Children[i] = *nextValue
+			i++
+			*nextValue++
+		}
+
+		value.Vtype = v1Map
+	case Data:
+		childs, err := encodemapv1(values, v, nextValue)
+		if err != nil {
+			return err
+		}
+
+		value.Children = childs
+		value.Vtype = v1Map
 
 	default:
-		if v, ok := d.(Data); ok {
-			childs, err := encodemapv1(values, v, nextValue)
-			if err != nil {
-				return err
-			}
-
-			value.Children = childs
-			value.Vtype = v1Map
-
-		} else if val := reflect.ValueOf(d); val.Kind() == reflect.Array {
+		if val := reflect.ValueOf(d); val.Kind() == reflect.Array {
 			value.Children = make([]ikeytype, val.Len())
 
 			for i := 0; i < val.Len(); i++ {
-				//fmt.Println("new slice value!")
-
 				e := val.Index(i).Interface()
 				err := encodevaluev1(values, e, nil, nextValue)
 				if err != nil {
-					//fmt.Println("error:", err)
 					return err
 				}
 				value.Children[i] = *nextValue
