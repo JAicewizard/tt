@@ -14,10 +14,46 @@ import (
 var testData = Data{
 	"Da5ta": "n0thing",
 	"Data2": Data{
-		"more": "d5ata",
+		"more": "d5ata89",
+	},
+	/* "Dat52": Data{
+		"more1": "d5ata234",
+	},
+
+	"Data42": Data{
+		"more2": "d5ata43",
+	},
+
+	"Data55": Data{
+		"more3": "d5ata5",
+	}, */
+}
+var testDataGobOnly = map[interface{}]interface{}{
+	"Da5ta": "n0thing",
+	"Data2": map[interface{}]interface{}{
+		"more": "d5ata89",
+	},
+	/* "Dat52": map[interface{}]interface{}{
+		"more1": "d5ata234",
+	},
+
+	"Data42": map[interface{}]interface{}{
+		"more2": "d5ata43",
+	},
+
+	"Data55": map[interface{}]interface{}{
+		"more3": "d5ata5",
+	}, */
+}
+
+var testDataSlice = Data{
+	"Da5ta": "n0thing",
+	"Data2": []interface{}{
+		"hey",
+		"jude",
 	},
 }
-var testDataSlice = Data{
+var testDataSliceGobOnly = map[interface{}]interface{}{
 	"Da5ta": "n0thing",
 	"Data2": []interface{}{
 		"hey",
@@ -106,7 +142,6 @@ func BenchmarkGobData(b *testing.B) {
 	enc := gob.NewEncoder(buf)
 	enc.Encode(testData)
 	dat := buf.Bytes()
-
 	l := loop{
 		Data:    dat,
 		pointer: 0,
@@ -135,12 +170,11 @@ func BenchmarkGobMap(b *testing.B) {
 	b.StopTimer()
 
 	var data map[interface{}]interface{}
-	var testdata = map[interface{}]interface{}(testData)
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
 	enc := gob.NewEncoder(buf)
-	enc.Encode(testdata)
+	enc.Encode(testDataGobOnly)
 
 	dat := buf.Bytes()
 	l := loop{
@@ -153,18 +187,17 @@ func BenchmarkGobMap(b *testing.B) {
 	dec := gob.NewDecoder(&l)
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		enc.Encode(testdata)
+		enc.Encode(testDataGobOnly)
 		dec.Decode(&data)
 	}
 }
 
 func BenchmarkGobMapEncode(b *testing.B) {
 	b.StopTimer()
-	var testdata = map[interface{}]interface{}(testData)
 	enc := gob.NewEncoder(ioutil.Discard)
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		enc.Encode(testdata)
+		enc.Encode(testDataGobOnly)
 	}
 }
 
@@ -175,7 +208,7 @@ func BenchmarkGobDataS(b *testing.B) {
 
 	buf := bytes.NewBuffer(byt)
 	enc := gob.NewEncoder(buf)
-	enc.Encode(testData)
+	enc.Encode(testDataSlice)
 	dat := buf.Bytes()
 
 	l := loop{
@@ -206,12 +239,11 @@ func BenchmarkGobMapS(b *testing.B) {
 	b.StopTimer()
 
 	var data map[interface{}]interface{}
-	var testdata = map[interface{}]interface{}(testDataSlice)
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
 	enc := gob.NewEncoder(buf)
-	enc.Encode(testdata)
+	enc.Encode(testDataSliceGobOnly)
 
 	dat := buf.Bytes()
 	l := loop{
@@ -224,17 +256,16 @@ func BenchmarkGobMapS(b *testing.B) {
 	dec := gob.NewDecoder(&l)
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		enc.Encode(testdata)
+		enc.Encode(testDataSliceGobOnly)
 		dec.Decode(&data)
 	}
 }
 
 func BenchmarkGobMapEncodeS(b *testing.B) {
 	b.StopTimer()
-	var testdata = map[interface{}]interface{}(testDataSlice)
 	enc := gob.NewEncoder(ioutil.Discard)
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		enc.Encode(testdata)
+		enc.Encode(testDataSliceGobOnly)
 	}
 }

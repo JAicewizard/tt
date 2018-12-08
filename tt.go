@@ -61,7 +61,7 @@ var (
 //RegisterTransmitter registers a new transmitter
 func RegisterTransmitter(tr Transmitter) error {
 	code := tr.GetCode()
-	if code == v1String || code == v1FinalValue || code == v1Map {
+	if code == v1String || code == v1FinalValue || code == v1Map || code == v1Arr {
 		return ErrCodeUsed
 	}
 
@@ -208,7 +208,6 @@ func addValue(slice *bytes.Buffer, v *Value) {
 		ln = len(v.Value) + len(v.Children)*2 + len(v.Key.Value) + 6
 	}
 	slice.Grow(ln)
-	slice.WriteByte(byte(ln))
 	v.tobytes(slice)
 }
 
@@ -217,15 +216,22 @@ func decodev1(b []byte, d *Data) (err error) {
 
 	locs := make([]uint16, vlen)
 	locs[0] = 0
-
+	//fmt.Println(b)
 	for i := 1; i < vlen; i++ {
-		locs[i] = locs[i-1] + uint16(b[locs[i-1]]) + 1
+		locs[i] = locs[i-1] + uint16(
+			b[locs[i-1]]+
+				(b[locs[i-1]+1]*2)+ //childlengts are *2
+				b[locs[i-1]+2]+
+				4) //add 4 so that we cound the length values as wel, +1 is for going to the next value
+		//fmt.Println(locs[i])
+		//fmt.Println("this is the byte for the loc", b[locs[i]], b[locs[i]+1], b[locs[i]+2])
 	}
+	//fmt.Println(locs)
 
 	//decoding the actual values
 	var v Value
-
-	v.fromBytes(b[locs[vlen-1]+1:])
+	//fmt.Println(locs[vlen-1])
+	v.fromBytes(b[locs[vlen-1]:])
 
 	if *d == nil {
 		*d = make(Data, len(v.Children)*3)
@@ -235,7 +241,10 @@ func decodev1(b []byte, d *Data) (err error) {
 	childs := v.Children
 	for ck := range childs {
 		var err error
-		v.fromBytes(b[locs[childs[ck]]+1:])
+		//fmt.Println(ck, "is the child nr")
+		//fmt.Println(childs[ck], "id the child id")
+		//fmt.Println(locs[childs[ck]], "id the child loc")
+		v.fromBytes(b[locs[childs[ck]]:])
 
 		err = valueToMapv1(&v, *data, locs, b)
 
@@ -260,7 +269,7 @@ func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
 		childs := v.Children
 		for ck := range childs {
 			var err error
-			v.fromBytes(buf[locs[childs[ck]]+1:])
+			v.fromBytes(buf[locs[childs[ck]]:])
 			err = valueToMapv1(v, data[key].(Data), locs, buf)
 			if err != nil {
 				return err
@@ -271,7 +280,7 @@ func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
 		childs := v.Children
 		for i := range childs {
 			var err error
-			v.fromBytes(buf[locs[childs[i]]+1:])
+			v.fromBytes(buf[locs[childs[i]]:])
 			err = valueToArrayv1(v, interface{}((val)).([]interface{}), i, locs, buf)
 			if err != nil {
 				return err
@@ -302,7 +311,7 @@ func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint16, buf []byt
 		childs := v.Children
 		for ck := range childs {
 			var err error
-			v.fromBytes(buf[locs[childs[ck]]+1:])
+			v.fromBytes(buf[locs[childs[ck]]:])
 			err = valueToMapv1(v, arr[i].(Data), locs, buf)
 			if err != nil {
 				return err
@@ -313,7 +322,7 @@ func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint16, buf []byt
 		childs := v.Children
 		for i := range childs {
 			var err error
-			v.fromBytes(buf[locs[childs[i]]+1:])
+			v.fromBytes(buf[locs[childs[i]]:])
 			err = valueToArrayv1(v, interface{}((val)).([]interface{}), i, locs, buf)
 			if err != nil {
 				return err
@@ -352,6 +361,7 @@ func (k *Key) export() interface{} {
 }
 
 func (k *Key) fromBytes(data []byte) {
+	//fmt.Println("Key is:", data)
 	dlen := len(data)
 	if dlen <= 0 {
 		panic(corruptinputdata)
@@ -365,24 +375,29 @@ func (k *Key) fromBytes(data []byte) {
 }
 
 func (v *Value) tobytes(buf *bytes.Buffer) {
-
-	buf.WriteByte(byte(len(v.Value)))
+	var klen int
+	if v.Key.Value == nil {
+		klen = 0
+	} else {
+		klen = len(v.Key.Value) + 2
+	}
+	//fmt.Println("KLEN ===", klen)
+	buf.Write([]byte{
+		byte(len(v.Value)),
+		byte(len(v.Children)),
+		byte(klen),
+	})
+	//fmt.Println(buf.Bytes())
 	buf.Write(v.Value)
 
 	buf.WriteByte(v.Vtype)
 
-	if v.Key.Value == nil {
-		buf.WriteByte(byte(0))
-	} else {
-		klen := len(v.Key.Value)
+	if v.Key.Value != nil {
 
-		buf.WriteByte(byte(klen + 2))
 		buf.Grow(klen + 2)
 
 		v.Key.tobytes(buf)
 	}
-
-	buf.WriteByte(byte(len(v.Children)))
 
 	for i := range v.Children {
 		b := ikeytobytes(v.Children[i])
@@ -392,26 +407,29 @@ func (v *Value) tobytes(buf *bytes.Buffer) {
 
 func (v *Value) fromBytes(data []byte) {
 	dlen := len(data)
+	//fmt.Println(data)
 	if dlen <= 0 {
 		panic(corruptinputdata)
 	}
 	vlen := data[0]
+	clen := int(data[1])
+	klen := data[2]
+	//fmt.Println(vlen, clen, klen)
+
 	if dlen < int(vlen+1) {
 		panic(corruptinputdata)
 	}
 
-	klen := data[vlen+2]
-	if dlen < int(klen+vlen+2) {
+	//fmt.Println(klen)
+	if dlen < int(klen+vlen+3) {
 		panic(corruptinputdata)
 	}
 
-	clen := int(data[klen+vlen+3])
-
-	v.Value = data[1 : vlen+1]
-	v.Vtype = data[vlen+1]
+	v.Value = data[3 : vlen+3]
+	v.Vtype = data[vlen+3]
 
 	if klen != 0 {
-		v.Key.fromBytes(data[vlen+3 : klen+vlen+3])
+		v.Key.fromBytes(data[vlen+4 : klen+vlen+4])
 	}
 	if clen != 0 {
 		v.Children = make([]ikeytype, clen)
