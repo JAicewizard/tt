@@ -67,6 +67,11 @@ type loop struct {
 	length  int
 }
 
+func init() {
+	gob.Register(map[interface{}]interface{}{})
+	gob.Register([]interface{}{})
+}
+
 func (l *loop) Read(p []byte) (n int, err error) {
 	for i := 0; i < len(p); i++ {
 		p[i] = l.Data[l.pointer]
