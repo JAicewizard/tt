@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"reflect"
+	"unsafe"
 
 	"errors"
 )
@@ -26,7 +27,9 @@ type (
 		Vtype byte   //the type of the data of this object in its final form
 	}
 
-	ikeytype uint16
+	ikeytype uint32
+	valuelen uint32
+	keylen   uint32
 
 	Transmitter interface {
 		Encode() ([]byte, error)
@@ -35,7 +38,10 @@ type (
 	}
 )
 
-const ikeylen = 2
+const ikeylen = 4
+
+const valuelenbytes = 4
+const keylenbytes = 4
 
 const version1 = 1
 
@@ -203,9 +209,9 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 func addValue(slice *bytes.Buffer, v *Value) {
 	var ln int
 	if v.Key.Value == nil {
-		ln = len(v.Value) + len(v.Children)*2 + 4
+		ln = len(v.Value) + len(v.Children)*ikeylen + 2 + valuelenbytes + keylenbytes
 	} else {
-		ln = len(v.Value) + len(v.Children)*2 + len(v.Key.Value) + 6
+		ln = len(v.Value) + len(v.Children)*ikeylen + len(v.Key.Value) + 3 + valuelenbytes + keylenbytes
 	}
 	slice.Grow(ln)
 	v.tobytes(slice)
@@ -214,36 +220,32 @@ func addValue(slice *bytes.Buffer, v *Value) {
 func decodev1(b []byte, d *Data) (err error) {
 	vlen := int(b[len(b)-1])
 
-	locs := make([]uint16, vlen)
+	locs := make([]uint64, vlen)
 	locs[0] = 0
 	//fmt.Println(b)
 	for i := 1; i < vlen; i++ {
-		locs[i] = locs[i-1] + uint16(
-			b[locs[i-1]]+
-				(b[locs[i-1]+1]*2)+ //childlengts are *2
-				b[locs[i-1]+2]+
-				4) //add 4 so that we cound the length values as wel, +1 is for going to the next value
-		//fmt.Println(locs[i])
-		//fmt.Println("this is the byte for the loc", b[locs[i]], b[locs[i]+1], b[locs[i]+2])
+		locs[i] = locs[i-1] + uint64(
+			uint32(b[locs[i-1]]*ikeylen)+
+				uint32(getvaluelen(b[locs[i-1]+1:locs[i-1]+1+valuelenbytes]))+
+				uint32(getkeylen(b[locs[i-1]+1+valuelenbytes:locs[i-1]+1+valuelenbytes+keylenbytes]))+
+				2+valuelenbytes+keylenbytes) //add 4 so that we cound the length values as wel, +1 is for going to the next value
+		//fmt.Println(b[locs[i]], b[locs[i]+1], b[locs[i]+1+valuelenbytes])
 	}
-	//fmt.Println(locs)
 
 	//decoding the actual values
 	var v Value
-	//fmt.Println(locs[vlen-1])
 	v.fromBytes(b[locs[vlen-1]:])
 
 	if *d == nil {
-		*d = make(Data, len(v.Children)*3)
+		*d = make(Data, len(v.Children)*1)
 	}
 
 	data := d
 	childs := v.Children
+	//fmt.Println(childs)
 	for ck := range childs {
 		var err error
-		//fmt.Println(ck, "is the child nr")
-		//fmt.Println(childs[ck], "id the child id")
-		//fmt.Println(locs[childs[ck]], "id the child loc")
+		//fmt.Println(childs[ck])
 		v.fromBytes(b[locs[childs[ck]]:])
 
 		err = valueToMapv1(&v, *data, locs, b)
@@ -255,7 +257,7 @@ func decodev1(b []byte, d *Data) (err error) {
 	return nil
 }
 
-func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
+func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) error {
 	key := v.Key.export()
 	if key == nil {
 		return ErrInvalidInput
@@ -302,7 +304,7 @@ func valueToMapv1(v *Value, data Data, locs []uint16, buf []byte) error {
 	return nil
 }
 
-func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint16, buf []byte) error {
+func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint64, buf []byte) error {
 	switch v.Vtype {
 	case v1String:
 		arr[i] = stringFromBytes(v.Value)
@@ -329,7 +331,6 @@ func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint16, buf []byt
 			}
 		}
 		arr[i] = val
-
 	default:
 		t := transmitters[int(v.Vtype)]
 		if t == nil {
@@ -346,7 +347,6 @@ func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint16, buf []byt
 }
 
 func (k *Key) tobytes(buf *bytes.Buffer) {
-	buf.WriteByte(byte(len(k.Value)))
 	buf.Write(k.Value)
 	buf.WriteByte(k.Vtype)
 }
@@ -361,41 +361,35 @@ func (k *Key) export() interface{} {
 }
 
 func (k *Key) fromBytes(data []byte) {
-	//fmt.Println("Key is:", data)
+
 	dlen := len(data)
-	if dlen <= 0 {
+	if dlen <= 1 { //the key has to be at least of length one
 		panic(corruptinputdata)
 	}
-	typeloc := data[0] + 1
-	if dlen < int(typeloc+1) {
-		panic(corruptinputdata)
-	}
-	k.Value = data[1:typeloc]
+	typeloc := dlen - 1
+	k.Value = data[0:typeloc]
 	k.Vtype = data[typeloc]
 }
-
 func (v *Value) tobytes(buf *bytes.Buffer) {
-	var klen int
+	var klen keylen
 	if v.Key.Value == nil {
 		klen = 0
 	} else {
-		klen = len(v.Key.Value) + 2
+		klen = keylen(len(v.Key.Value) + 1)
 	}
-	//fmt.Println("KLEN ===", klen)
-	buf.Write([]byte{
-		byte(len(v.Value)),
-		byte(len(v.Children)),
-		byte(klen),
-	})
-	//fmt.Println(buf.Bytes())
+	var vlen = len(v.Value)
+	buf.WriteByte(byte(len(v.Children)))
+	vlenb := valuelentobyte(valuelen(vlen))
+	buf.Write(vlenb[:])
+	klenb := keylentobyte(keylen(klen))
+	buf.Write(klenb[:])
+
 	buf.Write(v.Value)
 
 	buf.WriteByte(v.Vtype)
 
-	if v.Key.Value != nil {
-
-		buf.Grow(klen + 2)
-
+	if klen != 0 {
+		buf.Grow(int(klen + 1))
 		v.Key.tobytes(buf)
 	}
 
@@ -407,51 +401,69 @@ func (v *Value) tobytes(buf *bytes.Buffer) {
 
 func (v *Value) fromBytes(data []byte) {
 	dlen := len(data)
-	//fmt.Println(data)
 	if dlen <= 0 {
 		panic(corruptinputdata)
 	}
-	vlen := data[0]
-	clen := int(data[1])
-	klen := data[2]
-	//fmt.Println(vlen, clen, klen)
-
-	if dlen < int(vlen+1) {
+	clen := int(data[0])
+	vlen := int(getvaluelen(data[1 : 1+valuelenbytes]))
+	klen := int(getkeylen(data[1+valuelenbytes : 1+valuelenbytes+keylenbytes]))
+	/* fmt.Println(klen)
+	fmt.Println(vlen)
+	fmt.Println(clen)
+	fmt.Println(data) */
+	start := 1 + valuelenbytes + keylenbytes
+	if dlen < int(klen+vlen+(clen-1)*ikeylen)+2+valuelenbytes+keylenbytes {
 		panic(corruptinputdata)
 	}
 
-	//fmt.Println(klen)
-	if dlen < int(klen+vlen+3) {
-		panic(corruptinputdata)
-	}
-
-	v.Value = data[3 : vlen+3]
-	v.Vtype = data[vlen+3]
-
+	v.Value = data[start : vlen+start]
+	v.Vtype = data[vlen+start]
+	//fmt.Println(data[vlen+start])
 	if klen != 0 {
-		v.Key.fromBytes(data[vlen+4 : klen+vlen+4])
+		v.Key.fromBytes(data[vlen+1+start : klen+vlen+1+start])
 	}
 	if clen != 0 {
 		v.Children = make([]ikeytype, clen)
-		for i := 0; i < clen*2; i = i + 2 {
-			v.Children[i/2] = ikeyfrombytes(data[int(klen+vlen+4)+i : int(klen+vlen+4)+i+2])
+		for i := 0; i < clen*ikeylen; i = i + ikeylen {
+			//fmt.Println(data[klen+vlen+4+i : klen+vlen+i+4+ikeylen])
+			v.Children[i/ikeylen] = ikeyfrombytes(data[klen+vlen+i+1+start : klen+vlen+i+1+start+ikeylen])
+			//fmt.Println(v.Children[i/ikeylen], "is the key!")
 		}
 	}
 }
 
 func stringToBytes(s string) []byte {
-	return []byte(s)
+	x := (*reflect.StringHeader)(unsafe.Pointer(&s))
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: x.Data, Len: x.Len, Cap: x.Len}))
 }
 
 func stringFromBytes(b []byte) interface{} {
-	return interface{}(string(b))
+	return interface{}(*(*string)(unsafe.Pointer(&b)))
 }
 
 func ikeytobytes(key ikeytype) (buf [ikeylen]byte) {
-	binary.LittleEndian.PutUint16(buf[:], uint16(key))
+	binary.LittleEndian.PutUint32(buf[:], uint32(key))
 	return
 }
 
 func ikeyfrombytes(buf []byte) ikeytype {
-	return ikeytype(binary.LittleEndian.Uint16(buf[:]))
+	return ikeytype(binary.LittleEndian.Uint32(buf[:]))
+}
+
+func valuelentobyte(key valuelen) (buf [valuelenbytes]byte) {
+	binary.LittleEndian.PutUint32(buf[:], uint32(key))
+	return
+}
+
+func getvaluelen(buf []byte) valuelen {
+	return valuelen(binary.LittleEndian.Uint32(buf[:]))
+}
+
+func keylentobyte(key keylen) (buf [keylenbytes]byte) {
+	binary.LittleEndian.PutUint32(buf[:], uint32(key))
+	return
+}
+
+func getkeylen(buf []byte) keylen {
+	return keylen(binary.LittleEndian.Uint32(buf[:]))
 }
