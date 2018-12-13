@@ -81,6 +81,7 @@ func (d Data) GobEncode() ([]byte, error) {
 	buf := bytes.NewBuffer(byt)
 	buf.WriteByte(byte(version1))
 	encodev1(d, buf)
+	//fmt.Println(buf.Bytes(), "IS THE DATA ENCODED!!!!!!!!!!!!!!!!!!!")
 	return buf.Bytes(), nil
 }
 
@@ -89,6 +90,7 @@ func (d *Data) GobDecode(data []byte) error {
 	if len(data) == 0 {
 		return ErrInvalidInput
 	}
+	//fmt.Println(data)
 	switch data[0] {
 	case version1:
 		return decodev1(data[1:], d)
