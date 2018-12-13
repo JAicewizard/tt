@@ -40,12 +40,16 @@ var testDataSlice = Data{
 		"jude",
 	},
 }
-var testDataSliceGobOnly = map[interface{}]interface{}{
+var testDataBytes = Data{
 	"Da5ta": "n0thing",
-	"Data2": []interface{}{
-		"hey",
-		"jude",
+	"Data2": []byte{
+		'h',
+		'i',
 	},
+}
+var testDataFloat64 = Data{
+	"Da5ta": "n0thing",
+	"Data2": float64(0.64),
 }
 
 func init() {
@@ -67,11 +71,12 @@ func TestGob(t *testing.T) {
 		fmt.Println(testData)
 		t.FailNow()
 	}
-
-	data = Data{}
-	buf = new(bytes.Buffer)
-	enc = gob.NewEncoder(buf)
-	dec = gob.NewDecoder(buf)
+}
+func TestInterfaceSlice(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	dec := gob.NewDecoder(buf)
 
 	enc.Encode(testDataSlice)
 	dec.Decode(&data)
@@ -79,6 +84,38 @@ func TestGob(t *testing.T) {
 	if !reflect.DeepEqual(data, testDataSlice) {
 		fmt.Println(data)
 		fmt.Println(testDataSlice)
+		t.FailNow()
+	}
+}
+
+func TestBytes(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testDataBytes)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	if !reflect.DeepEqual(data, testDataBytes) {
+		fmt.Println(data)
+		fmt.Println(testDataBytes)
+		t.FailNow()
+	}
+}
+
+func TestFloat64(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testDataFloat64)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	if !reflect.DeepEqual(data, testDataFloat64) {
+		fmt.Println(data)
+		fmt.Println(testDataFloat64)
 		t.FailNow()
 	}
 }

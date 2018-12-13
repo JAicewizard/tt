@@ -3,6 +3,7 @@ package tt
 import (
 	"bytes"
 	"encoding/binary"
+	"math"
 	"reflect"
 	"unsafe"
 
@@ -47,9 +48,12 @@ const version1 = 1
 
 const (
 	v1String     = 's'
-	v1FinalValue = 'v'
+	v1Bytes      = 'b'
+	v1Float64    = 'f'
+	v1Float32    = 'g'
 	v1Map        = 'm'
 	v1Arr        = 'a'
+	v1FinalValue = 'v'
 )
 
 const corruptinputdata = "byte length not long enough, contact the authors for a solution"
@@ -81,7 +85,6 @@ func (d Data) GobEncode() ([]byte, error) {
 	buf := bytes.NewBuffer(byt)
 	buf.WriteByte(byte(version1))
 	encodev1(d, buf)
-	//fmt.Println(buf.Bytes(), "IS THE DATA ENCODED!!!!!!!!!!!!!!!!!!!")
 	return buf.Bytes(), nil
 }
 
@@ -90,7 +93,6 @@ func (d *Data) GobDecode(data []byte) error {
 	if len(data) == 0 {
 		return ErrInvalidInput
 	}
-	//fmt.Println(data)
 	switch data[0] {
 	case version1:
 		return decodev1(data[1:], d)
@@ -144,6 +146,15 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 	case string:
 		value.Value = stringToBytes(v)
 		value.Vtype = v1String
+	case []byte:
+		value.Value = v
+		value.Vtype = v1Bytes
+	case float32:
+		value.Value = float32ToBytes(v)
+		value.Vtype = v1Float32
+	case float64:
+		value.Value = float64ToBytes(v)
+		value.Vtype = v1Float64
 	case []interface{}:
 		value.Children = make([]ikeytype, len(v))
 
@@ -168,17 +179,14 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			i++
 			*nextValue++
 		}
-
 		value.Vtype = v1Map
 	case Data:
 		childs, err := encodemapv1(values, v, nextValue)
 		if err != nil {
 			return err
 		}
-
 		value.Children = childs
 		value.Vtype = v1Map
-
 	default:
 		if val := reflect.ValueOf(d); val.Kind() == reflect.Array {
 			value.Children = make([]ikeytype, val.Len())
@@ -192,6 +200,7 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 				value.Children[i] = *nextValue
 				*nextValue++
 			}
+
 			value.Vtype = v1Arr
 		} else if v, ok := d.(Transmitter); ok {
 			var err error
@@ -224,14 +233,13 @@ func decodev1(b []byte, d *Data) (err error) {
 
 	locs := make([]uint64, vlen)
 	locs[0] = 0
-	//fmt.Println(b)
+
 	for i := 1; i < vlen; i++ {
 		locs[i] = locs[i-1] + uint64(
 			uint32(b[locs[i-1]]*ikeylen)+
 				uint32(getvaluelen(b[locs[i-1]+1:locs[i-1]+1+valuelenbytes]))+
 				uint32(getkeylen(b[locs[i-1]+1+valuelenbytes:locs[i-1]+1+valuelenbytes+keylenbytes]))+
 				2+valuelenbytes+keylenbytes) //add 4 so that we cound the length values as wel, +1 is for going to the next value
-		//fmt.Println(b[locs[i]], b[locs[i]+1], b[locs[i]+1+valuelenbytes])
 	}
 
 	//decoding the actual values
@@ -244,10 +252,9 @@ func decodev1(b []byte, d *Data) (err error) {
 
 	data := d
 	childs := v.Children
-	//fmt.Println(childs)
+
 	for ck := range childs {
 		var err error
-		//fmt.Println(childs[ck])
 		v.fromBytes(b[locs[childs[ck]]:])
 
 		err = valueToMapv1(&v, *data, locs, b)
@@ -268,6 +275,12 @@ func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) error {
 	switch v.Vtype {
 	case v1String:
 		data[key] = stringFromBytes(v.Value)
+	case v1Bytes:
+		data[key] = v.Value
+	case v1Float32:
+		data[key] = float32FromBytes(v.Value)
+	case v1Float64:
+		data[key] = float64FromBytes(v.Value)
 	case v1Map:
 		data[key] = make(Data, len(v.Children))
 		childs := v.Children
@@ -409,10 +422,7 @@ func (v *Value) fromBytes(data []byte) {
 	clen := int(data[0])
 	vlen := int(getvaluelen(data[1 : 1+valuelenbytes]))
 	klen := int(getkeylen(data[1+valuelenbytes : 1+valuelenbytes+keylenbytes]))
-	/* fmt.Println(klen)
-	fmt.Println(vlen)
-	fmt.Println(clen)
-	fmt.Println(data) */
+
 	start := 1 + valuelenbytes + keylenbytes
 	if dlen < int(klen+vlen+(clen-1)*ikeylen)+2+valuelenbytes+keylenbytes {
 		panic(corruptinputdata)
@@ -420,16 +430,14 @@ func (v *Value) fromBytes(data []byte) {
 
 	v.Value = data[start : vlen+start]
 	v.Vtype = data[vlen+start]
-	//fmt.Println(data[vlen+start])
+
 	if klen != 0 {
 		v.Key.fromBytes(data[vlen+1+start : klen+vlen+1+start])
 	}
 	if clen != 0 {
 		v.Children = make([]ikeytype, clen)
 		for i := 0; i < clen*ikeylen; i = i + ikeylen {
-			//fmt.Println(data[klen+vlen+4+i : klen+vlen+i+4+ikeylen])
 			v.Children[i/ikeylen] = ikeyfrombytes(data[klen+vlen+i+1+start : klen+vlen+i+1+start+ikeylen])
-			//fmt.Println(v.Children[i/ikeylen], "is the key!")
 		}
 	}
 }
@@ -441,6 +449,26 @@ func stringToBytes(s string) []byte {
 
 func stringFromBytes(b []byte) interface{} {
 	return interface{}(*(*string)(unsafe.Pointer(&b)))
+}
+
+func float32ToBytes(f float32) []byte {
+	var buf [8]byte
+	binary.LittleEndian.PutUint32(buf[:], math.Float32bits(f))
+	return buf[:]
+}
+
+func float32FromBytes(buf []byte) float32 {
+	return math.Float32frombits((binary.LittleEndian.Uint32(buf[:])))
+}
+
+func float64ToBytes(f float64) []byte {
+	var buf [8]byte
+	binary.LittleEndian.PutUint64(buf[:], math.Float64bits(f))
+	return buf[:]
+}
+
+func float64FromBytes(buf []byte) float64 {
+	return math.Float64frombits((binary.LittleEndian.Uint64(buf[:])))
 }
 
 func ikeytobytes(key ikeytype) (buf [ikeylen]byte) {
