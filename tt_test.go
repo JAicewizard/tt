@@ -52,6 +52,18 @@ var testDataFloat64 = Data{
 	"Data2": float64(0.64),
 }
 
+var testDataIntUint = Data{
+	"Da5ta": "n0thing",
+	"Data2": int64(99),
+	"Data3": int32(99),
+	"Data4": int16(99),
+	"Data5": int8(99),
+	"Data6": int64(99),
+	"Data7": int32(99),
+	"Data8": int16(99),
+	"Data9": int8(99),
+}
+
 func init() {
 	gob.Register(map[interface{}]interface{}{})
 	gob.Register([]interface{}{})
@@ -119,6 +131,21 @@ func TestFloat64(t *testing.T) {
 		t.FailNow()
 	}
 }
+func TestIntUint(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testDataIntUint)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	if !reflect.DeepEqual(data, testDataIntUint) {
+		fmt.Println(data)
+		fmt.Println(testDataIntUint)
+		t.FailNow()
+	}
+}
 
 func TestValue(t *testing.T) {
 	value := Value{
@@ -169,6 +196,27 @@ func BenchmarkGobData(b *testing.B) {
 		}
 	}
 }
+func BenchmarkGobDataDecode(b *testing.B) {
+	b.StopTimer()
+	var data Data
+	var byt []byte
+
+	buf := bytes.NewBuffer(byt)
+	enc := gob.NewEncoder(buf)
+	for n := 0; n < b.N; n++ {
+		enc.Encode(testData)
+	}
+
+	dec := gob.NewDecoder(buf)
+
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		err := dec.Decode(&data)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
 
 func BenchmarkGobDataEncode(b *testing.B) {
 	b.StopTimer()
@@ -204,6 +252,28 @@ func BenchmarkGobMap(b *testing.B) {
 		}
 
 		err = dec.Decode(&data)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func BenchmarkGobMapDecode(b *testing.B) {
+	b.StopTimer()
+	var data map[interface{}]interface{}
+	var byt []byte
+
+	buf := bytes.NewBuffer(byt)
+	enc := gob.NewEncoder(buf)
+	for n := 0; n < b.N; n++ {
+		enc.Encode(testDataGobOnly)
+	}
+
+	dec := gob.NewDecoder(buf)
+	b.StartTimer()
+
+	for n := 0; n < b.N; n++ {
+		err := dec.Decode(&data)
 		if err != nil {
 			panic(err)
 		}

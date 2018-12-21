@@ -14,10 +14,11 @@ Data is are benchmarks that use Data, map benchmarks just convert the data to a 
 
 i7 975k@3.6 ddr3@1596 make bench
 ```
-BenchmarkGobData-8               3000000              5095 ns/op             986 B/op         23 allocs/op
-BenchmarkGobDataEncode-8         3000000              4425 ns/op             300 B/op          5 allocs/op
-BenchmarkGobMap-8                1000000             20113 ns/op            1656 B/op         56 allocs/op
-BenchmarkGobMapEncode-8          1000000             12045 ns/op             432 B/op         12 allocs/op
-```
+BenchmarkGobData-8               3000000              5237 ns/op             922 B/op         21 allocs/op
+BenchmarkGobDataDecode-8         5000000              2419 ns/op             622 B/op         16 allocs/op
+BenchmarkGobDataEncode-8         3000000              4281 ns/op             300 B/op          5 allocs/op
+BenchmarkGobMap-8                 500000             20051 ns/op            1656 B/op         56 allocs/op
+BenchmarkGobMapDecode-8          1000000             10910 ns/op            1224 B/op         44 allocs/op
+BenchmarkGobMapEncode-8          1000000             13049 ns/op             432 B/op         12 allocs/op```
 
 this update consists of a change in benchmarks, dont compare these to the previous benchmarks.
