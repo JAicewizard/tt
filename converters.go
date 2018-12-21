@@ -140,3 +140,20 @@ func keylentobyte(key keylen) (buf [keylenbytes]byte) {
 func getkeylen(buf []byte) keylen {
 	return keylen(binary.LittleEndian.Uint32(buf[:]))
 }
+
+func boolToByte(b bool) []byte {
+	var buf [1]byte
+	if b {
+		buf[0] = 1
+		return buf[:]
+	}
+	buf[0] = 0
+	return buf[:]
+}
+
+func boolFromByte(buf []byte) bool {
+	if buf[0] == 1 {
+		return true
+	}
+	return false
+}
