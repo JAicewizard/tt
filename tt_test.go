@@ -20,6 +20,13 @@ var testData = Data{
 		"hey",
 		"jude",
 	},
+	"1": []byte{
+		'h',
+		'i',
+	},
+	"2": float64(0.64),
+	"3": int64(99),
+	"4": true,
 }
 
 var testDataGobOnly = map[interface{}]interface{}{
@@ -31,37 +38,46 @@ var testDataGobOnly = map[interface{}]interface{}{
 		"hey",
 		"jude",
 	},
+	"1": []byte{
+		'h',
+		'i',
+	},
+	"2": float64(0.64),
+	"3": int64(99),
+	"4": true,
 }
 
 var testDataSlice = Data{
-	"Da5ta": "n0thing",
-	"Data2": []interface{}{
+	"1": []interface{}{
 		"hey",
 		"jude",
 	},
 }
 var testDataBytes = Data{
-	"Da5ta": "n0thing",
-	"Data2": []byte{
+	"1": []byte{
 		'h',
 		'i',
 	},
 }
 var testDataFloat64 = Data{
-	"Da5ta": "n0thing",
-	"Data2": float64(0.64),
+	"1": float64(0.64),
+	"2": float32(0.64),
 }
 
 var testDataIntUint = Data{
-	"Da5ta": "n0thing",
-	"Data2": int64(99),
-	"Data3": int32(99),
-	"Data4": int16(99),
-	"Data5": int8(99),
-	"Data6": int64(99),
-	"Data7": int32(99),
-	"Data8": int16(99),
-	"Data9": int8(99),
+	"1": int64(99),
+	"2": int32(99),
+	"3": int16(99),
+	"4": int8(99),
+	"5": int64(99),
+	"6": int32(99),
+	"7": int16(99),
+	"8": int8(99),
+}
+
+var testDataBool = Data{
+	"1": true,
+	"2": false,
 }
 
 func init() {
@@ -116,7 +132,7 @@ func TestBytes(t *testing.T) {
 	}
 }
 
-func TestFloat64(t *testing.T) {
+func TestFloat(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
 	enc := gob.NewEncoder(buf)
@@ -143,6 +159,22 @@ func TestIntUint(t *testing.T) {
 	if !reflect.DeepEqual(data, testDataIntUint) {
 		fmt.Println(data)
 		fmt.Println(testDataIntUint)
+		t.FailNow()
+	}
+}
+
+func TestBool(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testDataBool)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	if !reflect.DeepEqual(data, testDataBool) {
+		fmt.Println(data)
+		fmt.Println(testDataBool)
 		t.FailNow()
 	}
 }

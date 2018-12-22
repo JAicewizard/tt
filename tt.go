@@ -3,6 +3,7 @@ package tt
 import (
 	"bytes"
 	"reflect"
+	"runtime"
 
 	"errors"
 )
@@ -15,13 +16,6 @@ import (
 type (
 	//Data is the type
 	Data map[interface{}]interface{}
-	//Value is the type that contains the value data
-	Value struct {
-		Key      Key        //the key of this object in its final form
-		Children []ikeytype //the key to the values in the data send across
-		Value    []byte     //the key to the data of this object in its final form
-		Vtype    byte       //the type of the data of this object in its final form
-	}
 	//Key is the key used for storing the key of a Value
 	Key struct {
 		Value []byte //the key to the data of this object in its final form
@@ -48,7 +42,8 @@ const keylenbytes = 4
 const version1 = 1
 
 const (
-	v1String = iota
+	v1FinalValue = iota + 1
+	v1String
 	v1Bytes
 	v1Float64
 	v1Float32
@@ -62,7 +57,7 @@ const (
 	v1Uint32
 	v1Uint16
 	v1Uint8
-	v1FinalValue
+	v1Bool
 )
 
 const corruptinputdata = "byte length not long enough, contact the authors for a solution"
@@ -142,9 +137,10 @@ func encodemapv1(values *bytes.Buffer, d Data, nextValue *ikeytype) ([]ikeytype,
 
 func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue *ikeytype) error {
 	var value Value
-
+	var KeepAlive interface{}
+	var KeepAlive1 interface{}
 	if k != nil {
-		switch v := k.(type) {
+		switch v := k.(type) { //making this s seperate function will decrese performance, it won't be able to inline and make more allocations
 		case string:
 			value.Key.Value = stringToBytes(v)
 			value.Key.Vtype = v1String
@@ -152,13 +148,17 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			value.Key.Value = v
 			value.Key.Vtype = v1Bytes
 		case float64:
-			value.Key.Value = float64ToBytes(v)
+			float64ToBytes(&v, &value.Key.Value)
 			value.Key.Vtype = v1Float64
+			KeepAlive = &v
 		case float32:
-			value.Key.Value = float32ToBytes(v)
+			float32ToBytes3(&v, &value.Key.Value)
 			value.Key.Vtype = v1Float32
+			KeepAlive = &v
 		case int64:
-			value.Key.Value = int64ToBytes(v)
+			var buf [8]byte
+			int64ToBytes(v, &buf)
+			value.Key.Value = buf[:]
 			value.Key.Vtype = v1Int64
 		case int32:
 			value.Key.Value = int32ToBytes(v)
@@ -167,8 +167,9 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			value.Key.Value = int16ToBytes(v)
 			value.Key.Vtype = v1Int16
 		case int8:
-			value.Key.Value = int8ToBytes(v)
+			int8ToBytes(&v, &value.Key.Value)
 			value.Key.Vtype = v1Int8
+			KeepAlive = &v
 		case uint64:
 			value.Key.Value = uint64ToBytes(v)
 			value.Key.Vtype = v1Uint64
@@ -179,14 +180,27 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			value.Key.Value = uint16ToBytes(v)
 			value.Key.Vtype = v1Uint16
 		case uint8:
-			value.Key.Value = uint8ToBytes(v)
+			uint8ToBytes(&v, &value.Key.Value)
 			value.Key.Vtype = v1Uint8
+			KeepAlive = &v
 		case int:
-			value.Key.Value = int64ToBytes(int64(v))
+			var buf [8]byte
+			int64ToBytes(int64(v), &buf)
+			value.Key.Value = buf[:]
 			value.Key.Vtype = v1Int64
+		case uint:
+			value.Key.Value = uint64ToBytes(uint64(v))
+			value.Key.Vtype = v1Bool
+			KeepAlive = &v
+		case bool:
+			boolToBytes(&v, &value.Key.Value)
+			value.Key.Vtype = v1Bool
+			KeepAlive = &v
 		}
+
 	}
 
+	//this sets value.Value, it does al the basic types and some more
 	switch v := d.(type) {
 	case string:
 		value.Value = stringToBytes(v)
@@ -195,13 +209,17 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 		value.Value = v
 		value.Vtype = v1Bytes
 	case float64:
-		value.Value = float64ToBytes(v)
+		float64ToBytes(&v, &value.Value)
 		value.Vtype = v1Float64
+		KeepAlive1 = &v
 	case float32:
-		value.Value = float32ToBytes(v)
+		float32ToBytes3(&v, &value.Value)
 		value.Vtype = v1Float32
+		KeepAlive1 = &v
 	case int64:
-		value.Value = int64ToBytes(v)
+		var buf [8]byte
+		int64ToBytes(v, &buf)
+		value.Value = buf[:]
 		value.Vtype = v1Int64
 	case int32:
 		value.Value = int32ToBytes(v)
@@ -210,8 +228,9 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 		value.Value = int16ToBytes(v)
 		value.Vtype = v1Int16
 	case int8:
-		value.Value = int8ToBytes(v)
+		int8ToBytes(&v, &value.Value)
 		value.Vtype = v1Int8
+		KeepAlive1 = &v
 	case uint64:
 		value.Value = uint64ToBytes(v)
 		value.Vtype = v1Uint64
@@ -222,15 +241,21 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 		value.Value = uint16ToBytes(v)
 		value.Vtype = v1Uint16
 	case uint8:
-		value.Value = uint8ToBytes(v)
+		uint8ToBytes(&v, &value.Value)
 		value.Vtype = v1Uint8
+		KeepAlive1 = &v
 	case int:
-		value.Value = int64ToBytes(int64(v))
+		var buf [8]byte
+		int64ToBytes(int64(v), &buf)
+		value.Value = buf[:]
 		value.Vtype = v1Int64
 	case uint:
 		value.Value = uint64ToBytes(uint64(v))
-		value.Vtype = v1Uint64
-
+		value.Vtype = v1Bool
+		KeepAlive1 = &v
+	case bool:
+		boolToBytes(&v, &value.Value)
+		value.Vtype = v1Bool
 	case []interface{}:
 		value.Children = make([]ikeytype, len(v))
 
@@ -248,7 +273,6 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 		value.Children = make([]ikeytype, len(v))
 		i := 0
 		for k := range v {
-
 			encodevaluev1(values, v[k], k, nextValue)
 
 			value.Children[i] = *nextValue
@@ -290,18 +314,9 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 		}
 	}
 	addValue(values, &value)
+	runtime.KeepAlive(KeepAlive)
+	runtime.KeepAlive(KeepAlive1)
 	return nil
-}
-
-func addValue(slice *bytes.Buffer, v *Value) {
-	var ln int
-	if v.Key.Value == nil {
-		ln = len(v.Value) + len(v.Children)*ikeylen + 2 + valuelenbytes + keylenbytes
-	} else {
-		ln = len(v.Value) + len(v.Children)*ikeylen + len(v.Key.Value) + 3 + valuelenbytes + keylenbytes
-	}
-	slice.Grow(ln)
-	v.tobytes(slice)
 }
 
 func decodev1(b []byte, d *Data) (err error) {
@@ -342,13 +357,13 @@ func decodev1(b []byte, d *Data) (err error) {
 	return nil
 }
 
-func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) error {
+func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) (err error) {
 	key := v.Key.export()
 	if key == nil {
 		return ErrInvalidInput
 	}
-
-	switch v.Vtype { //!make sure to update types in valueToArray as well!
+	switch v.Vtype { //!make sure to update types in interfaceFromValue as well!
+	//standard types
 	case v1String:
 		data[key] = stringFromBytes(v.Value)
 	case v1Bytes:
@@ -364,7 +379,7 @@ func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) error {
 	case v1Int16:
 		data[key] = int16FromBytes(v.Value)
 	case v1Int8:
-		data[key] = int8FromBytes(v.Value[0])
+		data[key] = int8FromBytes(v.Value)
 	case v1Uint64:
 		data[key] = uint64FromBytes(v.Value)
 	case v1Uint32:
@@ -373,17 +388,22 @@ func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) error {
 		data[key] = uint16FromBytes(v.Value)
 	case v1Uint8:
 		data[key] = uint8FromBytes(v.Value[0])
+	case v1Bool:
+		data[key] = boolFromBytes(v.Value)
+
+	// special types
 	case v1Map:
-		data[key] = make(Data, len(v.Children))
+		val := make(Data, len(v.Children))
 		childs := v.Children
 		for ck := range childs {
 			var err error
 			v.fromBytes(buf[locs[childs[ck]]:])
-			err = valueToMapv1(v, data[key].(Data), locs, buf)
+			err = valueToMapv1(v, val, locs, buf)
 			if err != nil {
 				return err
 			}
 		}
+		data[key] = val
 	case v1Arr:
 		val := make([]interface{}, len(v.Children))
 		childs := v.Children
@@ -408,171 +428,78 @@ func valueToMapv1(v *Value, data Data, locs []uint64, buf []byte) error {
 			return err
 		}
 	}
-	return nil
+	return err
 }
 
-func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint64, buf []byte) error {
+func valueToArrayv1(v *Value, arr []interface{}, i int, locs []uint64, buf []byte) (err error) {
+	return interfaceFromValue(v, &arr[i], locs, buf)
+}
+
+//interfaceFromValue converts a value into an interface{}, you should pass &interface{}
+func interfaceFromValue(v *Value, ret *interface{}, locs []uint64, buf []byte) error {
 	switch v.Vtype {
+	//standard types
 	case v1String:
-		arr[i] = stringFromBytes(v.Value)
+		*ret = stringFromBytes(v.Value)
 	case v1Bytes:
-		arr[i] = v.Value
+		*ret = v.Value
 	case v1Float64:
-		arr[i] = float64FromBytes(v.Value)
+		*ret = float64FromBytes(v.Value)
 	case v1Float32:
-		arr[i] = float32FromBytes(v.Value)
+		*ret = float32FromBytes(v.Value)
 	case v1Int64:
-		arr[i] = int64FromBytes(v.Value)
+		*ret = int64FromBytes(v.Value)
 	case v1Int32:
-		arr[i] = int32FromBytes(v.Value)
+		*ret = int32FromBytes(v.Value)
 	case v1Int16:
-		arr[i] = int16FromBytes(v.Value)
+		*ret = int16FromBytes(v.Value)
 	case v1Int8:
-		arr[i] = int8FromBytes(v.Value[0])
+		*ret = int8FromBytes(v.Value)
 	case v1Uint64:
-		arr[i] = uint64FromBytes(v.Value)
+		*ret = uint64FromBytes(v.Value)
 	case v1Uint32:
-		arr[i] = uint32FromBytes(v.Value)
+		*ret = uint32FromBytes(v.Value)
 	case v1Uint16:
-		arr[i] = uint16FromBytes(v.Value)
+		*ret = uint16FromBytes(v.Value)
 	case v1Uint8:
-		arr[i] = uint8FromBytes(v.Value[0])
+		*ret = uint8FromBytes(v.Value[0])
+	case v1Bool:
+		*ret = boolFromBytes(v.Value)
+
+	// special types
 	case v1Map:
-		arr[i] = make(Data, len(v.Children))
+		val := make(Data, len(v.Children))
 		childs := v.Children
 		for ck := range childs {
 			var err error
 			v.fromBytes(buf[locs[childs[ck]]:])
-			err = valueToMapv1(v, arr[i].(Data), locs, buf)
+			err = valueToMapv1(v, val, locs, buf)
 			if err != nil {
 				return err
 			}
 		}
+		*ret = val
+
 	case v1Arr:
 		val := make([]interface{}, len(v.Children))
 		childs := v.Children
 		for i := range childs {
 			var err error
 			v.fromBytes(buf[locs[childs[i]]:])
-			err = valueToArrayv1(v, interface{}((val)).([]interface{}), i, locs, buf)
+			err = valueToArrayv1(v, val, i, locs, buf)
 			if err != nil {
 				return err
 			}
 		}
-		arr[i] = val
+		*ret = val
 	default:
 		t := transmitters[v.Vtype]
 		if t == nil {
 			return errors.New("no transmitter for type:" + string(v.Vtype))
 		}
 		var err error
-		arr[i], err = t.Decode(v.Value)
-		if err != nil {
-			return err
-		}
+		*ret, err = t.Decode(v.Value)
+		return err
 	}
-
 	return nil
-}
-
-func (k *Key) tobytes(buf *bytes.Buffer) {
-	buf.Write(k.Value)
-	buf.WriteByte(k.Vtype)
-}
-
-func (k *Key) export() interface{} {
-	switch k.Vtype {
-	case v1String:
-		return stringFromBytes(k.Value)
-	case v1Bytes:
-		return k.Value
-	case v1Float64:
-		return float64FromBytes(k.Value)
-	case v1Float32:
-		return float32FromBytes(k.Value)
-	case v1Int64:
-		return int64FromBytes(k.Value)
-	case v1Int32:
-		return int32FromBytes(k.Value)
-	case v1Int16:
-		return int16FromBytes(k.Value)
-	case v1Int8:
-		return int8FromBytes(k.Value[0])
-	case v1Uint64:
-		return uint64FromBytes(k.Value)
-	case v1Uint32:
-		return uint32FromBytes(k.Value)
-	case v1Uint16:
-		return uint16FromBytes(k.Value)
-	case v1Uint8:
-		return uint8FromBytes(k.Value[0])
-	}
-
-	return nil
-}
-
-func (k *Key) fromBytes(data []byte) {
-	dlen := len(data)
-	if dlen <= 1 { //the key has to be at least of length one
-		panic(corruptinputdata)
-	}
-	typeloc := dlen - 1
-	k.Value = data[0:typeloc]
-	k.Vtype = data[typeloc]
-}
-func (v *Value) tobytes(buf *bytes.Buffer) {
-	var klen keylen
-	if v.Key.Value == nil {
-		klen = 0
-	} else {
-		klen = keylen(len(v.Key.Value) + 1)
-	}
-	var vlen = len(v.Value)
-	buf.WriteByte(byte(len(v.Children)))
-	vlenb := valuelentobyte(valuelen(vlen))
-	buf.Write(vlenb[:])
-	klenb := keylentobyte(keylen(klen))
-	buf.Write(klenb[:])
-
-	buf.Write(v.Value)
-
-	buf.WriteByte(v.Vtype)
-
-	if klen != 0 {
-		buf.Grow(int(klen + 1))
-		v.Key.tobytes(buf)
-	}
-
-	for i := range v.Children {
-		b := ikeytobytes(v.Children[i])
-		buf.Write(b[:])
-	}
-}
-
-func (v *Value) fromBytes(data []byte) {
-	dlen := len(data)
-	if dlen <= 0 {
-		panic(corruptinputdata)
-	}
-	clen := int(data[0])
-	vlen := int(getvaluelen(data[1 : 1+valuelenbytes]))
-	klen := int(getkeylen(data[1+valuelenbytes : 1+valuelenbytes+keylenbytes]))
-
-	start := 1 + valuelenbytes + keylenbytes
-	if dlen < int(klen+vlen+(clen-1)*ikeylen)+2+valuelenbytes+keylenbytes {
-		panic(corruptinputdata)
-	}
-
-	v.Value = data[start : vlen+start]
-	v.Vtype = data[vlen+start]
-
-	if klen != 0 {
-		v.Key.fromBytes(data[vlen+1+start : klen+vlen+1+start])
-	}
-	if clen != 0 {
-		v.Children = make([]ikeytype, clen)
-		for i := 0; i < clen*ikeylen; i = i + ikeylen {
-			v.Children[i/ikeylen] = ikeyfrombytes(data[klen+vlen+i+1+start : klen+vlen+i+1+start+ikeylen])
-		}
-	}
 }
