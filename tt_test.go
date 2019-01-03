@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"runtime"
 	"testing"
 )
 
@@ -94,6 +95,7 @@ func TestGob(t *testing.T) {
 	dec := gob.NewDecoder(buf)
 	dec.Decode(&data)
 
+	runtime.GC()
 	if !reflect.DeepEqual(data, testData) {
 		fmt.Println(data)
 		fmt.Println(testData)
@@ -109,6 +111,7 @@ func TestInterfaceSlice(t *testing.T) {
 	enc.Encode(testDataSlice)
 	dec.Decode(&data)
 
+	runtime.GC()
 	if !reflect.DeepEqual(data, testDataSlice) {
 		fmt.Println(data)
 		fmt.Println(testDataSlice)
@@ -125,6 +128,7 @@ func TestBytes(t *testing.T) {
 	dec := gob.NewDecoder(buf)
 	dec.Decode(&data)
 
+	runtime.GC()
 	if !reflect.DeepEqual(data, testDataBytes) {
 		fmt.Println(data)
 		fmt.Println(testDataBytes)
@@ -141,6 +145,7 @@ func TestFloat(t *testing.T) {
 	dec := gob.NewDecoder(buf)
 	dec.Decode(&data)
 
+	runtime.GC()
 	if !reflect.DeepEqual(data, testDataFloat64) {
 		fmt.Println(data)
 		fmt.Println(testDataFloat64)
@@ -156,6 +161,7 @@ func TestIntUint(t *testing.T) {
 	dec := gob.NewDecoder(buf)
 	dec.Decode(&data)
 
+	runtime.GC()
 	if !reflect.DeepEqual(data, testDataIntUint) {
 		fmt.Println(data)
 		fmt.Println(testDataIntUint)
@@ -172,6 +178,7 @@ func TestBool(t *testing.T) {
 	dec := gob.NewDecoder(buf)
 	dec.Decode(&data)
 
+	runtime.GC()
 	if !reflect.DeepEqual(data, testDataBool) {
 		fmt.Println(data)
 		fmt.Println(testDataBool)
@@ -193,6 +200,8 @@ func TestValue(t *testing.T) {
 	buf := new(bytes.Buffer)
 	value.tobytes(buf)
 	v.fromBytes(buf.Bytes())
+
+	runtime.GC()
 	if !reflect.DeepEqual(value, v) {
 		enc := json.NewEncoder(os.Stdout)
 		enc.Encode(v)
