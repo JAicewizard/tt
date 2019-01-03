@@ -9,8 +9,7 @@ import (
 )
 
 /*
-	TODO:
-	supported types: string, int, []byte, floats
+	TODO: supported types: string, int, []byte, floats bool
 	TODO: pre-allocate all data when encoding.
 */
 type (
@@ -280,6 +279,14 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			*nextValue++
 		}
 		value.Vtype = v1Map
+	case map[interface{}]interface{}:
+		childs, err := encodemapv1(values, Data(v), nextValue)
+		if err != nil {
+			return err
+		}
+		value.Children = childs
+		value.Vtype = v1Map
+
 	case Data:
 		childs, err := encodemapv1(values, v, nextValue)
 		if err != nil {

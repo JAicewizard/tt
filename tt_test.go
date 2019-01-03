@@ -47,6 +47,11 @@ var testDataGobOnly = map[interface{}]interface{}{
 	"3": int64(99),
 	"4": true,
 }
+var testDataMapii = Data{
+	"1": map[interface{}]interface{}{
+		"hey": "jude",
+	},
+}
 
 var testDataSlice = Data{
 	"1": []interface{}{
@@ -102,6 +107,37 @@ func TestGob(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+//TODO: make deepequal
+func TestMapII(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testDataMapii)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	runtime.GC()
+	v, ok := data["1"].(Data)
+	if !ok {
+		fmt.Println(data["1"])
+		t.FailNow()
+	}
+
+	if v["hey"] != testDataMapii["1"].(map[interface{}]interface{})["hey"] {
+		fmt.Println(data)
+		fmt.Println(testDataMapii)
+		t.FailNow()
+
+	}
+	/* if !reflect.DeepEqual(data, testDataMapii) {
+		fmt.Println(data)
+		fmt.Println(testDataMapii)
+		t.FailNow()
+	} */
+}
+
 func TestInterfaceSlice(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
