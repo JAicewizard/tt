@@ -12,6 +12,9 @@ text is up to 2^32 bytes long, same for the key
 
 Data is are benchmarks that use Data, map benchmarks just convert the data to a map[interface{}]interface{}. everything marked with a S at the end benchmarks data containing a slice instead of a nested Data value
 
+## quirks
+map[interaface{}]interface{} and map[string]interface{} get converted to Data
+
 i7 975k@3.6 ddr3@1596 make bench
 ```
 BenchmarkGobData-8               2000000              7674 ns/op            1420 B/op         29 allocs/op

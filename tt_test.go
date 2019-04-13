@@ -48,7 +48,7 @@ var testDataGobOnly = map[interface{}]interface{}{
 	"4": true,
 }
 var testDataMapii = Data{
-	"1": map[interface{}]interface{}{
+	"1": Data{
 		"hey": "jude",
 	},
 }
@@ -86,6 +86,12 @@ var testDataBool = Data{
 	"2": false,
 }
 
+var testEmpty = Data{}
+
+var testEmptyMap = Data{
+	"none": map[interface{}]interface{}{},
+}
+
 func init() {
 	gob.Register(map[interface{}]interface{}{})
 	gob.Register([]interface{}{})
@@ -119,23 +125,62 @@ func TestMapII(t *testing.T) {
 	dec.Decode(&data)
 
 	runtime.GC()
-	v, ok := data["1"].(Data)
+
+	// should be checked by DeepEqual
+	/*v, ok := data["1"].(Data)
 	if !ok {
 		fmt.Println(data["1"])
 		t.FailNow()
 	}
-
-	if v["hey"] != testDataMapii["1"].(map[interface{}]interface{})["hey"] {
+	 if v["hey"] != testDataMapii["1"].(Data)["hey"] {
 		fmt.Println(data)
 		fmt.Println(testDataMapii)
+		fmt.Println("hey does not match up")
 		t.FailNow()
 
-	}
-	/* if !reflect.DeepEqual(data, testDataMapii) {
-		fmt.Println(data)
-		fmt.Println(testDataMapii)
-		t.FailNow()
 	} */
+
+	if !reflect.DeepEqual(data, testDataMapii) {
+		fmt.Println(data)
+		fmt.Println(testDataMapii)
+		t.FailNow()
+	}
+}
+
+func TestMapEmpty(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testEmpty)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	runtime.GC()
+
+	if !reflect.DeepEqual(data, testEmpty) {
+		fmt.Println(data)
+		fmt.Println(testEmpty)
+		t.FailNow()
+	}
+}
+
+func TestMapNestedEmpty(t *testing.T) {
+	var data Data
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	enc.Encode(testEmptyMap)
+
+	dec := gob.NewDecoder(buf)
+	dec.Decode(&data)
+
+	runtime.GC()
+
+	if !reflect.DeepEqual(data, testEmptyMap) {
+		fmt.Println(data)
+		fmt.Println(testEmptyMap)
+		t.FailNow()
+	}
 }
 
 func TestInterfaceSlice(t *testing.T) {

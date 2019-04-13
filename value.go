@@ -80,6 +80,8 @@ func (v *Value) fromBytes(data []byte) {
 		for i := 0; i < clen*ikeylen; i = i + ikeylen {
 			v.Children[i/ikeylen] = ikeyfrombytes(data[klen+vlen+i+1+start : klen+vlen+i+1+start+ikeylen])
 		}
+	} else {
+		v.Children = nil
 	}
 }
 
