@@ -15,14 +15,15 @@ type (
 	}
 )
 
-func addValue(slice *bytes.Buffer, v *Value) {
-	var ln int
+func (v *Value) len() int {
 	if v.Key.Value == nil {
-		ln = len(v.Value) + len(v.Children)*ikeylen + 2 + valuelenbytes + keylenbytes
-	} else {
-		ln = len(v.Value) + len(v.Children)*ikeylen + len(v.Key.Value) + 3 + valuelenbytes + keylenbytes
+		return len(v.Value) + len(v.Children)*ikeylen + 2 + valuelenbytes + keylenbytes
 	}
-	slice.Grow(ln)
+	return len(v.Value) + len(v.Children)*ikeylen + len(v.Key.Value) + 3 + valuelenbytes + keylenbytes
+}
+
+func addValue(slice *bytes.Buffer, v *Value) {
+	slice.Grow(v.len())
 	v.tobytes(slice)
 }
 
@@ -45,7 +46,6 @@ func (v *Value) tobytes(buf *bytes.Buffer) {
 	buf.WriteByte(v.Vtype)
 
 	if klen != 0 {
-		buf.Grow(int(klen + 1))
 		v.Key.tobytes(buf)
 	}
 

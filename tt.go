@@ -86,7 +86,6 @@ func RegisterTransmitter(tr Transmitter) error {
 func (d Data) GobEncode() ([]byte, error) {
 	var byt []byte
 	buf := bytes.NewBuffer(byt)
-	buf.WriteByte(byte(version1))
 	encodev1(d, buf)
 	return buf.Bytes(), nil
 }
@@ -104,6 +103,9 @@ func (d *Data) GobDecode(data []byte) error {
 }
 
 func encodev1(d Data, values *bytes.Buffer) {
+
+	values.WriteByte(byte(version1))
+
 	tv := ikeytype(0)
 	firstChilds, err := encodemapv1(values, d, &tv)
 	if err != nil {

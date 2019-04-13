@@ -113,8 +113,6 @@ func TestGob(t *testing.T) {
 		t.FailNow()
 	}
 }
-
-//TODO: make deepequal
 func TestMapII(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
@@ -125,20 +123,6 @@ func TestMapII(t *testing.T) {
 	dec.Decode(&data)
 
 	runtime.GC()
-
-	// should be checked by DeepEqual
-	/*v, ok := data["1"].(Data)
-	if !ok {
-		fmt.Println(data["1"])
-		t.FailNow()
-	}
-	 if v["hey"] != testDataMapii["1"].(Data)["hey"] {
-		fmt.Println(data)
-		fmt.Println(testDataMapii)
-		fmt.Println("hey does not match up")
-		t.FailNow()
-
-	} */
 
 	if !reflect.DeepEqual(data, testDataMapii) {
 		fmt.Println(data)
@@ -197,6 +181,39 @@ func TestInterfaceSlice(t *testing.T) {
 		fmt.Println(data)
 		fmt.Println(testDataSlice)
 		t.FailNow()
+	}
+}
+
+func TestMapIISize(t *testing.T) {
+	bytes, _ := testDataMapii.GobEncode()
+	size, _ := testDataMapii.Sizev1()
+	if len(bytes) != size {
+		fmt.Println(size)
+		fmt.Println(len(bytes))
+	}
+}
+func TestMapEmptySize(t *testing.T) {
+	bytes, _ := testEmpty.GobEncode()
+	size, _ := testEmpty.Sizev1()
+	if len(bytes) != size {
+		fmt.Println(size)
+		fmt.Println(len(bytes))
+	}
+}
+func TestMapNestedSize(t *testing.T) {
+	bytes, _ := testEmptyMap.GobEncode()
+	size, _ := testEmptyMap.Sizev1()
+	if len(bytes) != size {
+		fmt.Println(size)
+		fmt.Println(len(bytes))
+	}
+}
+func TestInterfaceSliceSize(t *testing.T) {
+	bytes, _ := testDataSlice.GobEncode()
+	size, _ := testDataSlice.Sizev1()
+	if len(bytes) != size {
+		fmt.Println(size)
+		fmt.Println(len(bytes))
 	}
 }
 
