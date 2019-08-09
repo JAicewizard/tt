@@ -4,33 +4,38 @@ import (
 	"bytes"
 	"reflect"
 	"runtime"
+	"encoding/binary"
 
-	v1 "github.com/JAicewizard/tt/v1"
+	v2 "github.com/JAicewizard/tt/v2"
 )
 
 const (
-	Version1 = 1
+	version1 = 1
+	version2 = 2
 )
 
-func Encodev1(d Data, values *bytes.Buffer) {
-	values.WriteByte(Version1)
+func Encodev2(d Data, values *bytes.Buffer) {
+	values.WriteByte(version2)
 
-	tv := v1.Ikeytype(0)
+	tv := v2.Ikeytype(0)
 	firstChilds, err := encodemapv1(values, d, &tv)
 	if err != nil {
 		panic(err)
 	}
 
-	v1.AddValue(values, &v1.Value{
+	v2.AddValue(values, &v2.Value{
 		Children: firstChilds,
-		Vtype:    finalValueT,
+		Vtype:    v2.FinalValueT,
 	})
-	//TODO: this is an interger, this should be LE encoded
-	values.WriteByte(byte(tv + 1))
+	//this is bigEndian because then it is compatible with version one of tt
+	var buf [4]byte
+	binary.BigEndian.PutUint32(buf[:], uint32(tv + 1))
+	values.Write(buf[:])
 }
 
-func encodemapv1(values *bytes.Buffer, d Data, nextValue *v1.Ikeytype) ([]v1.Ikeytype, error) {
-	createdObjects := make([]v1.Ikeytype, len(d))
+
+func encodemapv1(values *bytes.Buffer, d Data, nextValue *v2.Ikeytype) ([]v2.Ikeytype, error) {
+	createdObjects := make([]v2.Ikeytype, len(d))
 	i := 0
 
 	for k := range d {
@@ -46,66 +51,66 @@ func encodemapv1(values *bytes.Buffer, d Data, nextValue *v1.Ikeytype) ([]v1.Ike
 	return createdObjects, nil
 }
 
-func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue *v1.Ikeytype) error {
-	var value v1.Value
+func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue *v2.Ikeytype) error {
+	var value v2.Value
 	var KeepAlive interface{}
 	var KeepAlive1 interface{}
 	if k != nil {
 		switch v := k.(type) { //making this s seperate function will decrese performance, it won't be able to inline and make more allocations
 		case string:
-			value.Key.Value = v1.StringToBytes(v)
-			value.Key.Vtype = stringT
+			value.Key.Value = v2.StringToBytes(v)
+			value.Key.Vtype = v2.StringT
 		case []byte:
 			value.Key.Value = v
-			value.Key.Vtype = bytesT
+			value.Key.Vtype = v2.BytesT
 		case float64:
-			v1.Float64ToBytes(&v, &value.Key.Value)
-			value.Key.Vtype = float64T
+			v2.Float64ToBytes(&v, &value.Key.Value)
+			value.Key.Vtype = v2.Float64T
 			KeepAlive = &v
 		case float32:
-			v1.Float32ToBytes3(&v, &value.Key.Value)
-			value.Key.Vtype = float32T
+			v2.Float32ToBytes3(&v, &value.Key.Value)
+			value.Key.Vtype = v2.Float32T
 			KeepAlive = &v
 		case int64:
 			var buf [8]byte
-			v1.Int64ToBytes(v, &buf)
+			v2.Int64ToBytes(v, &buf)
 			value.Key.Value = buf[:]
-			value.Key.Vtype = int64T
+			value.Key.Vtype = v2.Int64T
 		case int32:
-			value.Key.Value = v1.Int32ToBytes(v)
-			value.Key.Vtype = int32T
+			value.Key.Value = v2.Int32ToBytes(v)
+			value.Key.Vtype = v2.Int32T
 		case int16:
-			value.Key.Value = v1.Int16ToBytes(v)
-			value.Key.Vtype = int16T
+			value.Key.Value = v2.Int16ToBytes(v)
+			value.Key.Vtype = v2.Int16T
 		case int8:
-			v1.Int8ToBytes(&v, &value.Key.Value)
-			value.Key.Vtype = int8T
+			v2.Int8ToBytes(&v, &value.Key.Value)
+			value.Key.Vtype = v2.Int8T
 			KeepAlive = &v
 		case uint64:
-			value.Key.Value = v1.Uint64ToBytes(v)
-			value.Key.Vtype = uint64T
+			value.Key.Value = v2.Uint64ToBytes(v)
+			value.Key.Vtype = v2.Uint64T
 		case uint32:
-			value.Key.Value = v1.Uint32ToBytes(v)
-			value.Key.Vtype = uint32T
+			value.Key.Value = v2.Uint32ToBytes(v)
+			value.Key.Vtype = v2.Uint32T
 		case uint16:
-			value.Key.Value = v1.Uint16ToBytes(v)
-			value.Key.Vtype = uint16T
+			value.Key.Value = v2.Uint16ToBytes(v)
+			value.Key.Vtype = v2.Uint16T
 		case uint8:
-			v1.Uint8ToBytes(&v, &value.Key.Value)
-			value.Key.Vtype = uint8T
+			v2.Uint8ToBytes(&v, &value.Key.Value)
+			value.Key.Vtype = v2.Uint8T
 			KeepAlive = &v
 		case int:
 			var buf [8]byte
-			v1.Int64ToBytes(int64(v), &buf)
+			v2.Int64ToBytes(int64(v), &buf)
 			value.Key.Value = buf[:]
-			value.Key.Vtype = int64T
+			value.Key.Vtype = v2.Int64T
 		case uint:
-			value.Key.Value = v1.Uint64ToBytes(uint64(v))
-			value.Key.Vtype = boolT
+			value.Key.Value = v2.Uint64ToBytes(uint64(v))
+			value.Key.Vtype = v2.BoolT
 			KeepAlive = &v
 		case bool:
-			v1.BoolToBytes(&v, &value.Key.Value)
-			value.Key.Vtype = boolT
+			v2.BoolToBytes(&v, &value.Key.Value)
+			value.Key.Vtype = v2.BoolT
 			KeepAlive = &v
 		}
 	}
@@ -113,61 +118,61 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 	//this sets value.Value, it does al the basic types and some more
 	switch v := d.(type) {
 	case string:
-		value.Value = v1.StringToBytes(v)
-		value.Vtype = stringT
+		value.Value = v2.StringToBytes(v)
+		value.Vtype = v2.StringT
 	case []byte:
 		value.Value = v
-		value.Vtype = bytesT
+		value.Vtype = v2.BytesT
 	case float64:
-		v1.Float64ToBytes(&v, &value.Value)
-		value.Vtype = float64T
+		v2.Float64ToBytes(&v, &value.Value)
+		value.Vtype = v2.Float64T
 		KeepAlive1 = &v
 	case float32:
-		v1.Float32ToBytes3(&v, &value.Value)
-		value.Vtype = float32T
+		v2.Float32ToBytes3(&v, &value.Value)
+		value.Vtype = v2.Float32T
 		KeepAlive1 = &v
 	case int64:
 		var buf [8]byte
-		v1.Int64ToBytes(v, &buf)
+		v2.Int64ToBytes(v, &buf)
 		value.Value = buf[:]
-		value.Vtype = int64T
+		value.Vtype = v2.Int64T
 	case int32:
-		value.Value = v1.Int32ToBytes(v)
-		value.Vtype = int32T
+		value.Value = v2.Int32ToBytes(v)
+		value.Vtype = v2.Int32T
 	case int16:
-		value.Value = v1.Int16ToBytes(v)
-		value.Vtype = int16T
+		value.Value = v2.Int16ToBytes(v)
+		value.Vtype = v2.Int16T
 	case int8:
-		v1.Int8ToBytes(&v, &value.Value)
-		value.Vtype = int8T
+		v2.Int8ToBytes(&v, &value.Value)
+		value.Vtype = v2.Int8T
 		KeepAlive1 = &v
 	case uint64:
-		value.Value = v1.Uint64ToBytes(v)
-		value.Vtype = uint64T
+		value.Value = v2.Uint64ToBytes(v)
+		value.Vtype = v2.Uint64T
 	case uint32:
-		value.Value = v1.Uint32ToBytes(v)
-		value.Vtype = uint32T
+		value.Value = v2.Uint32ToBytes(v)
+		value.Vtype = v2.Uint32T
 	case uint16:
-		value.Value = v1.Uint16ToBytes(v)
-		value.Vtype = uint16T
+		value.Value = v2.Uint16ToBytes(v)
+		value.Vtype = v2.Uint16T
 	case uint8:
-		v1.Uint8ToBytes(&v, &value.Value)
-		value.Vtype = uint8T
+		v2.Uint8ToBytes(&v, &value.Value)
+		value.Vtype = v2.Uint8T
 		KeepAlive1 = &v
 	case int:
 		var buf [8]byte
-		v1.Int64ToBytes(int64(v), &buf)
+		v2.Int64ToBytes(int64(v), &buf)
 		value.Value = buf[:]
-		value.Vtype = int64T
+		value.Vtype = v2.Int64T
 	case uint:
-		value.Value = v1.Uint64ToBytes(uint64(v))
-		value.Vtype = boolT
+		value.Value = v2.Uint64ToBytes(uint64(v))
+		value.Vtype = v2.Uint64T
 		KeepAlive1 = &v
 	case bool:
-		v1.BoolToBytes(&v, &value.Value)
-		value.Vtype = boolT
+		v2.BoolToBytes(&v, &value.Value)
+		value.Vtype = v2.BoolT
 	case []interface{}:
-		value.Children = make([]v1.Ikeytype, len(v))
+		value.Children = make([]v2.Ikeytype, len(v))
 
 		for i := 0; i < len(v); i++ {
 			err := encodevaluev1(values, v[i], nil, nextValue)
@@ -178,9 +183,9 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			*nextValue++
 		}
 
-		value.Vtype = arrT
+		value.Vtype = v2.ArrT
 	case map[string]interface{}:
-		value.Children = make([]v1.Ikeytype, len(v))
+		value.Children = make([]v2.Ikeytype, len(v))
 		i := 0
 		for k := range v {
 			encodevaluev1(values, v[k], k, nextValue)
@@ -189,14 +194,14 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			i++
 			*nextValue++
 		}
-		value.Vtype = mapT
+		value.Vtype = v2.MapT
 	case map[interface{}]interface{}:
 		childs, err := encodemapv1(values, Data(v), nextValue)
 		if err != nil {
 			return err
 		}
 		value.Children = childs
-		value.Vtype = mapT
+		value.Vtype = v2.MapT
 
 	case Data:
 		childs, err := encodemapv1(values, v, nextValue)
@@ -204,10 +209,10 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			return err
 		}
 		value.Children = childs
-		value.Vtype = mapT
+		value.Vtype = v2.MapT
 	default:
 		if val := reflect.ValueOf(d); val.Kind() == reflect.Array {
-			value.Children = make([]v1.Ikeytype, val.Len())
+			value.Children = make([]v2.Ikeytype, val.Len())
 
 			for i := 0; i < val.Len(); i++ {
 				e := val.Index(i).Interface()
@@ -219,7 +224,7 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 				*nextValue++
 			}
 
-			value.Vtype = arrT
+			value.Vtype = v2.ArrT
 		} else if v, ok := d.(Transmitter); ok {
 			var err error
 			value.Value, err = v.Encode()
@@ -228,10 +233,10 @@ func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue
 			}
 			value.Vtype = v.GetCode()
 		} else {
-			return v1.ErrInvalidInput
+			return v2.ErrInvalidInput
 		}
 	}
-	v1.AddValue(values, &value)
+	v2.AddValue(values, &value)
 	runtime.KeepAlive(KeepAlive)
 	runtime.KeepAlive(KeepAlive1)
 	return nil

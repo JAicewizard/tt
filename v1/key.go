@@ -11,31 +11,31 @@ func (k *Key) tobytes(buf *bytes.Buffer) {
 
 func (k *Key) Export() interface{} {
 	switch k.Vtype {
-	case stringT:
+	case StringT:
 		return StringFromBytes(k.Value)
-	case bytesT:
+	case BytesT:
 		return k.Value
-	case float64T:
+	case Float64T:
 		return Float64FromBytes(k.Value)
-	case float32T:
+	case Float32T:
 		return Float32FromBytes(k.Value)
-	case int64T:
+	case Int64T:
 		return Int64FromBytes(k.Value)
-	case int32T:
+	case Int32T:
 		return Int32FromBytes(k.Value)
-	case int16T:
+	case Int16T:
 		return Int16FromBytes(k.Value)
-	case int8T:
+	case Int8T:
 		return Int8FromBytes(k.Value)
-	case uint64T:
+	case Uint64T:
 		return Uint64FromBytes(k.Value)
-	case uint32T:
+	case Uint32T:
 		return Uint32FromBytes(k.Value)
-	case uint16T:
+	case Uint16T:
 		return Uint16FromBytes(k.Value)
-	case uint8T:
+	case Uint8T:
 		return Uint8FromBytes(k.Value[0])
-	case boolT:
+	case BoolT:
 		return BoolFromBytes(k.Value)
 	}
 

@@ -1,16 +1,10 @@
-package v1
+package v2
 
 import (
 	"errors"
 )
 
 type (
-	//Key is the key used for storing the key of a Value
-	Key struct {
-		Value []byte //the key to the data of this object in its final form
-		Vtype byte   //the type of the data of this object in its final form
-	}
-
 	Ikeytype uint32
 	valuelen uint32
 	keylen   uint32

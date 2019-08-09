@@ -3,6 +3,7 @@ package tt
 import (
 	"bytes"
 	"errors"
+	v2 "github.com/JAicewizard/tt/v2"
 )
 
 /*
@@ -30,37 +31,20 @@ type (
 	}
 )
 
-const (
-	finalValueT = iota + 1
-	stringT
-	bytesT
-	float64T
-	float32T
-	mapT
-	arrT
-	int64T
-	int32T
-	int16T
-	int8T
-	uint64T
-	uint32T
-	uint16T
-	uint8T
-	boolT
-)
-
 var (
 	//ErrCodeUsed is for when the code for the transmitter is already used
 	ErrCodeUsed = errors.New("code already used")
 
 	//ErrInvalidInput is used for when the input it invalid
 	ErrInvalidInput = errors.New("invalid input")
+
+	transmitters = make(map[byte]Transmitter)
 )
 
 //RegisterTransmitter registers a new transmitter
 func RegisterTransmitter(tr Transmitter) error {
 	code := tr.GetCode()
-	if code == stringT || code == finalValueT || code == mapT || code == arrT {
+	if code == v2.StringT || code == v2.FinalValueT || code == v2.MapT || code == v2.ArrT {
 		return ErrCodeUsed
 	}
 
@@ -72,7 +56,7 @@ func RegisterTransmitter(tr Transmitter) error {
 func (d Data) GobEncode() ([]byte, error) {
 	var byt []byte
 	buf := bytes.NewBuffer(byt)
-	Encodev1(d, buf)
+	Encodev2(d, buf)
 	return buf.Bytes(), nil
 }
 
@@ -82,8 +66,10 @@ func (d *Data) GobDecode(data []byte) error {
 		return ErrInvalidInput
 	}
 	switch data[0] {
-	case Version1:
+	case version1:
 		return Decodev1(data[1:], d)
+	case version2:
+		return Decodev2(data[1:], d)
 	}
 	return nil
 }

@@ -6,9 +6,6 @@ import (
 	v1 "github.com/JAicewizard/tt/v1"
 )
 
-var (
-	transmitters = make(map[byte]Transmitter)
-)
 
 func Decodev1(b []byte, d *Data) (err error) {
 	vlen := int(b[len(b)-1])
@@ -45,37 +42,37 @@ func valueToMapv1(v *v1.Value, dat Data, locs []uint64, buf []byte) (err error) 
 	if key == nil {
 		return v1.ErrInvalidInput
 	}
-	switch v.Vtype { //!make sure to update types in interfaceFromValue as well!
+	switch v.Vtype { //!make sure to update types in interfaceFromValuev1 as well!
 	//standard types
-	case stringT:
+	case v1.StringT:
 		dat[key] = v1.StringFromBytes(v.Value)
-	case bytesT:
+	case v1.BytesT:
 		dat[key] = v.Value
-	case float64T:
+	case v1.Float64T:
 		dat[key] = v1.Float64FromBytes(v.Value)
-	case float32T:
+	case v1.Float32T:
 		dat[key] = v1.Float32FromBytes(v.Value)
-	case int64T:
+	case v1.Int64T:
 		dat[key] = v1.Int64FromBytes(v.Value)
-	case int32T:
+	case v1.Int32T:
 		dat[key] = v1.Int32FromBytes(v.Value)
-	case int16T:
+	case v1.Int16T:
 		dat[key] = v1.Int16FromBytes(v.Value)
-	case int8T:
+	case v1.Int8T:
 		dat[key] = v1.Int8FromBytes(v.Value)
-	case uint64T:
+	case v1.Uint64T:
 		dat[key] = v1.Uint64FromBytes(v.Value)
-	case uint32T:
+	case v1.Uint32T:
 		dat[key] = v1.Uint32FromBytes(v.Value)
-	case uint16T:
+	case v1.Uint16T:
 		dat[key] = v1.Uint16FromBytes(v.Value)
-	case uint8T:
+	case v1.Uint8T:
 		dat[key] = v1.Uint8FromBytes(v.Value[0])
-	case boolT:
+	case v1.BoolT:
 		dat[key] = v1.BoolFromBytes(v.Value)
 
 	// special types
-	case mapT:
+	case v1.MapT:
 		val := make(Data, len(v.Children))
 		childs := v.Children
 		for ck := range childs {
@@ -87,13 +84,13 @@ func valueToMapv1(v *v1.Value, dat Data, locs []uint64, buf []byte) (err error) 
 			}
 		}
 		dat[key] = val
-	case arrT:
+	case v1.ArrT:
 		val := make([]interface{}, len(v.Children))
 		childs := v.Children
 		for i := range childs {
 			var err error
 			v.FromBytes(buf[locs[childs[i]]:])
-			err = interfaceFromValue(v, &val[i], locs, buf)
+			err = interfaceFromValuev1(v, &val[i], locs, buf)
 			if err != nil {
 				return err
 			}
@@ -114,39 +111,39 @@ func valueToMapv1(v *v1.Value, dat Data, locs []uint64, buf []byte) (err error) 
 	return err
 }
 
-//interfaceFromValue converts a value into an interface{}, you should pass &interface{}
-func interfaceFromValue(v *v1.Value, ret *interface{}, locs []uint64, buf []byte) error {
+//interfaceFromValuev1 converts a value into an interface{}, you should pass &interface{}
+func interfaceFromValuev1(v *v1.Value, ret *interface{}, locs []uint64, buf []byte) error {
 	switch v.Vtype {
 	//standard types
-	case stringT:
+	case v1.StringT:
 		*ret = v1.StringFromBytes(v.Value)
-	case bytesT:
+	case v1.BytesT:
 		*ret = v.Value
-	case float64T:
+	case v1.Float64T:
 		*ret = v1.Float64FromBytes(v.Value)
-	case float32T:
+	case v1.Float32T:
 		*ret = v1.Float32FromBytes(v.Value)
-	case int64T:
+	case v1.Int64T:
 		*ret = v1.Int64FromBytes(v.Value)
-	case int32T:
+	case v1.Int32T:
 		*ret = v1.Int32FromBytes(v.Value)
-	case int16T:
+	case v1.Int16T:
 		*ret = v1.Int16FromBytes(v.Value)
-	case int8T:
+	case v1.Int8T:
 		*ret = v1.Int8FromBytes(v.Value)
-	case uint64T:
+	case v1.Uint64T:
 		*ret = v1.Uint64FromBytes(v.Value)
-	case uint32T:
+	case v1.Uint32T:
 		*ret = v1.Uint32FromBytes(v.Value)
-	case uint16T:
+	case v1.Uint16T:
 		*ret = v1.Uint16FromBytes(v.Value)
-	case uint8T:
+	case v1.Uint8T:
 		*ret = v1.Uint8FromBytes(v.Value[0])
-	case boolT:
+	case v1.BoolT:
 		*ret = v1.BoolFromBytes(v.Value)
 
 	// special types
-	case mapT:
+	case v1.MapT:
 		val := make(Data, len(v.Children))
 		childs := v.Children
 		for ck := range childs {
@@ -159,13 +156,13 @@ func interfaceFromValue(v *v1.Value, ret *interface{}, locs []uint64, buf []byte
 		}
 		*ret = val
 
-	case arrT:
+	case v1.ArrT:
 		val := make([]interface{}, len(v.Children))
 		childs := v.Children
 		for i := range childs {
 			var err error
 			v.FromBytes(buf[locs[childs[i]]:])
-			err = interfaceFromValue(v, &val[i], locs, buf)
+			err = interfaceFromValuev1(v, &val[i], locs, buf)
 			if err != nil {
 				return err
 			}

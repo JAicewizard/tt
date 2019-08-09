@@ -174,6 +174,7 @@ func TestMapIISize(t *testing.T) {
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
+		t.FailNow()
 	}
 }
 func TestMapEmptySize(t *testing.T) {
@@ -182,6 +183,7 @@ func TestMapEmptySize(t *testing.T) {
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
+		t.FailNow()
 	}
 }
 func TestMapNestedSize(t *testing.T) {
@@ -190,6 +192,7 @@ func TestMapNestedSize(t *testing.T) {
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
+		t.FailNow()
 	}
 }
 func TestInterfaceSliceSize(t *testing.T) {
@@ -198,6 +201,7 @@ func TestInterfaceSliceSize(t *testing.T) {
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
+		t.FailNow()
 	}
 }
 
