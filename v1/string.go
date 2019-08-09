@@ -1,15 +1,15 @@
-package tt
+package v1
 
 import (
 	"reflect"
 	"unsafe"
 )
 
-func stringToBytes(s string) []byte {
+func StringToBytes(s string) []byte {
 	x := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: x.Data, Len: x.Len, Cap: x.Len}))
 }
 
-func stringFromBytes(b []byte) string {
+func StringFromBytes(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }

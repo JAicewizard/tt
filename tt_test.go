@@ -10,6 +10,8 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+
+	v1 "github.com/JAicewizard/tt/v1"
 )
 
 var testData = Data{
@@ -149,24 +151,6 @@ func TestMapEmpty(t *testing.T) {
 	}
 }
 
-func TestMapNestedEmpty(t *testing.T) {
-	var data Data
-	buf := new(bytes.Buffer)
-	enc := gob.NewEncoder(buf)
-	enc.Encode(testEmptyMap)
-
-	dec := gob.NewDecoder(buf)
-	dec.Decode(&data)
-
-	runtime.GC()
-
-	if !reflect.DeepEqual(data, testEmptyMap) {
-		fmt.Println(data)
-		fmt.Println(testEmptyMap)
-		t.FailNow()
-	}
-}
-
 func TestInterfaceSlice(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
@@ -186,7 +170,7 @@ func TestInterfaceSlice(t *testing.T) {
 
 func TestMapIISize(t *testing.T) {
 	bytes, _ := testDataMapii.GobEncode()
-	size, _ := testDataMapii.Sizev1()
+	size, _ := testDataMapii.Size()
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
@@ -194,7 +178,7 @@ func TestMapIISize(t *testing.T) {
 }
 func TestMapEmptySize(t *testing.T) {
 	bytes, _ := testEmpty.GobEncode()
-	size, _ := testEmpty.Sizev1()
+	size, _ := testEmpty.Size()
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
@@ -202,7 +186,7 @@ func TestMapEmptySize(t *testing.T) {
 }
 func TestMapNestedSize(t *testing.T) {
 	bytes, _ := testEmptyMap.GobEncode()
-	size, _ := testEmptyMap.Sizev1()
+	size, _ := testEmptyMap.Size()
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
@@ -210,7 +194,7 @@ func TestMapNestedSize(t *testing.T) {
 }
 func TestInterfaceSliceSize(t *testing.T) {
 	bytes, _ := testDataSlice.GobEncode()
-	size, _ := testDataSlice.Sizev1()
+	size, _ := testDataSlice.Size()
 	if len(bytes) != size {
 		fmt.Println(size)
 		fmt.Println(len(bytes))
@@ -285,19 +269,19 @@ func TestBool(t *testing.T) {
 }
 
 func TestValue(t *testing.T) {
-	value := Value{
-		Key: Key{
+	value := v1.Value{
+		Key: v1.Key{
 			Value: []byte("hey2"),
 			Vtype: 's',
 		},
-		Children: []ikeytype{1, 4, 5},
+		Children: []v1.Ikeytype{1, 4, 5},
 		Value:    []byte("hey"),
 		Vtype:    's',
 	}
-	v := Value{}
+	v := v1.Value{}
 	buf := new(bytes.Buffer)
-	value.tobytes(buf)
-	v.fromBytes(buf.Bytes())
+	value.Tobytes(buf)
+	v.FromBytes(buf.Bytes())
 
 	runtime.GC()
 	if !reflect.DeepEqual(value, v) {
@@ -426,4 +410,11 @@ func BenchmarkGobMapEncode(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		enc.Encode(testDataGobOnly)
 	}
+}
+
+func TestText(t *testing.T) {
+	d := Data{
+		"hello": "world",
+	}
+	fmt.Println(d.GobEncode())
 }

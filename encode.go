@@ -1,36 +1,40 @@
 package tt
 
-import(
+import (
+	"bytes"
 	"reflect"
 	"runtime"
-	"github.com/JAicewizard/tt/v1"
+
+	v1 "github.com/JAicewizard/tt/v1"
 )
 
-//TODO: maybe dont copy all the data over etc, it might be faster do just return the length and use that
+const (
+	Version1 = 1
+)
 
-//Size gives an accurate size value for the final size of buffer needed by encoding
-func (d Data) Size() (int, error) {
-	var size = 1 //the version ID is included
-	var tv = v1.Ikeytype(0)
-	firstChilds, err := sizeMapv1(&size, d, &tv)
+func Encodev1(d Data, values *bytes.Buffer) {
+	values.WriteByte(Version1)
+
+	tv := v1.Ikeytype(0)
+	firstChilds, err := encodemapv1(values, d, &tv)
 	if err != nil {
-		return 0, err
+		panic(err)
 	}
-	//see encodev1 for reference of why this is needed
-	size += (&v1.Value{
+
+	v1.AddValue(values, &v1.Value{
 		Children: firstChilds,
 		Vtype:    finalValueT,
-	}).Len()
-	size++
-	return size, nil
+	})
+	//TODO: this is an interger, this should be LE encoded
+	values.WriteByte(byte(tv + 1))
 }
 
-func sizeMapv1(size *int, d Data, nextValue *v1.Ikeytype) ([]v1.Ikeytype, error) {
+func encodemapv1(values *bytes.Buffer, d Data, nextValue *v1.Ikeytype) ([]v1.Ikeytype, error) {
 	createdObjects := make([]v1.Ikeytype, len(d))
 	i := 0
 
 	for k := range d {
-		err := sizeValuev1(size, d[k], k, nextValue)
+		err := encodevaluev1(values, d[k], k, nextValue)
 		if err != nil {
 			return nil, err
 		}
@@ -42,7 +46,7 @@ func sizeMapv1(size *int, d Data, nextValue *v1.Ikeytype) ([]v1.Ikeytype, error)
 	return createdObjects, nil
 }
 
-func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype) error {
+func encodevaluev1(values *bytes.Buffer, d interface{}, k interface{}, nextValue *v1.Ikeytype) error {
 	var value v1.Value
 	var KeepAlive interface{}
 	var KeepAlive1 interface{}
@@ -104,7 +108,6 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 			value.Key.Vtype = boolT
 			KeepAlive = &v
 		}
-
 	}
 
 	//this sets value.Value, it does al the basic types and some more
@@ -167,7 +170,7 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 		value.Children = make([]v1.Ikeytype, len(v))
 
 		for i := 0; i < len(v); i++ {
-			err := sizeValuev1(size, v[i], nil, nextValue)
+			err := encodevaluev1(values, v[i], nil, nextValue)
 			if err != nil {
 				return err
 			}
@@ -180,7 +183,7 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 		value.Children = make([]v1.Ikeytype, len(v))
 		i := 0
 		for k := range v {
-			sizeValuev1(size, v[k], k, nextValue)
+			encodevaluev1(values, v[k], k, nextValue)
 
 			value.Children[i] = *nextValue
 			i++
@@ -188,7 +191,7 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 		}
 		value.Vtype = mapT
 	case map[interface{}]interface{}:
-		childs, err := sizeMapv1(size, Data(v), nextValue)
+		childs, err := encodemapv1(values, Data(v), nextValue)
 		if err != nil {
 			return err
 		}
@@ -196,7 +199,7 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 		value.Vtype = mapT
 
 	case Data:
-		childs, err := sizeMapv1(size, v, nextValue)
+		childs, err := encodemapv1(values, v, nextValue)
 		if err != nil {
 			return err
 		}
@@ -208,7 +211,7 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 
 			for i := 0; i < val.Len(); i++ {
 				e := val.Index(i).Interface()
-				err := sizeValuev1(size, e, nil, nextValue)
+				err := encodevaluev1(values, e, nil, nextValue)
 				if err != nil {
 					return err
 				}
@@ -228,7 +231,7 @@ func sizeValuev1(size *int, d interface{}, k interface{}, nextValue *v1.Ikeytype
 			return v1.ErrInvalidInput
 		}
 	}
-	*size += value.Len()
+	v1.AddValue(values, &value)
 	runtime.KeepAlive(KeepAlive)
 	runtime.KeepAlive(KeepAlive1)
 	return nil
