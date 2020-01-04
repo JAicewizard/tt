@@ -2,9 +2,9 @@ package tt
 
 import (
 	"bytes"
+	"encoding/binary"
 	"reflect"
 	"runtime"
-	"encoding/binary"
 
 	v2 "github.com/JAicewizard/tt/v2"
 )
@@ -29,10 +29,9 @@ func Encodev2(d Data, values *bytes.Buffer) {
 	})
 	//this is bigEndian because then it is compatible with version one of tt
 	var buf [4]byte
-	binary.BigEndian.PutUint32(buf[:], uint32(tv + 1))
+	binary.BigEndian.PutUint32(buf[:], uint32(tv+1))
 	values.Write(buf[:])
 }
-
 
 func encodemapv1(values *bytes.Buffer, d Data, nextValue *v2.Ikeytype) ([]v2.Ikeytype, error) {
 	createdObjects := make([]v2.Ikeytype, len(d))

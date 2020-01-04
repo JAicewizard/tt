@@ -323,6 +323,7 @@ func BenchmarkGobData(b *testing.B) {
 		}
 	}
 }
+
 func BenchmarkGobDataDecode(b *testing.B) {
 	b.StopTimer()
 	var data Data
@@ -414,11 +415,4 @@ func BenchmarkGobMapEncode(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		enc.Encode(testDataGobOnly)
 	}
-}
-
-func TestText(t *testing.T) {
-	d := Data{
-		"hello": "world",
-	}
-	fmt.Println(d.GobEncode())
 }

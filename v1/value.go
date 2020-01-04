@@ -65,7 +65,7 @@ func (v *Value) FromBytes(data []byte) {
 	klen := int(Getkeylen(data[1+valuelenbytes : 1+valuelenbytes+keylenbytes]))
 
 	start := 1 + valuelenbytes + keylenbytes
-	if dlen < int(klen+vlen+(clen-1)*ikeylen)+2+valuelenbytes+keylenbytes {
+	if dlen < int(klen+vlen+clen*ikeylen)+2+valuelenbytes+keylenbytes {
 		panic(corruptinputdata)
 	}
 
