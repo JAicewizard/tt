@@ -12,6 +12,7 @@ import (
 const (
 	version1 = 1
 	version2 = 2
+	version3 = 3
 )
 
 func Encodev2(d Data, values *bytes.Buffer) {
