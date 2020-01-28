@@ -572,8 +572,6 @@ func testStructDecode(t *testing.T, testcase testCase) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(testcase.data)
-	fmt.Println(after.Interface())
 	//this only tests public fields
 	if diff := deep.Equal(testcase.data, after.Interface()); diff != nil {
 		fmt.Println(testcase.data)
