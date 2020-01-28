@@ -15,13 +15,15 @@ Data is are benchmarks that use Data, map benchmarks just convert the data to a 
 ## quirks
 map[interaface{}]interface{} and map[string]interface{} get converted to Data
 
-i7 975k@3.6 ddr3@1596 make bench
+r5 3600 make bench
 ```
-BenchmarkGobData-8               2000000              7674 ns/op            1420 B/op         29 allocs/op
-BenchmarkGobDataDecode-8         5000000              3551 ns/op             783 B/op         23 allocs/op
-BenchmarkGobDataEncode-8         2000000              7031 ns/op             637 B/op          6 allocs/op
-BenchmarkGobMap-8                 500000             34040 ns/op            2140 B/op         82 allocs/op
-BenchmarkGobMapDecode-8          1000000             18148 ns/op            1484 B/op         62 allocs/op
-BenchmarkGobMapEncode-8          1000000             21973 ns/op             656 B/op         20 allocs/op
-```
+BenchmarkV3-12                   3577809              3260 ns/op             945 B/op         17 allocs/op
+BenchmarkV3Decode-12             4935484              2343 ns/op             624 B/op         17 allocs/op
+BenchmarkV3Encode-12            13271485               835 ns/op             343 B/op          0 allocs/op
+BenchmarkGobData-12              4368571              2513 ns/op            1491 B/op         27 allocs/op
+BenchmarkGobDataDecode-12        5306721              2271 ns/op             784 B/op         23 allocs/op
+BenchmarkGobDataEncode-12        8861355              1235 ns/op             700 B/op          4 allocs/op
+BenchmarkGobMap-12                869761             13557 ns/op            1916 B/op         68 allocs/op
+BenchmarkGobMapDecode-12         1592424              7375 ns/op            1260 B/op         48 allocs/op
+BenchmarkGobMapEncode-12         1000000             10094 ns/op             656 B/op         20 allocs/op```
 this update consists of a change in benchmarks, dont compare these to the previous benchmarks.
