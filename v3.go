@@ -12,6 +12,7 @@ import (
 
 func Encodev3(d interface{}, values *bytes.Buffer) {
 	values.WriteByte(version3)
+	values.WriteByte(0)
 
 	encodeValuev3(values, d, v3.Key{})
 }
@@ -210,7 +211,6 @@ func encodeValuev3(values *bytes.Buffer, d interface{}, k v3.Key) error {
 					}
 				}
 			}
-
 		} else if v, ok := d.(gob.GobEncoder); ok {
 			var err error
 			value.Value, err = v.GobEncode()
@@ -262,7 +262,10 @@ func Decodev3(buf *bytes.Buffer, e interface{}) error {
 	if version != 3 || err != nil {
 		return v3.ErrInvalidInput
 	}
-
+	_, err = buf.ReadByte()
+	if err != nil {
+		return v3.ErrInvalidInput
+	}
 	if e == nil {
 		var v v3.Value
 		v.FromBytes(buf)

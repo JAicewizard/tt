@@ -50,7 +50,8 @@ func (v *Value) FromBytes(data *bytes.Buffer) {
 	if err != nil {
 		panic(corruptinputdata)
 	}
-	if uint64(data.Len()) < 1+vlen+1+klen {
+	//the first 2 +1 are for types, the last for minimum length of the children varint
+	if uint64(data.Len()) < 1+vlen+1+klen+1 {
 		panic(corruptinputdata)
 	}
 	typ, _ := data.ReadByte()

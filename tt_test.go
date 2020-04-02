@@ -591,3 +591,14 @@ func TestEncodeDecode(t *testing.T) {
 type testStructEmbeded struct {
 	Name string `TT:"hi"`
 }
+
+func TestOno(t *testing.T) {
+	d := map[string]string{
+		"hello": "world",
+	}
+	buf := &bytes.Buffer{}
+
+	Encodev3(d, buf)
+	fmt.Println(buf.Bytes())
+	t.Fail()
+}
