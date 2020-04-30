@@ -55,9 +55,43 @@ func (v *Value) Tobytes(buf *bytes.Buffer) {
 	}
 }
 
+func (v *Value) FromBytes(data []byte) {
+	dlen := len(data)
+	if dlen <= 0 {
+		panic(corruptinputdata)
+	}
+	clen := int(data[0])
+	vlen := int(Getvaluelen(data[1 : 1+valuelenbytes]))
+	klen := int(Getkeylen(data[1+valuelenbytes : 1+valuelenbytes+keylenbytes]))
+
+	start := 1 + valuelenbytes + keylenbytes
+	if dlen < int(klen+vlen+clen*ikeylen)+2+valuelenbytes+keylenbytes {
+		panic(corruptinputdata)
+	}
+
+	v.Value = data[start : vlen+start]
+	v.Vtype = data[vlen+start]
+
+	if klen != 0 {
+		v.Key.fromBytes(data[vlen+1+start : klen+vlen+1+start])
+	}
+	if clen != 0 {
+		v.Children = make([]Ikeytype, clen)
+		for i := 0; i < clen*ikeylen; i = i + ikeylen {
+			v.Children[i/ikeylen] = ikeyfrombytes(data[klen+vlen+i+1+start : klen+vlen+i+1+start+ikeylen])
+		}
+	} else {
+		v.Children = nil
+	}
+}
+
 func ikeytobytes(key Ikeytype) (buf [ikeylen]byte) {
 	binary.LittleEndian.PutUint32(buf[:], uint32(key))
 	return
+}
+
+func ikeyfrombytes(buf []byte) Ikeytype {
+	return Ikeytype(binary.LittleEndian.Uint32(buf[:]))
 }
 
 func keylentobyte(key keylen) (buf [keylenbytes]byte) {

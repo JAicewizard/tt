@@ -6,12 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"reflect"
 	"runtime"
 	"testing"
+	"time"
 
 	v1 "github.com/JAicewizard/tt/v1"
+	"github.com/go-test/deep"
 )
 
 var testData = Data{
@@ -31,8 +34,7 @@ var testData = Data{
 	"3": int64(99),
 	"4": true,
 }
-
-var testDataGobOnly = map[interface{}]interface{}{
+var testDataGobOnly = map[string]interface{}{
 	"Da5ta": "n0thing",
 	"Data2": map[interface{}]interface{}{
 		"more": "d5ata89",
@@ -49,6 +51,19 @@ var testDataGobOnly = map[interface{}]interface{}{
 	"3": int64(99),
 	"4": true,
 }
+
+/* var testDataFLOAT64 = map[interface{}]interface{}{
+	"1": float64(0.64),
+	"2": float64(0.64),
+	"3": float64(0.64),
+	"4": float64(0.64),
+	"5": float64(0.64),
+	"6": float64(0.64),
+	"7": float64(0.64),
+	"8": float64(0.64),
+	"9": float64(0.64),
+}
+*/
 var testDataMapii = Data{
 	"1": Data{
 		"hey": "jude",
@@ -99,7 +114,7 @@ func init() {
 	gob.Register([]interface{}{})
 }
 
-func TestGob(t *testing.T) {
+/* func TestMap(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
 	enc := gob.NewEncoder(buf)
@@ -114,7 +129,7 @@ func TestGob(t *testing.T) {
 		fmt.Println(testData)
 		t.FailNow()
 	}
-}
+} */
 func TestMapII(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
@@ -295,50 +310,92 @@ func TestValue(t *testing.T) {
 		t.Fail()
 	}
 }
-
-func BenchmarkGobData(b *testing.B) {
+func BenchmarkV3(b *testing.B) {
+	b.ReportAllocs()
 	b.StopTimer()
-	var data Data
+	var data map[string]interface{}
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
-	enc := gob.NewEncoder(buf)
 	for n := 0; n < b.N; n++ {
-		enc.Encode(testData)
+		Encodev3(testDataGobOnly, buf)
 	}
 
-	enc = gob.NewEncoder(ioutil.Discard)
-	dec := gob.NewDecoder(buf)
+	buf2 := bytes.NewBuffer(nil)
+
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		Encodev3(testDataGobOnly, buf2)
+		err := Decodev3(buf, &data)
+		if err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func BenchmarkV3Decode(b *testing.B) {
+	b.ReportAllocs()
+	b.StopTimer()
+	var data map[string]interface{}
+	var byt []byte
+	buf := bytes.NewBuffer(byt)
+	for n := 0; n < b.N; n++ {
+		Encodev3(testDataGobOnly, buf)
+	}
+
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		Decodev3(buf, &data)
+	}
+}
+
+func BenchmarkV3Encode(b *testing.B) {
+	b.ReportAllocs()
+	b.StopTimer()
+
+	buf := bytes.NewBuffer(nil)
+
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		Encodev3(testDataGobOnly, buf)
+	}
+}
+
+func BenchmarkGobData(b *testing.B) {
+	b.ReportAllocs()
+	b.StopTimer()
+	var data Data
+	var byt []byte
+	buf := bytes.NewBuffer(byt)
+	Encodev2(testData, buf)
+
+	buf2 := bytes.NewBuffer(nil)
+
 	b.StartTimer()
 
 	for n := 0; n < b.N; n++ {
-		err := enc.Encode(testData)
-		if err != nil {
-			panic(err)
-		}
+		Encodev2(testData, buf2)
 
-		err = dec.Decode(&data)
+		err := Decodev2(buf.Bytes()[1:], &data)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
+
 func BenchmarkGobDataDecode(b *testing.B) {
+	b.ReportAllocs()
 	b.StopTimer()
 	var data Data
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
-	enc := gob.NewEncoder(buf)
-	for n := 0; n < b.N; n++ {
-		enc.Encode(testData)
-	}
-
-	dec := gob.NewDecoder(buf)
+	Encodev2(testData, buf)
 
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		err := dec.Decode(&data)
+
+		err := Decodev2(buf.Bytes()[1:], &data)
 		if err != nil {
 			panic(err)
 		}
@@ -346,20 +403,19 @@ func BenchmarkGobDataDecode(b *testing.B) {
 }
 
 func BenchmarkGobDataEncode(b *testing.B) {
+	b.ReportAllocs()
 	b.StopTimer()
-	enc := gob.NewEncoder(ioutil.Discard)
+	buf := bytes.NewBuffer(nil)
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		err := enc.Encode(testData)
-		if err != nil {
-			panic(err)
-		}
+		Encodev2(testData, buf)
 	}
 }
 
 func BenchmarkGobMap(b *testing.B) {
+	b.ReportAllocs()
 	b.StopTimer()
-	var data map[interface{}]interface{}
+	var data map[string]interface{}
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
@@ -386,8 +442,9 @@ func BenchmarkGobMap(b *testing.B) {
 }
 
 func BenchmarkGobMapDecode(b *testing.B) {
+	b.ReportAllocs()
 	b.StopTimer()
-	var data map[interface{}]interface{}
+	var data map[string]interface{}
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
@@ -408,6 +465,7 @@ func BenchmarkGobMapDecode(b *testing.B) {
 }
 
 func BenchmarkGobMapEncode(b *testing.B) {
+	b.ReportAllocs()
 	b.StopTimer()
 	enc := gob.NewEncoder(ioutil.Discard)
 	b.StartTimer()
@@ -416,9 +474,131 @@ func BenchmarkGobMapEncode(b *testing.B) {
 	}
 }
 
-func TestText(t *testing.T) {
-	d := Data{
+type testBasicStruct struct {
+	Name string `TT:"hi"`
+}
+
+type testembeddedPrivateStruct struct {
+	Pame string `TT:"oops"`
+	testBasicStruct
+}
+type testembeddedStruct struct {
+	Pame  string `TT:"oops"`
+	Embed testBasicStruct
+}
+
+type testCase struct {
+	name  string
+	data  interface{}
+	bytes [][]byte
+}
+
+var testCases = []testCase{
+	testCase{
+		name:  "testBasicStruct",
+		data:  testBasicStruct{"hello"},
+		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
+	},
+	testCase{
+		name:  "testBasicSlice",
+		data:  []string{"hello", "world"},
+		bytes: [][]byte{[]byte{3, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
+	},
+	testCase{
+		name:  "testcomplexSlice",
+		data:  []interface{}{"hello", int64(5)},
+		bytes: [][]byte{[]byte{3, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 8, 0, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+	},
+	testCase{
+		name:  "testBasicFloatSlice",
+		data:  []float32{0.14, 0.20},
+		bytes: [][]byte{[]byte{3, 0, 0, 19, 0, 2, 4, 0, 12, 41, 92, 15, 62, 0, 0, 4, 0, 12, 205, 204, 76, 62, 0, 0}},
+	},
+	testCase{
+		name:  "testBasicGobEncoder",
+		data:  time.Date(2020, time.January, 26, 21, 6, 30, 5, time.UTC),
+		bytes: [][]byte{[]byte{3, 15, 0, 2, 1, 0, 0, 0, 14, 213, 191, 246, 86, 0, 0, 0, 5, 255, 255, 0, 0}},
+	},
+	testCase{
+		name: "testBasicMap",
+		data: map[string]string{
+			"hey": "jude",
+			"bye": "pi",
+		},
+		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0},
+			[]byte{3, 0, 0, 18, 0, 2, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0}},
+	},
+	testCase{
+		name: "testComplexMap",
+		data: map[interface{}]interface{}{
+			"hey": "jude",
+			"bye": math.Pi,
+		},
+		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 2, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0},
+			[]byte{3, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0}},
+	},
+	testCase{
+		name:  "testEmbeddedPrivateStruct",
+		data:  testembeddedPrivateStruct{Pame: "hi", testBasicStruct: testBasicStruct{Name: "lol"}},
+		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+	},
+	testCase{
+		name: "testEmbeddedStruct",
+		data: testembeddedStruct{Pame: "hi", Embed: testBasicStruct{Name: "lol"}},
+		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0},
+			[]byte{3, 0, 0, 18, 0, 2, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+	},
+	//3, 0, 0, 18, 0, 2, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0
+	//3, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0
+}
+
+func testStructDecode(t *testing.T, testcase testCase) {
+	buf := &bytes.Buffer{}
+	Encodev3(testcase.data, buf)
+	isCorrect := false
+	var diff []string
+	for _, b := range testcase.bytes {
+		if diff = deep.Equal(string(b), buf.String()); diff == nil {
+			isCorrect = true
+		}
+	}
+	if !isCorrect {
+		t.Error(buf.Bytes())
+		t.Error(diff)
+	}
+
+	after := reflect.New(reflect.TypeOf(testcase.data)).Elem()
+	err := Decodev3(buf, after.Addr().Interface())
+	if err != nil {
+		t.Error(err)
+	}
+	//this only tests public fields
+	if diff := deep.Equal(testcase.data, after.Interface()); diff != nil {
+		fmt.Println(testcase.data)
+		fmt.Println(after.Interface())
+		t.Error(diff)
+	}
+}
+
+func TestEncodeDecode(t *testing.T) {
+	for _, c := range testCases {
+		t.Run(c.name, func(te *testing.T) {
+			testStructDecode(te, c)
+		})
+	}
+}
+
+type testStructEmbeded struct {
+	Name string `TT:"hi"`
+}
+
+func TestOno(t *testing.T) {
+	d := map[string]string{
 		"hello": "world",
 	}
-	fmt.Println(d.GobEncode())
+	buf := &bytes.Buffer{}
+
+	Encodev3(d, buf)
+	fmt.Println(buf.Bytes())
+	t.Fail()
 }
