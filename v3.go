@@ -191,8 +191,7 @@ func encodeValuev3(values *bytes.Buffer, d interface{}, k v3.Key) error {
 					encodeValuev3(values, mapRange.Value().Interface(), encodeKeyv3(mapRange.Key().Interface()))
 				}
 			}
-		}
-		if kind == reflect.Array || kind == reflect.Slice {
+		} else if kind == reflect.Array || kind == reflect.Slice {
 			value.Childrenn = uint64(val.Len())
 			value.Vtype = v3.ArrT
 			alreadyEncoded = true
