@@ -57,7 +57,7 @@ func RegisterTransmitter(tr Transmitter) error {
 func (d Data) GobEncode() ([]byte, error) {
 	var byt []byte
 	buf := bytes.NewBuffer(byt)
-	Encodev3(d.(map[interface{}]interface{}), buf)
+	Encodev3((map[interface{}]interface{})(d), buf)
 	return buf.Bytes(), nil
 }
 
