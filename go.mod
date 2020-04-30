@@ -1,4 +1,4 @@
-module github.com/JAicewizard/tt
+module github.com/jaicewizard/tt
 
 go 1.12
 
