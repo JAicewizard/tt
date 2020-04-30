@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 
-	v2 "github.com/JAicewizard/tt/v2"
+	v2 "github.com/jaicewizard/tt/v2"
 )
 
 func Decodev2(b []byte, d *Data) (err error) {

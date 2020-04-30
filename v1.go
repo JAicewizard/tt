@@ -3,9 +3,8 @@ package tt
 import (
 	"errors"
 
-	v1 "github.com/JAicewizard/tt/v1"
+	v1 "github.com/jaicewizard/tt/v1"
 )
-
 
 func Decodev1(b []byte, d *Data) (err error) {
 	vlen := int(b[len(b)-1])

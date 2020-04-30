@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"runtime"
 
-	v3 "github.com/JAicewizard/tt/v3"
+	v3 "github.com/jaicewizard/tt/v3"
 )
 
 func Encodev3(d interface{}, values *bytes.Buffer) {

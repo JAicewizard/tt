@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"runtime"
 
-	v2 "github.com/JAicewizard/tt/v2"
+	v2 "github.com/jaicewizard/tt/v2"
 )
 
 //TODO: maybe dont copy all the data over etc, it might be faster do just return the length and use that

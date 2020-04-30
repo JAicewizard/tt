@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"runtime"
 
-	v2 "github.com/JAicewizard/tt/v2"
+	v2 "github.com/jaicewizard/tt/v2"
 )
 
 const (

@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/JAicewizard/tt/v1"
 	"github.com/go-test/deep"
+	v1 "github.com/jaicewizard/tt/v1"
 )
 
 var testData = Data{
