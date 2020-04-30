@@ -4,7 +4,7 @@ func BoolToBytes(b bool) []byte {
 	if b {
 		return []byte{1}
 	} else {
-		return []byte{1}
+		return []byte{0}
 	}
 }
 

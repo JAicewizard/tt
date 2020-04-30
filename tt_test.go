@@ -65,7 +65,7 @@ var testDataGobOnly = map[string]interface{}{
 }
 */
 var testDataMapii = Data{
-	"1": Data{
+	"1": map[interface{}]interface{}{
 		"hey": "jude",
 	},
 }
@@ -141,11 +141,13 @@ func TestMapII(t *testing.T) {
 
 	runtime.GC()
 
-	if !reflect.DeepEqual(data, testDataMapii) {
+	if dif := deep.Equal(data, testDataMapii); len(dif) != 0 {
 		fmt.Println(data)
 		fmt.Println(testDataMapii)
+		fmt.Println(dif)
 		t.FailNow()
 	}
+
 }
 
 func TestMapEmpty(t *testing.T) {
@@ -183,7 +185,7 @@ func TestInterfaceSlice(t *testing.T) {
 	}
 }
 
-func TestMapIISize(t *testing.T) {
+/* func TestMapIISize(t *testing.T) {
 	bytes, _ := testDataMapii.GobEncode()
 	size, _ := testDataMapii.Size()
 	if len(bytes) != size {
@@ -218,14 +220,13 @@ func TestInterfaceSliceSize(t *testing.T) {
 		fmt.Println(len(bytes))
 		t.FailNow()
 	}
-}
+} */
 
 func TestBytes(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
 	enc := gob.NewEncoder(buf)
 	enc.Encode(testDataBytes)
-
 	dec := gob.NewDecoder(buf)
 	dec.Decode(&data)
 
@@ -240,6 +241,7 @@ func TestBytes(t *testing.T) {
 func TestFloat(t *testing.T) {
 	var data Data
 	buf := new(bytes.Buffer)
+
 	enc := gob.NewEncoder(buf)
 	enc.Encode(testDataFloat64)
 
@@ -263,9 +265,10 @@ func TestIntUint(t *testing.T) {
 	dec.Decode(&data)
 
 	runtime.GC()
-	if !reflect.DeepEqual(data, testDataIntUint) {
+	if dif := deep.Equal(data, testDataIntUint); len(dif) != 0 {
 		fmt.Println(data)
 		fmt.Println(testDataIntUint)
+		fmt.Println(dif)
 		t.FailNow()
 	}
 }
@@ -280,9 +283,10 @@ func TestBool(t *testing.T) {
 	dec.Decode(&data)
 
 	runtime.GC()
-	if !reflect.DeepEqual(data, testDataBool) {
+	if dif := deep.Equal(data, testDataBool); len(dif) != 0 {
 		fmt.Println(data)
 		fmt.Println(testDataBool)
+		fmt.Println(dif)
 		t.FailNow()
 	}
 }
@@ -494,79 +498,82 @@ type testCase struct {
 }
 
 var testCases = []testCase{
-	testCase{
+	{
 		name:  "testBasicStruct",
 		data:  testBasicStruct{"hello"},
-		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
+		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
 	},
-	testCase{
+	{
 		name:  "testBasicSlice",
 		data:  []string{"hello", "world"},
-		bytes: [][]byte{[]byte{3, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
+		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
 	},
-	testCase{
+	{
 		name:  "testcomplexSlice",
 		data:  []interface{}{"hello", int64(5)},
-		bytes: [][]byte{[]byte{3, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 8, 0, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 8, 0, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 	},
-	testCase{
+	{
 		name:  "testBasicFloatSlice",
 		data:  []float32{0.14, 0.20},
-		bytes: [][]byte{[]byte{3, 0, 0, 19, 0, 2, 4, 0, 12, 41, 92, 15, 62, 0, 0, 4, 0, 12, 205, 204, 76, 62, 0, 0}},
+		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 4, 0, 12, 41, 92, 15, 62, 0, 0, 4, 0, 12, 205, 204, 76, 62, 0, 0}},
 	},
-	testCase{
+	{
 		name:  "testBasicGobEncoder",
 		data:  time.Date(2020, time.January, 26, 21, 6, 30, 5, time.UTC),
-		bytes: [][]byte{[]byte{3, 15, 0, 2, 1, 0, 0, 0, 14, 213, 191, 246, 86, 0, 0, 0, 5, 255, 255, 0, 0}},
+		bytes: [][]byte{{3, 0, 15, 0, 2, 1, 0, 0, 0, 14, 213, 191, 246, 86, 0, 0, 0, 5, 255, 255, 0, 0}},
 	},
-	testCase{
+	{
 		name: "testBasicMap",
 		data: map[string]string{
 			"hey": "jude",
 			"bye": "pi",
 		},
-		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0},
-			[]byte{3, 0, 0, 18, 0, 2, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0}},
+		bytes: [][]byte{
+			{3, 0, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0},
+			{3, 0, 0, 0, 18, 0, 2, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0}},
 	},
-	testCase{
+	{
 		name: "testComplexMap",
 		data: map[interface{}]interface{}{
 			"hey": "jude",
 			"bye": math.Pi,
 		},
-		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 2, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0},
-			[]byte{3, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0}},
+		bytes: [][]byte{
+			{3, 0, 0, 0, 18, 0, 2, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0},
+			{3, 0, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0}},
 	},
-	testCase{
+	{
 		name:  "testEmbeddedPrivateStruct",
 		data:  testembeddedPrivateStruct{Pame: "hi", testBasicStruct: testBasicStruct{Name: "lol"}},
-		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
 	},
-	testCase{
+	{
 		name: "testEmbeddedStruct",
 		data: testembeddedStruct{Pame: "hi", Embed: testBasicStruct{Name: "lol"}},
-		bytes: [][]byte{[]byte{3, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0},
-			[]byte{3, 0, 0, 18, 0, 2, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+		bytes: [][]byte{
+			{3, 0, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0},
+			{3, 0, 0, 0, 18, 0, 2, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
 	},
-	//3, 0, 0, 18, 0, 2, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0
-	//3, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0
 }
 
 func testStructDecode(t *testing.T, testcase testCase) {
 	buf := &bytes.Buffer{}
 	Encodev3(testcase.data, buf)
-	isCorrect := false
+	equal := false
+	bytes := []byte{}
 	var diff []string
-	for _, b := range testcase.bytes {
-		if diff = deep.Equal(string(b), buf.String()); diff == nil {
-			isCorrect = true
+	for _, bytes = range testcase.bytes {
+		if diff = deep.Equal(string(bytes), buf.String()); diff == nil {
+			equal = true
+			break
 		}
 	}
-	if !isCorrect {
+	if !equal {
+		t.Error(bytes)
 		t.Error(buf.Bytes())
 		t.Error(diff)
 	}
-
 	after := reflect.New(reflect.TypeOf(testcase.data)).Elem()
 	err := Decodev3(buf, after.Addr().Interface())
 	if err != nil {
@@ -574,8 +581,8 @@ func testStructDecode(t *testing.T, testcase testCase) {
 	}
 	//this only tests public fields
 	if diff := deep.Equal(testcase.data, after.Interface()); diff != nil {
-		fmt.Println(testcase.data)
-		fmt.Println(after.Interface())
+		t.Error(testcase.data)
+		t.Error(after.Interface())
 		t.Error(diff)
 	}
 }
@@ -590,15 +597,4 @@ func TestEncodeDecode(t *testing.T) {
 
 type testStructEmbeded struct {
 	Name string `TT:"hi"`
-}
-
-func TestOno(t *testing.T) {
-	d := map[string]string{
-		"hello": "world",
-	}
-	buf := &bytes.Buffer{}
-
-	Encodev3(d, buf)
-	fmt.Println(buf.Bytes())
-	t.Fail()
 }

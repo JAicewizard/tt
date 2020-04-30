@@ -413,16 +413,40 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 			e.SetBytes(val)
 		}
 	case v3.Int8T:
-		e.SetInt(int64(v3.Int8FromBytes(v.Value)))
+		val := v3.Int8FromBytes(v.Value)
+		if e.Kind() != reflect.Int8 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal int8 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetInt(int64(val))
+		}
 	case v3.Int16T:
-		e.SetInt(int64(v3.Uint16FromBytes(v.Value)))
+		val := v3.Int16FromBytes(v.Value)
+		if e.Kind() != reflect.Int16 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal int16 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetInt(int64(val))
+		}
 	case v3.Int32T:
-		e.SetInt(int64(v3.Uint32FromBytes(v.Value)))
+		val := v3.Int32FromBytes(v.Value)
+		if e.Kind() != reflect.Int32 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal int32 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetInt(int64(val))
+		}
 	case v3.Int64T:
-		val := int64(v3.Uint64FromBytes(v.Value))
+		val := v3.Int64FromBytes(v.Value)
 		if e.Kind() != reflect.Int64 {
 			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal bytes into " + e.Kind().String() + " Go type")
+				return errors.New("TT: cannot unmarshal int64 into " + e.Kind().String() + " Go type")
 			}
 			e.Set(reflect.ValueOf(val))
 		} else {
@@ -430,20 +454,61 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 		}
 
 	case v3.Uint8T:
-		e.SetUint(uint64(v3.Uint8FromBytes(v.Value[0])))
+		val := v3.Uint8FromBytes(v.Value[0])
+		if e.Kind() != reflect.Uint8 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal uint8 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetUint(uint64(val))
+		}
 	case v3.Uint16T:
-		e.SetUint(uint64(v3.Int16FromBytes(v.Value)))
+		val := v3.Uint16FromBytes(v.Value)
+		if e.Kind() != reflect.Uint16 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal uint16 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetUint(uint64(val))
+		}
 	case v3.Uint32T:
-		e.SetUint(uint64(v3.Int32FromBytes(v.Value)))
+		val := v3.Uint32FromBytes(v.Value)
+		if e.Kind() != reflect.Uint32 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal uint32 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetUint(uint64(val))
+		}
 	case v3.Uint64T:
-		e.SetUint(uint64(v3.Int64FromBytes(v.Value)))
+		val := v3.Uint64FromBytes(v.Value)
+		if e.Kind() != reflect.Uint64 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal uint64 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetUint(val)
+		}
+
 	case v3.Float32T:
-		e.SetFloat(float64(v3.Float32FromBytes(v.Value)))
+		val := v3.Float32FromBytes(v.Value)
+		if e.Kind() != reflect.Float32 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal float32 into " + e.Kind().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetFloat(float64(val))
+		}
 	case v3.Float64T:
 		val := v3.Float64FromBytes(v.Value)
 		if e.Kind() != reflect.Float64 {
 			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal bytes into " + e.Kind().String() + " Go type")
+				return errors.New("TT: cannot unmarshal float64 into " + e.Kind().String() + " Go type")
 			}
 			e.Set(reflect.ValueOf(val))
 		} else {
