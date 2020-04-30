@@ -72,7 +72,7 @@ func (d *Data) GobDecode(data []byte) error {
 	case version2:
 		return Decodev2(data[1:], d)
 	case version3:
-		return Decodev3(bytes.NewBuffer(data), d)
+		return Decodev3(bytes.NewBuffer(data), (*map[interface{}]interface{})(d))
 	}
 	return nil
 }
