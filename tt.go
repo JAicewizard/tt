@@ -71,6 +71,8 @@ func (d *Data) GobDecode(data []byte) error {
 		return Decodev1(data[1:], d)
 	case version2:
 		return Decodev2(data[1:], d)
+	case version3:
+		return Decodev3(bytes.NewBuffer(data), d)
 	}
 	return nil
 }
