@@ -1,6 +1,7 @@
 package tt
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
@@ -348,8 +349,12 @@ func BenchmarkV3Decode(b *testing.B) {
 	}
 
 	b.StartTimer()
+	bu := bufio.NewReader(buf)
 	for n := 0; n < b.N; n++ {
-		Decodev3(buf, &data)
+		err := Decodev3(bu, &data)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

@@ -2,7 +2,6 @@ package v3
 
 import (
 	"errors"
-	"reflect"
 )
 
 type (
@@ -48,42 +47,3 @@ const (
 	ArrT
 )
 
-var (
-//strType =
-)
-
-func (t ttType) GetReflectType() reflect.Type {
-	switch t {
-	case StringT:
-		return reflect.TypeOf(string(""))
-	case BytesT:
-		return reflect.TypeOf([]byte{})
-	case Int8T:
-		return reflect.TypeOf(int8(0))
-	case Int16T:
-		return reflect.TypeOf(int16(0))
-	case Int32T:
-		return reflect.TypeOf(int32(0))
-	case Int64T:
-		return reflect.TypeOf(int64(0))
-	case Uint8T:
-		return reflect.TypeOf(uint8(0))
-	case Uint16T:
-		return reflect.TypeOf(uint16(0))
-	case Uint32T:
-		return reflect.TypeOf(uint32(0))
-	case Uint64T:
-		return reflect.TypeOf(uint64(0))
-	case BoolT:
-		return reflect.TypeOf(true)
-	case Float32T:
-		return reflect.TypeOf(float32(0.0))
-	case Float64T:
-		return reflect.TypeOf(float64(0.0))
-	case MapT:
-		return reflect.TypeOf(map[interface{}]interface{}{})
-	case ArrT:
-		return reflect.TypeOf([]interface{}{})
-	}
-	return nil
-}

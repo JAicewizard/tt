@@ -3,6 +3,7 @@ package v3
 import (
 	"bytes"
 	"encoding/binary"
+	"io"
 )
 
 type (
@@ -15,14 +16,35 @@ type (
 	}
 )
 
-func AddValue(slice *bytes.Buffer, v *Value) {
-	v.Tobytes(slice)
+//Reader merges io.reader and io.ByteReader
+type Reader interface {
+	io.Reader
+	io.ByteReader
 }
 
-func (v *Value) Tobytes(buf *bytes.Buffer) {
+type readFirstByte struct{
+	b byte
+	r io.ByteReader
+}
+
+func (r readFirstByte)ReadByte() (byte, error){
+	if r.b == 0{
+		return r.ReadByte()
+	}else{
+		b := r.b
+		r.b = 0
+		return b, nil
+	}
+}
+
+func AddValue(out io.Writer, v *Value, buf *bytes.Buffer) {
+	v.Tobytes(out, buf)
+}
+
+func (v *Value) Tobytes(out io.Writer, buf *bytes.Buffer) {
 	var klen = len(v.Key.Value)
 	var vlen = len(v.Value)
-
+	buf.Reset()
 	varintBuf := [binary.MaxVarintLen64]byte{}
 
 	varintBytes := binary.PutUvarint(varintBuf[:], uint64(vlen))
@@ -39,57 +61,36 @@ func (v *Value) Tobytes(buf *bytes.Buffer) {
 
 	varintBytes = binary.PutUvarint(varintBuf[:], v.Childrenn)
 	buf.Write(varintBuf[:varintBytes])
+	buf.WriteTo(out)
 }
 
-func (v *Value) FromBytes(data *bytes.Buffer) {
-	vlen, err := binary.ReadUvarint(data)
+func (v *Value) FromBytes(in Reader) {
+	vlen, err := binary.ReadUvarint(in)
 	if err != nil {
 		panic(corruptinputdata)
 	}
-	klen, err := binary.ReadUvarint(data)
+	klen, err := binary.ReadUvarint(in)
 	if err != nil {
 		panic(corruptinputdata)
 	}
-	//the first 2 +1 are for types, the last for minimum length of the children varint
-	if uint64(data.Len()) < 1+vlen+1+klen+1 {
-		panic(corruptinputdata)
-	}
-	typ, _ := data.ReadByte()
-	v.Vtype = ttType(typ)
-	v.Value = data.Next(int(vlen))
-	typ, _ = data.ReadByte()
-	v.Key.Vtype = ttType(typ)
-	v.Key.Value = data.Next(int(klen))
-	children, err := binary.ReadUvarint(data)
+	data := make([]byte, 1+vlen+1+klen+1)
+	_, err = io.ReadFull(in, data)
 	if err != nil {
 		panic(corruptinputdata)
 	}
-	v.Childrenn = children
-}
 
-func ikeytobytes(key Ikeytype) (buf [ikeylen]byte) {
-	binary.LittleEndian.PutUint32(buf[:], uint32(key))
-	return
-}
+	v.Vtype = ttType(data[0])
+	v.Value = data[1 : 1+vlen]
+	v.Key.Vtype = ttType(data[1+vlen])
+	v.Key.Value = data[1+vlen+1 : 1+vlen+1+klen]
 
-func ikeyfrombytes(buf []byte) Ikeytype {
-	return Ikeytype(binary.LittleEndian.Uint32(buf[:]))
-}
-
-func keylentobyte(key keylen) (buf [keylenbytes]byte) {
-	binary.LittleEndian.PutUint32(buf[:], uint32(key))
-	return
-}
-
-func Getkeylen(buf []byte) keylen {
-	return keylen(binary.LittleEndian.Uint32(buf[:]))
-}
-
-func valuelentobyte(key valuelen) (buf [valuelenbytes]byte) {
-	binary.LittleEndian.PutUint32(buf[:], uint32(key))
-	return
-}
-
-func Getvaluelen(buf []byte) valuelen {
-	return valuelen(binary.LittleEndian.Uint32(buf[:]))
+	if data[1+vlen+1+klen] < 0x80 {
+		v.Childrenn = uint64(data[1+vlen+1+klen])
+	}else{
+		children, err := binary.ReadUvarint(in)
+		if err != nil {
+			panic(corruptinputdata)
+		}
+		v.Childrenn = children
+	}
 }

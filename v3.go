@@ -4,17 +4,31 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
+	"io"
 	"reflect"
 	"runtime"
 
 	v3 "github.com/jaicewizard/tt/v3"
 )
 
-func Encodev3(d interface{}, values *bytes.Buffer) {
-	values.WriteByte(version3)
-	values.WriteByte(0)
+//V3Encoder is the encoder used to encode a ttv3 data stream
+type V3Encoder struct {
+	out io.Writer
+	buf *bytes.Buffer
+}
 
-	encodeValuev3(values, d, v3.Key{})
+//NewV3Encoder creates a new encoder to encode a ttv3 data stream
+func NewV3Encoder(out io.Writer) V3Encoder {
+	return V3Encoder{
+		out: out,
+		buf: bytes.NewBuffer(nil),
+	}
+}
+
+func Encodev3(d interface{}, out io.Writer) {
+	out.Write([]byte{version3, 0})
+	enc := NewV3Encoder(out)
+	enc.encodeValuev3(d, v3.Key{})
 }
 
 func encodeKeyv3(k interface{}) v3.Key {
@@ -94,7 +108,7 @@ func encodeBytes(b []byte) v3.Key {
 	}
 }
 
-func encodeValuev3(values *bytes.Buffer, d interface{}, k v3.Key) error {
+func (enc V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 	value := v3.Value{
 		Key: k,
 	}
@@ -169,42 +183,42 @@ func encodeValuev3(values *bytes.Buffer, d interface{}, k v3.Key) error {
 			value.Childrenn = uint64(val.Len())
 			value.Vtype = v3.MapT
 			alreadyEncoded = true
-			v3.AddValue(values, &value)
+			v3.AddValue(enc.out, &value, enc.buf)
 
 			switch v := d.(type) {
 			case map[string]string:
 				for k, v := range v {
-					encodeValuev3(values, v, encodeString(k))
+					enc.encodeValuev3(v, encodeString(k))
 				}
 			case map[string]interface{}:
 				for k, v := range v {
-					encodeValuev3(values, v, encodeString(k))
+					enc.encodeValuev3(v, encodeString(k))
 				}
 			case map[interface{}]interface{}:
 				for k, v := range v {
-					encodeValuev3(values, v, encodeKeyv3(k))
+					enc.encodeValuev3(v, encodeKeyv3(k))
 				}
 			default:
 				//if its not a specific map type
 				mapRange := val.MapRange()
 				for mapRange.Next() {
-					encodeValuev3(values, mapRange.Value().Interface(), encodeKeyv3(mapRange.Key().Interface()))
+					enc.encodeValuev3(mapRange.Value().Interface(), encodeKeyv3(mapRange.Key().Interface()))
 				}
 			}
 		} else if kind == reflect.Array || kind == reflect.Slice {
 			value.Childrenn = uint64(val.Len())
 			value.Vtype = v3.ArrT
 			alreadyEncoded = true
-			v3.AddValue(values, &value)
+			v3.AddValue(enc.out, &value, enc.buf)
 			switch s := d.(type) {
 			case []string:
 				for _, v := range s {
-					encodeValuev3(values, v, v3.Key{})
+					enc.encodeValuev3(v, v3.Key{})
 				}
 			default:
 				//if its not a specific slice type
 				for i := 0; i < val.Len(); i++ {
-					err := encodeValuev3(values, val.Index(i).Interface(), v3.Key{})
+					err := enc.encodeValuev3(val.Index(i).Interface(), v3.Key{})
 					if err != nil {
 						return err
 					}
@@ -222,11 +236,11 @@ func encodeValuev3(values *bytes.Buffer, d interface{}, k v3.Key) error {
 			value.Childrenn = uint64(len(usableFields))
 			value.Vtype = v3.MapT
 			alreadyEncoded = true
-			v3.AddValue(values, &value)
+			v3.AddValue(enc.out, &value, enc.buf)
 			for fieldName, fieldID := range usableFields {
 				field := val.Field(fieldID)
 				e := field.Interface()
-				err := encodeValuev3(values, e, encodeBytes([]byte(fieldName)))
+				err := enc.encodeValuev3(e, encodeBytes([]byte(fieldName)))
 				if err != nil {
 					return err
 				}
@@ -237,7 +251,7 @@ func encodeValuev3(values *bytes.Buffer, d interface{}, k v3.Key) error {
 	}
 
 	if !alreadyEncoded {
-		v3.AddValue(values, &value)
+		v3.AddValue(enc.out, &value, enc.buf)
 	}
 	runtime.KeepAlive(KeepAlive)
 
@@ -256,19 +270,45 @@ func getStructFields(val reflect.Value) map[string]int {
 	return usableFields
 }
 
-func Decodev3(buf *bytes.Buffer, e interface{}) error {
-	version, err := buf.ReadByte()
+//V3Decoder is the decoder used to decode a ttv3 data stream
+type V3Decoder struct {
+	didInit bool
+	in      v3.Reader
+}
+
+//NewV3Decoder creates aa new V3Decoder to decode a ttv3 data stream.
+//The init flag specifies wether it should initialize the decoder.
+//Initializing the decoder blocks until at least the first 2 bytes are read.
+func NewV3Decoder(in v3.Reader, init bool) V3Decoder {
+	dec := V3Decoder{
+		didInit: !init,
+		in:      in,
+	}
+	if init {
+		dec.Init()
+	}
+	return dec
+}
+
+//Init initizes the decoder, initizlizing blocks until at least the first
+//2 bytes are read.
+func (dec V3Decoder) Init() error {
+	version, err := dec.in.ReadByte()
 	if version != 3 || err != nil {
 		return v3.ErrInvalidInput
 	}
-	_, err = buf.ReadByte()
+	_, err = dec.in.ReadByte()
 	if err != nil {
 		return v3.ErrInvalidInput
 	}
+	return nil
+}
+
+func (dec V3Decoder) Decode(e interface{}) error {
 	if e == nil {
 		var v v3.Value
-		v.FromBytes(buf)
-		clearNextValues(buf, v.Childrenn)
+		v.FromBytes(dec.in)
+		clearNextValues(dec.in, v.Childrenn)
 		return nil
 	}
 	value := reflect.ValueOf(e)
@@ -286,24 +326,29 @@ func Decodev3(buf *bytes.Buffer, e interface{}) error {
 		}
 	} else {
 		var v v3.Value
-		v.FromBytes(buf)
-		clearNextValues(buf, v.Childrenn)
+		v.FromBytes(dec.in)
+		clearNextValues(dec.in, v.Childrenn)
 		return nil
 	}
 
 	var v v3.Value
-	v.FromBytes(buf)
+	v.FromBytes(dec.in)
 	yetToRead := v.Childrenn
 
-	err = decodeValuev3(v, buf, value, &yetToRead)
+	err := dec.decodeValuev3(v, value, &yetToRead)
 	if yetToRead != 0 {
-		clearNextValues(buf, yetToRead)
+		clearNextValues(dec.in, yetToRead)
 	}
 
 	return err
 }
 
-func decodeKeyv3(k v3.Key, buf *bytes.Buffer, e reflect.Value) error {
+func Decodev3(buf v3.Reader, e interface{}) error {
+	dec := NewV3Decoder(buf, true)
+	return dec.Decode(e)
+}
+
+func decodeKeyv3(k v3.Key, buf v3.Reader, e reflect.Value) error {
 	if k.Vtype == v3.StringT {
 		val := v3.StringFromBytes(k.Value)
 		if e.Kind() != reflect.String {
@@ -341,7 +386,7 @@ func decodeKeyv3(k v3.Key, buf *bytes.Buffer, e reflect.Value) error {
 	}
 	return nil
 }
-func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *uint64) error {
+func (dec V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint64) error {
 	//copy from json/decode.go:indirect
 	haveAddr := false
 	e0 := e
@@ -533,14 +578,14 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 			var err error
 			key := reflect.New(reflect.TypeOf(m).Key()).Elem()
 			for i := uint64(0); i < children; i++ {
-				v.FromBytes(buf)
+				v.FromBytes(dec.in)
 				*yetToRead += v.Childrenn - 1
-				err = decodeKeyv3(v.Key, buf, key)
+				err = decodeKeyv3(v.Key, dec.in, key)
 				if err != nil {
 					return err
 				}
 				k := key.Interface()
-				err = decodeValuev3(v, buf, key, yetToRead)
+				err = dec.decodeValuev3(v, key, yetToRead)
 				if err != nil {
 					return err
 				}
@@ -560,14 +605,14 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 			key := reflect.New(e.Type().Key()).Elem()
 
 			for i := uint64(0); i < children; i++ {
-				v.FromBytes(buf)
+				v.FromBytes(dec.in)
 				*yetToRead += v.Childrenn - 1
 
-				err = decodeKeyv3(v.Key, buf, key)
+				err = decodeKeyv3(v.Key, dec.in, key)
 				if err != nil {
 					return err
 				}
-				err = decodeValuev3(v, buf, value, yetToRead)
+				err = dec.decodeValuev3(v, value, yetToRead)
 				if err != nil {
 					return err
 				}
@@ -579,7 +624,7 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 			usableFields := getStructFields(e)
 
 			for i := uint64(0); i < children; i++ {
-				v.FromBytes(buf)
+				v.FromBytes(dec.in)
 				*yetToRead += v.Childrenn - 1
 
 				key := v.Key.ExportStructID()
@@ -593,7 +638,7 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 
 				field := e.Field(fieldIndex)
 
-				err := decodeValuev3(v, buf, field, yetToRead)
+				err := dec.decodeValuev3(v, field, yetToRead)
 				if err != nil {
 					return err
 				}
@@ -608,10 +653,10 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 				if i < len {
 					break
 				}
-				v.FromBytes(buf)
+				v.FromBytes(dec.in)
 				*yetToRead += v.Childrenn - 1
 
-				err := decodeValuev3(v, buf, e.Index(i), yetToRead)
+				err := dec.decodeValuev3(v, e.Index(i), yetToRead)
 				if err != nil {
 					return err
 				}
@@ -623,9 +668,9 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 				e.Set(reflect.MakeSlice(e.Type(), int(children), int(children)))
 			}
 			for i := 0; i < int(children); i++ {
-				v.FromBytes(buf)
+				v.FromBytes(dec.in)
 				*yetToRead += v.Childrenn - 1
-				err := decodeValuev3(v, buf, e.Index(i), yetToRead)
+				err := dec.decodeValuev3(v, e.Index(i), yetToRead)
 				if err != nil {
 					return err
 				}
@@ -642,10 +687,10 @@ func decodeValuev3(v v3.Value, buf *bytes.Buffer, e reflect.Value, yetToRead *ui
 		value := reflect.New(reflect.TypeOf(arr).Elem()).Elem()
 
 		for i := 0; i < int(children); i++ {
-			v.FromBytes(buf)
+			v.FromBytes(dec.in)
 			*yetToRead += v.Childrenn - 1
 
-			err = decodeValuev3(v, buf, value, yetToRead)
+			err = dec.decodeValuev3(v, value, yetToRead)
 			if err != nil {
 				return err
 			}
@@ -665,7 +710,7 @@ func getFieldName(field reflect.StructField) string {
 	return name
 }
 
-func clearNextValues(buf *bytes.Buffer, values uint64) {
+func clearNextValues(buf v3.Reader, values uint64) {
 	var value v3.Value
 	for ; values > 0; values-- {
 		value.FromBytes(buf)
