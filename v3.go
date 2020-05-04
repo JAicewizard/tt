@@ -512,7 +512,7 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 			e.SetBytes(val)
 		}
 	case v3.Int8T:
-		val := v3.Int8FromBytes(v.Value)
+		val := v3.Int8FromBytes(v.Value[0])
 		if e.Kind() != reflect.Int8 {
 			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
 				return errors.New("TT: cannot unmarshal int8 into " + e.Kind().String() + " Go type")
