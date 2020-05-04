@@ -46,8 +46,8 @@ func Encodev3(d interface{}, out v3.Writer) {
 	enc.encodeValuev3(d, v3.Key{})
 }
 
-//Encodev3 encodes an `interface{}`` into a bytebuffer using ttv3
-func (enc *V3Encoder) Encodev3(d interface{}) {
+//Encode encodes an `interface{}`` into a bytebuffer using ttv3
+func (enc *V3Encoder) Encode(d interface{}) {
 	enc.Lock()
 	enc.encodeValuev3(d, v3.Key{})
 	enc.Unlock()
