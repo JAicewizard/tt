@@ -6,6 +6,7 @@ import (
 	"errors"
 	"reflect"
 	"runtime"
+	"sync"
 
 	v3 "github.com/jaicewizard/tt/v3"
 )
@@ -14,16 +15,20 @@ import (
 type V3Encoder struct {
 	out       v3.Writer
 	varintbuf *[binary.MaxVarintLen64]byte
+	sync.Mutex
 }
 
+var v3StreamHeader = []byte{version3, 1 << 7}
+var v3NoStreamHeader = []byte{version3, 0}
+
 //NewV3Encoder creates a new encoder to encode a ttv3 data stream
-func NewV3Encoder(out v3.Writer, isStream bool) V3Encoder {
+func NewV3Encoder(out v3.Writer, isStream bool) *V3Encoder {
 	if isStream {
-		out.Write([]byte{version3, 1 << 7})
+		out.Write(v3StreamHeader)
 	} else {
-		out.Write([]byte{version3, 0})
+		out.Write(v3NoStreamHeader)
 	}
-	return V3Encoder{
+	return &V3Encoder{
 		out:       out,
 		varintbuf: &[binary.MaxVarintLen64]byte{},
 	}
@@ -31,8 +36,21 @@ func NewV3Encoder(out v3.Writer, isStream bool) V3Encoder {
 
 //Encodev3 encodes an `interface{}`` into a bytebuffer using ttv3
 func Encodev3(d interface{}, out v3.Writer) {
-	enc := NewV3Encoder(out, false)
+	out.Write(v3NoStreamHeader)
+
+	enc := &V3Encoder{
+		out:       out,
+		varintbuf: &[binary.MaxVarintLen64]byte{},
+	}
+	//We dont have to lock/unlock since we know we are the only one witha acces
 	enc.encodeValuev3(d, v3.Key{})
+}
+
+//Encodev3 encodes an `interface{}`` into a bytebuffer using ttv3
+func (enc *V3Encoder) Encodev3(d interface{}) {
+	enc.Lock()
+	enc.encodeValuev3(d, v3.Key{})
+	enc.Unlock()
 }
 
 func encodeKeyv3(k interface{}) v3.Key {
@@ -112,7 +130,7 @@ func encodeBytes(b []byte) v3.Key {
 	}
 }
 
-func (enc V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
+func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 	value := v3.Value{
 		Key: k,
 	}
@@ -280,12 +298,13 @@ type V3Decoder struct {
 	isStream  bool
 	didDecode bool
 	in        v3.Reader
+	sync.Mutex
 }
 
 //NewV3Decoder creates aa new V3Decoder to decode a ttv3 data stream.
 //The init flag specifies wether it should initialize the decoder.
 //Initializing the decoder blocks until at least the first 2 bytes are read.
-func NewV3Decoder(in v3.Reader, init bool) V3Decoder {
+func NewV3Decoder(in v3.Reader, init bool) *V3Decoder {
 	dec := V3Decoder{
 		didInit: !init,
 		in:      in,
@@ -293,12 +312,12 @@ func NewV3Decoder(in v3.Reader, init bool) V3Decoder {
 	if init {
 		dec.Init()
 	}
-	return dec
+	return &dec
 }
 
 //Init initizes the decoder, initizlizing blocks until at least the first
 //2 bytes are read.
-func (dec V3Decoder) Init() error {
+func (dec *V3Decoder) Init() error {
 	version, err := dec.in.ReadByte()
 	if version != 3 || err != nil {
 		return v3.ErrInvalidInput
@@ -315,7 +334,21 @@ func (dec V3Decoder) Init() error {
 //Decode decodes a one ttv3 encoded value from a stream.
 //Note that a stream of one value is the same as one value just with
 //the stream bit set
-func (dec V3Decoder) Decode(e interface{}) error {
+func (dec *V3Decoder) Decode(e interface{}) error {
+	dec.Lock()
+	ret := dec.decode(e)
+	dec.Unlock()
+	return ret
+}
+
+//Decodev3 decodes a ttv3 encoded byte-slice into tt.Data
+func Decodev3(buf v3.Reader, e interface{}) error {
+	dec := NewV3Decoder(buf, true)
+	//We dont have to lock/unlock since we know we are the only one witha access
+	return dec.decode(e)
+}
+
+func (dec *V3Decoder) decode(e interface{}) error {
 	if !dec.isStream {
 		if dec.didDecode {
 			return errors.New("TT: attempt to decode twice from non-stream")
@@ -360,12 +393,6 @@ func (dec V3Decoder) Decode(e interface{}) error {
 	return err
 }
 
-//Decodev3 decodes a ttv3 encoded byte-slice into tt.Data
-func Decodev3(buf v3.Reader, e interface{}) error {
-	dec := NewV3Decoder(buf, true)
-	return dec.Decode(e)
-}
-
 func decodeKeyv3(k v3.Key, buf v3.Reader, e reflect.Value) error {
 	if k.Vtype == v3.StringT {
 		val := v3.StringFromBytes(k.Value)
@@ -404,7 +431,7 @@ func decodeKeyv3(k v3.Key, buf v3.Reader, e reflect.Value) error {
 	}
 	return nil
 }
-func (dec V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint64) error {
+func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint64) error {
 	//copy from json/decode.go:indirect
 	haveAddr := false
 	e0 := e

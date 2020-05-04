@@ -6,7 +6,6 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math"
 	"os"
@@ -375,7 +374,19 @@ func BenchmarkV3Encode(b *testing.B) {
 	}
 }
 
-func BenchmarkGobData(b *testing.B) {
+func BenchmarkV3int64(b *testing.B) {
+	b.ReportAllocs()
+	b.StopTimer()
+
+	buf := bytes.NewBuffer(nil)
+
+	b.StartTimer()
+	for n := 0; n < b.N; n++ {
+		Encodev3([]int64{6734, 5, 34598, 2354983045, 8732, 37, 23492}, buf)
+	}
+}
+
+func BenchmarkV2(b *testing.B) {
 	b.ReportAllocs()
 	b.StopTimer()
 	var data Data
@@ -397,7 +408,7 @@ func BenchmarkGobData(b *testing.B) {
 	}
 }
 
-func BenchmarkGobDataDecode(b *testing.B) {
+func BenchmarkV2Decode(b *testing.B) {
 	b.ReportAllocs()
 	b.StopTimer()
 	var data Data
@@ -416,7 +427,7 @@ func BenchmarkGobDataDecode(b *testing.B) {
 	}
 }
 
-func BenchmarkGobDataEncode(b *testing.B) {
+func BenchmarkV2Encode(b *testing.B) {
 	b.ReportAllocs()
 	b.StopTimer()
 	buf := bytes.NewBuffer(nil)
@@ -508,12 +519,12 @@ type testCase struct {
 }
 
 var testCases = []testCase{
-	/* 	{
-	   		name:  "testBasicStruct",
-	   		data:  testBasicStruct{"hello"},
-	   		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
-	   	},
-	*/{
+	{
+		name:  "testBasicStruct",
+		data:  testBasicStruct{"hello"},
+		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
+	},
+	{
 		name:  "testBasicSlice",
 		data:  []string{"hello", "world"},
 		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
@@ -607,158 +618,4 @@ func TestEncodeDecode(t *testing.T) {
 
 type testStructEmbeded struct {
 	Name string `TT:"hi"`
-}
-
-/*
-type combinedWriter interface {
-	io.Writer
-	io.ByteWriter
-}
-
- var v = Value{
-	Value: []byte("Random2"),
-}
-
-func BenchmarkToWriterMultipleCalls(b *testing.B) {
-	buf := bytes.NewBuffer(make([]byte, 1024*1024))
-	for i := 0; i < b.N; i++ {
-		buf.Reset()
-		v.TobytesMultipleCalls(buf)
-	}
-}
-
-func BenchmarkToWriterSingleShot(b *testing.B) {
-	warmy := bytes.NewBuffer(make([]byte, 1024*1024))
-	buf := bytes.NewBuffer(make([]byte, 1024*1024))
-	for i := 0; i < b.N; i++ {
-		buf.Reset()
-		v.TobytesSingleShot(buf, warmy)
-	}
-}
-
-func BenchmarkTobytesInterface(b *testing.B) {
-	buf := bytes.NewBuffer(make([]byte, 1024*1024))
-	for i := 0; i < b.N; i++ {
-		buf.Reset()
-		v.TobytesInterface(buf)
-	}
-}
-
-type Value struct {
-	Value []byte
-	Vtype byte
-}
-
-type KeyValue struct {
-	Value []byte
-	Vtype byte
-}
-
-func (v *Value) TobytesMultipleCalls(out *bytes.Buffer) {
-	varintBuf := getBuf()
-	out.Write(varintBuf[:])
-}
-
-func (v *Value) TobytesSingleShot(out io.Writer, buf *bytes.Buffer) {
-	buf.Reset()
-	varintBuf := getBuf()
-	buf.Write(varintBuf[:])
-	buf.WriteTo(out)
-}
-
-func (v *Value) TobytesInterface(buf combinedWriter) {
-	varintBuf := getBuf()
-	buf.Write(varintBuf[:])
-}
-
-func getBuf() [10]byte {
-	return [10]byte{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-}
-func writeBuf(b [10]byte) int {
-	b[0] = 1
-	b[1] = 1
-	b[2] = 1
-	b[3] = 1
-	b[4] = 1
-	b[5] = 1
-	b[6] = 1
-	b[7] = 1
-	b[8] = 1
-	b[9] = 1
-	return 10
-} */
-
-type combinedWriter interface {
-	io.Writer
-	io.ByteWriter
-}
-
-var v = Value{
-	Key: KeyValue{
-		Value: []byte("Random1"),
-		Vtype: byte(1),
-	},
-	Value:     []byte("Random2"),
-	Vtype:     byte(2),
-	Childrenn: 399,
-}
-
-func BenchmarkToWriterMultipleCalls(b *testing.B) {
-	buf := bytes.NewBuffer(make([]byte, 1024*1024))
-	for i := 0; i < b.N; i++ {
-		buf.Reset()
-		v.TobytesMultipleCalls(buf)
-	}
-}
-
-func BenchmarkToWriterSingleShot(b *testing.B) {
-	warmy := bytes.NewBuffer(make([]byte, 1024*1024))
-	buf := bytes.NewBuffer(make([]byte, 1024*1024))
-	for i := 0; i < b.N; i++ {
-		buf.Reset()
-		v.TobytesSingleShot(buf, warmy)
-	}
-}
-
-func BenchmarkTobytesInterface(b *testing.B) {
-	buf := bytes.NewBuffer(make([]byte, 1024*1024))
-	for i := 0; i < b.N; i++ {
-		buf.Reset()
-		v.TobytesInterface(buf)
-	}
-}
-
-type Value struct {
-	Key       KeyValue
-	Value     []byte
-	Vtype     byte
-	Childrenn uint64
-}
-
-type KeyValue struct {
-	Value []byte
-	Vtype byte
-}
-
-func (v *Value) TobytesMultipleCalls(out *bytes.Buffer) {
-	out.WriteByte(byte(v.Vtype))
-	out.Write(v.Value)
-	out.WriteByte(byte(v.Key.Vtype))
-	out.Write(v.Key.Value)
-}
-
-func (v *Value) TobytesSingleShot(out io.Writer, buf *bytes.Buffer) {
-	buf.Reset()
-	buf.WriteByte(byte(v.Vtype))
-	buf.Write(v.Value)
-	buf.WriteByte(byte(v.Key.Vtype))
-	buf.Write(v.Key.Value)
-	buf.WriteTo(out)
-}
-
-func (v *Value) TobytesInterface(buf combinedWriter) {
-	buf.WriteByte(byte(v.Vtype))
-	buf.Write(v.Value)
-	buf.WriteByte(byte(v.Key.Vtype))
-	buf.Write(v.Key.Value)
 }

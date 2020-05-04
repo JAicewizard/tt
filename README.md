@@ -10,16 +10,19 @@ Data is are benchmarks that use Data, map benchmarks just convert the data to a 
 
 r5 3600 make bench
 ```
-BenchmarkV3-12                   3577809              3260 ns/op             945 B/op         17 allocs/op
-BenchmarkV3Decode-12             4935484              2343 ns/op             624 B/op         17 allocs/op
-BenchmarkV3Encode-12            13271485               835 ns/op             343 B/op          0 allocs/op
-BenchmarkGobData-12              4368571              2513 ns/op            1491 B/op         27 allocs/op
-BenchmarkGobDataDecode-12        5306721              2271 ns/op             784 B/op         23 allocs/op
-BenchmarkGobDataEncode-12        8861355              1235 ns/op             700 B/op          4 allocs/op
-BenchmarkGobMap-12                869761             13557 ns/op            1916 B/op         68 allocs/op
-BenchmarkGobMapDecode-12         1592424              7375 ns/op            1260 B/op         48 allocs/op
-BenchmarkGobMapEncode-12         1000000             10094 ns/op             656 B/op         20 allocs/op
+BenchmarkV3              3015724              3935 ns/op            1157 B/op         33 allocs/op
+BenchmarkV3Decode        4057526              2961 ns/op             739 B/op         28 allocs/op
+BenchmarkV3Encode       13256769               896 ns/op             383 B/op          5 allocs/op
+BenchmarkV2              4915644              2423 ns/op            1389 B/op         27 allocs/op
+BenchmarkV2Decode        9181489              1292 ns/op             784 B/op         23 allocs/op
+BenchmarkV2Encode       10495838              1113 ns/op             592 B/op          4 allocs/op
+BenchmarkGobMap           979080             11936 ns/op            1916 B/op         68 allocs/op
+BenchmarkGobMapDecode    1848817              6436 ns/op            1260 B/op         48 allocs/op
+BenchmarkGobMapEncode    2300364              5208 ns/op             656 B/op         20 allocs/op
 ```
+
+## notes
+- all tests are run using `GOMAXPROCS=1`, this is because on zen running on multiple threads will cause horrible cache-invalidation. A single alloc/op would cause the GC to run at some point, this would kick the benching to a diferent core. The reason I decided to run using `GOMAXPROCS=1` is because this doesnt have a big impact on Intel cpus, and any real world application would be generating garbage anyways, so eleminitin the GC from running should be part of the benchmark. Another reason coul be: real world applications would so something else in between runs causing cache-invalidation anyways.
 
 # v3 vs v2
 
