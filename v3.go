@@ -36,7 +36,7 @@ func NewV3Encoder(out io.Writer, isStream bool) *V3Encoder {
 }
 
 //Encodev3 encodes an `interface{}`` into a bytebuffer using ttv3
-func Encodev3(d interface{}, out v3.Writer) error {
+func Encodev3(d interface{}, out io.Writer) error {
 	out.Write(v3NoStreamHeader)
 
 	enc := &V3Encoder{
