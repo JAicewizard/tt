@@ -21,11 +21,6 @@ type Reader interface {
 	io.ByteReader
 }
 
-type Writer interface {
-	io.Writer
-	io.ByteWriter
-}
-
 type readFirstByte struct {
 	b byte
 	r io.ByteReader
@@ -40,25 +35,24 @@ func (r readFirstByte) ReadByte() (byte, error) {
 	return b, nil
 }
 
-func AddValue(out Writer, v *Value, varintbuf *[binary.MaxVarintLen64]byte) {
+func AddValue(out io.Writer, v *Value, varintbuf *[binary.MaxVarintLen64 + 1]byte) {
 	v.Tobytes(out, varintbuf)
 }
 
-func (v *Value) Tobytes(out Writer, varintbuf *[binary.MaxVarintLen64]byte) {
+func (v *Value) Tobytes(out io.Writer, varintbuf *[binary.MaxVarintLen64 + 1]byte) {
 	var klen = len(v.Key.Value)
 	var vlen = len(v.Value)
-	//buf.Grow(10 + 10 + vlen + 1 + klen + 1 + 10)
 
 	varintBytes := binary.PutUvarint(varintbuf[:], uint64(vlen))
 	out.Write(varintbuf[:varintBytes])
 
 	varintBytes = binary.PutUvarint(varintbuf[:], uint64(klen))
-	out.Write(varintbuf[:varintBytes])
+	varintbuf[varintBytes] = byte(v.Vtype)
+	out.Write(varintbuf[:varintBytes+1])
 
-	out.WriteByte(byte(v.Vtype))
 	out.Write(v.Value)
-
-	out.WriteByte(byte(v.Key.Vtype))
+	varintbuf[0] = byte(v.Key.Vtype)
+	out.Write(varintbuf[:1])
 	out.Write(v.Key.Value)
 
 	varintBytes = binary.PutUvarint(varintbuf[:], v.Childrenn)

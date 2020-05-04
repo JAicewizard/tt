@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"errors"
+	"io"
 	"reflect"
 	"runtime"
 	"sync"
@@ -13,8 +14,8 @@ import (
 
 //V3Encoder is the encoder used to encode a ttv3 data stream
 type V3Encoder struct {
-	out       v3.Writer
-	varintbuf *[binary.MaxVarintLen64]byte
+	out       io.Writer
+	varintbuf *[binary.MaxVarintLen64 + 1]byte
 	sync.Mutex
 }
 
@@ -22,7 +23,7 @@ var v3StreamHeader = []byte{version3, 1 << 7}
 var v3NoStreamHeader = []byte{version3, 0}
 
 //NewV3Encoder creates a new encoder to encode a ttv3 data stream
-func NewV3Encoder(out v3.Writer, isStream bool) *V3Encoder {
+func NewV3Encoder(out io.Writer, isStream bool) *V3Encoder {
 	if isStream {
 		out.Write(v3StreamHeader)
 	} else {
@@ -30,7 +31,7 @@ func NewV3Encoder(out v3.Writer, isStream bool) *V3Encoder {
 	}
 	return &V3Encoder{
 		out:       out,
-		varintbuf: &[binary.MaxVarintLen64]byte{},
+		varintbuf: &[binary.MaxVarintLen64 + 1]byte{},
 	}
 }
 
@@ -40,7 +41,7 @@ func Encodev3(d interface{}, out v3.Writer) error {
 
 	enc := &V3Encoder{
 		out:       out,
-		varintbuf: &[binary.MaxVarintLen64]byte{},
+		varintbuf: &[binary.MaxVarintLen64 + 1]byte{},
 	}
 	//We dont have to lock/unlock since we know we are the only one witha acces
 	return enc.encodeValuev3(d, v3.Key{})
