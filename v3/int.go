@@ -2,18 +2,14 @@ package v3
 
 import (
 	"encoding/binary"
-	"reflect"
-	"unsafe"
 )
 
 func Int8ToBytes(u int8) byte {
 	return byte(u)
 }
 
-func Int8FromBytes(buf []byte) int8 {
-	hrd := (*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	int := *(*int8)(unsafe.Pointer(hrd.Data))
-	return int
+func Int8FromBytes(buf byte) int8 {
+	return int8(buf)
 }
 
 func Int16ToBytes(f int16) []byte {
@@ -50,9 +46,7 @@ func Uint8ToBytes(u uint8) byte {
 }
 
 func Uint8FromBytes(buf byte) uint8 {
-	hrd := (*reflect.SliceHeader)(unsafe.Pointer(&buf))
-	int := *(*uint8)(unsafe.Pointer(hrd.Data))
-	return int
+	return uint8(buf)
 }
 
 func Uint16ToBytes(f uint16) []byte {

@@ -23,7 +23,7 @@ func (k *Key) ExportStructID() string {
 	case Float64T:
 		return strconv.FormatFloat(Float64FromBytes(k.Value), 'X', -1, 32)
 	case Int8T:
-		return strconv.FormatInt(int64(Int8FromBytes(k.Value)), 10)
+		return strconv.FormatInt(int64(Int8FromBytes(k.Value[0])), 10)
 	case Int16T:
 		return strconv.FormatInt(int64(Int16FromBytes(k.Value)), 10)
 	case Int32T:

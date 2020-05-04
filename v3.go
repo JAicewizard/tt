@@ -328,7 +328,7 @@ func (dec *V3Decoder) Init() error {
 	if err != nil {
 		return v3.ErrInvalidInput
 	}
-	dec.isStream = (b & 1 << 7) != 0
+	dec.isStream = b&(1<<7) != 0
 	dec.didDecode = false
 	return nil
 }
@@ -407,13 +407,21 @@ func decodeKeyv3(k v3.Key, buf v3.Reader, e reflect.Value) error {
 			e.SetString(val)
 		}
 	} else if k.Vtype == v3.BytesT {
-		e.SetBytes(k.Value)
+		val := k.Value
+		if e.Kind() != reflect.Slice || e.Type().Elem().Kind() != reflect.Uint8 {
+			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+				return errors.New("TT: cannot unmarshal bytes into " + e.Type().String() + " Go type")
+			}
+			e.Set(reflect.ValueOf(val))
+		} else {
+			e.SetBytes(val)
+		}
 	} else if k.Vtype == v3.Float32T {
 		e.SetFloat(float64(v3.Float32FromBytes(k.Value)))
 	} else if k.Vtype == v3.Float64T {
 		e.SetFloat(v3.Float64FromBytes(k.Value))
 	} else if k.Vtype == v3.Int8T {
-		e.SetInt(int64(v3.Int8FromBytes(k.Value)))
+		e.SetInt(int64(v3.Int8FromBytes(k.Value[0])))
 	} else if k.Vtype == v3.Int16T {
 		e.SetInt(int64(v3.Int16FromBytes(k.Value)))
 	} else if k.Vtype == v3.Int32T {
@@ -535,7 +543,7 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 		}
 	case v3.Int64T:
 		val := v3.Int64FromBytes(v.Value)
-		if e.Kind() != reflect.Int64 {
+		if e.Kind() != reflect.Int64 || e.Kind() != reflect.Int {
 			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
 				return errors.New("TT: cannot unmarshal int64 into " + e.Kind().String() + " Go type")
 			}
@@ -636,7 +644,11 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 				if err != nil {
 					return err
 				}
-				m[k] = key.Interface()
+				if v, ok := k.([]byte); ok {
+					m[string(v)] = key.Interface()
+				} else {
+					m[k] = key.Interface()
+				}
 			}
 			e.Set(reflect.ValueOf(m))
 		}
@@ -676,10 +688,12 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 
 				key := v.Key.ExportStructID()
 				if key == "" {
+					clearNextValues(dec.in, v.Childrenn)
 					continue
 				}
 				fieldIndex, ok := usableFields[key]
 				if !ok {
+					clearNextValues(dec.in, v.Childrenn)
 					continue
 				}
 
@@ -696,10 +710,10 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 
 		if e.Kind() == reflect.Array {
 			len := e.Len()
+			if len < int(children) {
+				break
+			}
 			for i := 0; i < int(children); i++ {
-				if i < len {
-					break
-				}
 				v.FromBytes(dec.in)
 				*yetToRead += v.Childrenn - 1
 
