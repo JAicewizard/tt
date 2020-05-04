@@ -15,6 +15,7 @@ const (
 	version3 = 3
 )
 
+//Encodev2 encodes a tt.Data into a bytebuffer using ttv2
 func Encodev2(d Data, values *bytes.Buffer) {
 	values.WriteByte(version2)
 

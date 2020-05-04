@@ -1,7 +1,6 @@
 package v3
 
 import (
-	"bytes"
 	"encoding/binary"
 	"io"
 )
@@ -22,46 +21,48 @@ type Reader interface {
 	io.ByteReader
 }
 
-type readFirstByte struct{
+type Writer interface {
+	io.Writer
+	io.ByteWriter
+}
+
+type readFirstByte struct {
 	b byte
 	r io.ByteReader
 }
 
-func (r readFirstByte)ReadByte() (byte, error){
-	if r.b == 0{
+func (r readFirstByte) ReadByte() (byte, error) {
+	if r.b == 0 {
 		return r.ReadByte()
-	}else{
-		b := r.b
-		r.b = 0
-		return b, nil
 	}
+	b := r.b
+	r.b = 0
+	return b, nil
 }
 
-func AddValue(out io.Writer, v *Value, buf *bytes.Buffer) {
-	v.Tobytes(out, buf)
+func AddValue(out Writer, v *Value, varintbuf *[binary.MaxVarintLen64]byte) {
+	v.Tobytes(out, varintbuf)
 }
 
-func (v *Value) Tobytes(out io.Writer, buf *bytes.Buffer) {
+func (v *Value) Tobytes(out Writer, varintbuf *[binary.MaxVarintLen64]byte) {
 	var klen = len(v.Key.Value)
 	var vlen = len(v.Value)
-	buf.Reset()
-	varintBuf := [binary.MaxVarintLen64]byte{}
+	//buf.Grow(10 + 10 + vlen + 1 + klen + 1 + 10)
 
-	varintBytes := binary.PutUvarint(varintBuf[:], uint64(vlen))
-	buf.Write(varintBuf[:varintBytes])
+	varintBytes := binary.PutUvarint(varintbuf[:], uint64(vlen))
+	out.Write(varintbuf[:varintBytes])
 
-	varintBytes = binary.PutUvarint(varintBuf[:], uint64(klen))
-	buf.Write(varintBuf[:varintBytes])
+	varintBytes = binary.PutUvarint(varintbuf[:], uint64(klen))
+	out.Write(varintbuf[:varintBytes])
 
-	buf.WriteByte(byte(v.Vtype))
-	buf.Write(v.Value)
+	out.WriteByte(byte(v.Vtype))
+	out.Write(v.Value)
 
-	buf.WriteByte(byte(v.Key.Vtype))
-	buf.Write(v.Key.Value)
+	out.WriteByte(byte(v.Key.Vtype))
+	out.Write(v.Key.Value)
 
-	varintBytes = binary.PutUvarint(varintBuf[:], v.Childrenn)
-	buf.Write(varintBuf[:varintBytes])
-	buf.WriteTo(out)
+	varintBytes = binary.PutUvarint(varintbuf[:], v.Childrenn)
+	out.Write(varintbuf[:varintBytes])
 }
 
 func (v *Value) FromBytes(in Reader) {
@@ -74,7 +75,7 @@ func (v *Value) FromBytes(in Reader) {
 		panic(corruptinputdata)
 	}
 	data := make([]byte, 1+vlen+1+klen+1)
-	_, err = io.ReadFull(in, data)
+	_, err = io.ReadAtLeast(in, data, int(1+vlen+1+klen+1))
 	if err != nil {
 		panic(corruptinputdata)
 	}
@@ -86,8 +87,11 @@ func (v *Value) FromBytes(in Reader) {
 
 	if data[1+vlen+1+klen] < 0x80 {
 		v.Childrenn = uint64(data[1+vlen+1+klen])
-	}else{
-		children, err := binary.ReadUvarint(in)
+	} else {
+		children, err := binary.ReadUvarint(readFirstByte{
+			b: data[1+vlen+1+klen],
+			r: in,
+		})
 		if err != nil {
 			panic(corruptinputdata)
 		}

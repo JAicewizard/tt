@@ -4,13 +4,7 @@ import (
 	"errors"
 )
 
-type (
-	Ikeytype uint32
-	valuelen uint32
-	keylen   uint32
-
-	ttType byte
-)
+type ttType byte
 
 var (
 	//ErrInvalidInput is used for when the input it invalid
@@ -18,11 +12,7 @@ var (
 )
 
 const (
-	corruptinputdata = "byte length not long enough, contact the authors for a solution"
-
-	ikeylen       = 4
-	valuelenbytes = 4
-	keylenbytes   = 4
+	corruptinputdata = "Not enough data in the datastream, imput might be corrupt."
 )
 
 const (
@@ -46,4 +36,3 @@ const (
 	MapT
 	ArrT
 )
-

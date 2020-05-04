@@ -7,10 +7,6 @@ import (
 	v2 "github.com/jaicewizard/tt/v2"
 )
 
-/*
-	TODO: supported types: string, int, []byte, floats bool
-	TODO: pre-allocate all data when encoding.
-*/
 type (
 	//Data is the type
 	Data map[interface{}]interface{}

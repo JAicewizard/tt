@@ -7,8 +7,9 @@ import (
 	v2 "github.com/jaicewizard/tt/v2"
 )
 
+//Decodev2 decodes a ttv2 encoded byte-slice into tt.Data
 func Decodev2(b []byte, d *Data) (err error) {
-	vlen := binary.BigEndian.Uint32(b[len(b)-4 : len(b)])
+	vlen := binary.BigEndian.Uint32(b[len(b)-4:])
 	locs := make([]uint64, vlen)
 	v2.GetLocs(b, locs, vlen)
 

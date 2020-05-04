@@ -1,10 +1,9 @@
 package tt
 
 import (
-	"bytes"
+	"encoding/binary"
 	"encoding/gob"
 	"errors"
-	"io"
 	"reflect"
 	"runtime"
 
@@ -13,21 +12,26 @@ import (
 
 //V3Encoder is the encoder used to encode a ttv3 data stream
 type V3Encoder struct {
-	out io.Writer
-	buf *bytes.Buffer
+	out       v3.Writer
+	varintbuf *[binary.MaxVarintLen64]byte
 }
 
 //NewV3Encoder creates a new encoder to encode a ttv3 data stream
-func NewV3Encoder(out io.Writer) V3Encoder {
+func NewV3Encoder(out v3.Writer, isStream bool) V3Encoder {
+	if isStream {
+		out.Write([]byte{version3, 1 << 7})
+	} else {
+		out.Write([]byte{version3, 0})
+	}
 	return V3Encoder{
-		out: out,
-		buf: bytes.NewBuffer(nil),
+		out:       out,
+		varintbuf: &[binary.MaxVarintLen64]byte{},
 	}
 }
 
-func Encodev3(d interface{}, out io.Writer) {
-	out.Write([]byte{version3, 0})
-	enc := NewV3Encoder(out)
+//Encodev3 encodes an `interface{}`` into a bytebuffer using ttv3
+func Encodev3(d interface{}, out v3.Writer) {
+	enc := NewV3Encoder(out, false)
 	enc.encodeValuev3(d, v3.Key{})
 }
 
@@ -183,7 +187,7 @@ func (enc V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 			value.Childrenn = uint64(val.Len())
 			value.Vtype = v3.MapT
 			alreadyEncoded = true
-			v3.AddValue(enc.out, &value, enc.buf)
+			v3.AddValue(enc.out, &value, enc.varintbuf)
 
 			switch v := d.(type) {
 			case map[string]string:
@@ -209,7 +213,7 @@ func (enc V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 			value.Childrenn = uint64(val.Len())
 			value.Vtype = v3.ArrT
 			alreadyEncoded = true
-			v3.AddValue(enc.out, &value, enc.buf)
+			v3.AddValue(enc.out, &value, enc.varintbuf)
 			switch s := d.(type) {
 			case []string:
 				for _, v := range s {
@@ -236,7 +240,7 @@ func (enc V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 			value.Childrenn = uint64(len(usableFields))
 			value.Vtype = v3.MapT
 			alreadyEncoded = true
-			v3.AddValue(enc.out, &value, enc.buf)
+			v3.AddValue(enc.out, &value, enc.varintbuf)
 			for fieldName, fieldID := range usableFields {
 				field := val.Field(fieldID)
 				e := field.Interface()
@@ -251,7 +255,7 @@ func (enc V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 	}
 
 	if !alreadyEncoded {
-		v3.AddValue(enc.out, &value, enc.buf)
+		v3.AddValue(enc.out, &value, enc.varintbuf)
 	}
 	runtime.KeepAlive(KeepAlive)
 
@@ -272,8 +276,10 @@ func getStructFields(val reflect.Value) map[string]int {
 
 //V3Decoder is the decoder used to decode a ttv3 data stream
 type V3Decoder struct {
-	didInit bool
-	in      v3.Reader
+	didInit   bool
+	isStream  bool
+	didDecode bool
+	in        v3.Reader
 }
 
 //NewV3Decoder creates aa new V3Decoder to decode a ttv3 data stream.
@@ -297,14 +303,25 @@ func (dec V3Decoder) Init() error {
 	if version != 3 || err != nil {
 		return v3.ErrInvalidInput
 	}
-	_, err = dec.in.ReadByte()
+	b, err := dec.in.ReadByte()
 	if err != nil {
 		return v3.ErrInvalidInput
 	}
+	dec.isStream = (b & 1 << 7) != 0
+	dec.didDecode = false
 	return nil
 }
 
+//Decode decodes a one ttv3 encoded value from a stream.
+//Note that a stream of one value is the same as one value just with
+//the stream bit set
 func (dec V3Decoder) Decode(e interface{}) error {
+	if !dec.isStream {
+		if dec.didDecode {
+			return errors.New("TT: attempt to decode twice from non-stream")
+		}
+		dec.didDecode = true
+	}
 	if e == nil {
 		var v v3.Value
 		v.FromBytes(dec.in)
@@ -343,6 +360,7 @@ func (dec V3Decoder) Decode(e interface{}) error {
 	return err
 }
 
+//Decodev3 decodes a ttv3 encoded byte-slice into tt.Data
 func Decodev3(buf v3.Reader, e interface{}) error {
 	dec := NewV3Decoder(buf, true)
 	return dec.Decode(e)

@@ -6,6 +6,7 @@ import (
 	v1 "github.com/jaicewizard/tt/v1"
 )
 
+//Decodev1 decodes a ttv1 encoded byte-slice into tt.Data
 func Decodev1(b []byte, d *Data) (err error) {
 	vlen := int(b[len(b)-1])
 
