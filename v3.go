@@ -35,7 +35,7 @@ func NewV3Encoder(out v3.Writer, isStream bool) *V3Encoder {
 }
 
 //Encodev3 encodes an `interface{}`` into a bytebuffer using ttv3
-func Encodev3(d interface{}, out v3.Writer) {
+func Encodev3(d interface{}, out v3.Writer) error {
 	out.Write(v3NoStreamHeader)
 
 	enc := &V3Encoder{
@@ -43,14 +43,15 @@ func Encodev3(d interface{}, out v3.Writer) {
 		varintbuf: &[binary.MaxVarintLen64]byte{},
 	}
 	//We dont have to lock/unlock since we know we are the only one witha acces
-	enc.encodeValuev3(d, v3.Key{})
+	return enc.encodeValuev3(d, v3.Key{})
 }
 
 //Encode encodes an `interface{}`` into a bytebuffer using ttv3
-func (enc *V3Encoder) Encode(d interface{}) {
+func (enc *V3Encoder) Encode(d interface{}) error {
 	enc.Lock()
-	enc.encodeValuev3(d, v3.Key{})
+	ret := enc.encodeValuev3(d, v3.Key{})
 	enc.Unlock()
+	return ret
 }
 
 func encodeKeyv3(k interface{}) v3.Key {
