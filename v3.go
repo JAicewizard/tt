@@ -777,7 +777,7 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 		arr := make([]interface{}, children)
 		var err error
 		var value reflect.Value
-		ValueKind := e.Type().Elem().Kind()
+		ValueKind := reflect.TypeOf(arr).Elem().Kind()
 		shouldReplace := ValueKind == reflect.Array || ValueKind == reflect.Slice || ValueKind == reflect.Map
 
 		if !shouldReplace {
