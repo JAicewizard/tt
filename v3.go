@@ -660,7 +660,7 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 				if v, ok := k.([]byte); ok {
 					m[string(v)] = key.Interface()
 				} else {
-					m[v] = key.Interface()
+					m[k] = key.Interface()
 				}
 			}
 			e.Set(reflect.ValueOf(m))
@@ -781,13 +781,13 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 		shouldReplace := ValueKind == reflect.Array || ValueKind == reflect.Slice || ValueKind == reflect.Map
 
 		if !shouldReplace {
-			value = reflect.New(e.Type().Elem()).Elem()
+			value = reflect.New(reflect.TypeOf(arr).Elem()).Elem()
 		}
 		for i := 0; i < int(children); i++ {
 			v.FromBytes(dec.in)
 			*yetToRead += v.Childrenn - 1
 			if shouldReplace {
-				value = reflect.New(e.Type().Elem()).Elem()
+				value = reflect.New(reflect.TypeOf(arr).Elem()).Elem()
 			}
 
 			err = dec.decodeValuev3(v, value, yetToRead)
