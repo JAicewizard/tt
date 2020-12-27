@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
-	"math"
 )
 
 type (
@@ -66,7 +65,7 @@ func (v *Value) Tobytes(out io.Writer, varintbuf *[binary.MaxVarintLen64 + 1]byt
 }
 
 //FromBytes reads bytes from a v3.Reader into Value
-func (v *Value) FromBytes(in Reader) error {
+func (v *Value) FromBytes(in Reader, limit uint64) error {
 	vlen, err := readerReadUvarint(in)
 	if err != nil {
 		return errors.New(corruptinputdata)
@@ -75,7 +74,7 @@ func (v *Value) FromBytes(in Reader) error {
 	if err != nil {
 		return errors.New(corruptinputdata)
 	}
-	if vlen > math.MaxInt64-3-klen {
+	if 1+vlen+1+klen+1 > limit {
 		return errors.New(oversizedInputData)
 	}
 	data := make([]byte, 1+vlen+1+klen+1)

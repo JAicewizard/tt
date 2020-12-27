@@ -13,7 +13,7 @@ var (
 
 const (
 	corruptinputdata   = "Not enough data in the datastream, imput might be corrupt."
-	oversizedInputData = "imput too big."
+	oversizedInputData = "Imput hit allocation limmit."
 )
 
 const (

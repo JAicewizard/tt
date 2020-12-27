@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"io"
+	"math"
 	"reflect"
 	"strconv"
 	"sync"
@@ -493,25 +494,15 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 			}
 		}
 	case reflect.Array:
-		//TODO Only check the types first and only then convert??
-		i := d.Interface()
-
 		value.Childrenn = uint64(d.Len())
 		value.Value.Vtype = v3.ArrT
 		alreadyEncoded = true
 		v3.AddValue(enc.out, &value, enc.varintbuf)
-		switch s := i.(type) {
-		case []string:
-			for _, v := range s {
-				enc.encodeString(v, v3.KeyValue{})
-			}
-		default:
-			//if its not a specific slice type
-			for i := 0; i < int(value.Childrenn); i++ {
-				err := enc.encodeValuev3_reflect(d.Index(i), v3.KeyValue{})
-				if err != nil {
-					return err
-				}
+		//if its not a specific slice type
+		for i := 0; i < int(value.Childrenn); i++ {
+			err := enc.encodeValuev3_reflect(d.Index(i), v3.KeyValue{})
+			if err != nil {
+				return err
 			}
 		}
 	case reflect.Struct:
@@ -568,12 +559,13 @@ func getStructFields(val reflect.Value) map[string]int {
 
 //V3Decoder is the decoder used to decode a ttv3 data stream
 type V3Decoder struct {
-	didInit   bool
-	isStream  bool
-	didDecode bool
-	in        v3.Reader
-	typeCache map[string]map[string]int
-	yetToRead uint64
+	didInit     bool
+	isStream    bool
+	didDecode   bool
+	in          v3.Reader
+	typeCache   map[string]map[string]int
+	yetToRead   uint64
+	allocLimmit uint64
 	sync.Mutex
 }
 
@@ -582,9 +574,10 @@ type V3Decoder struct {
 //Initializing the decoder blocks until at least the first 2 bytes are read.
 func NewV3Decoder(in v3.Reader, init bool) *V3Decoder {
 	dec := V3Decoder{
-		didInit:   !init,
-		in:        in,
-		typeCache: map[string]map[string]int{},
+		didInit:     !init,
+		in:          in,
+		typeCache:   map[string]map[string]int{},
+		allocLimmit: math.MaxUint64,
 	}
 	if init {
 		dec.Init()
@@ -606,6 +599,12 @@ func (dec *V3Decoder) Init() error {
 	dec.isStream = b&(1<<7) != 0
 	dec.didDecode = false
 	return nil
+}
+
+//SetAllocLimmit sets the limmit of allocations. This does not induce
+//a global limmit in tt but only for individual allocations
+func (dec *V3Decoder) SetAllocLimmit(limit uint64) {
+	dec.allocLimmit = limit
 }
 
 //Decode decodes a one ttv3 encoded value from a stream.
@@ -635,12 +634,12 @@ func (dec *V3Decoder) decode(e interface{}) error {
 	}
 	if e == nil {
 		var v v3.Value
-		err = v.FromBytes(dec.in)
+		err = v.FromBytes(dec.in, dec.allocLimmit)
 		if err != nil {
 			return err
 		}
-		clearNextValues(dec.in, v.Childrenn)
-		return nil
+
+		return clearNextValues(dec.in, v.Childrenn, dec.allocLimmit)
 	}
 	value := reflect.ValueOf(e)
 
@@ -657,17 +656,16 @@ func (dec *V3Decoder) decode(e interface{}) error {
 		}
 	} else {
 		var v v3.Value
-		err = v.FromBytes(dec.in)
+		err = v.FromBytes(dec.in, dec.allocLimmit)
 		if err != nil {
 			return err
 		}
 
-		clearNextValues(dec.in, v.Childrenn)
-		return nil
+		return clearNextValues(dec.in, v.Childrenn, dec.allocLimmit)
 	}
 
 	var v v3.Value
-	err = v.FromBytes(dec.in)
+	err = v.FromBytes(dec.in, dec.allocLimmit)
 	if err != nil {
 		return err
 	}
@@ -675,7 +673,10 @@ func (dec *V3Decoder) decode(e interface{}) error {
 	dec.yetToRead = v.Childrenn
 	err = dec.decodeValuev3(v, value)
 	if dec.yetToRead != 0 {
-		clearNextValues(dec.in, dec.yetToRead)
+		err2 := clearNextValues(dec.in, dec.yetToRead, dec.allocLimmit)
+		if err2 != nil {
+			return err2
+		}
 	}
 
 	return err
@@ -711,6 +712,11 @@ func decodeBytes(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt8(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 1 {
+		buf := [1]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Int8FromBytes(data.Value[0])
 	if e.Kind() != reflect.Int8 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -724,6 +730,11 @@ func decodeInt8(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt16(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 2 {
+		buf := [2]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Int16FromBytes(data.Value)
 	if e.Kind() != reflect.Int16 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -737,6 +748,11 @@ func decodeInt16(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt32(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 4 {
+		buf := [4]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Int32FromBytes(data.Value)
 	if e.Kind() != reflect.Int32 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -750,6 +766,11 @@ func decodeInt32(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt64(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 8 {
+		buf := [8]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Int64FromBytes(data.Value)
 	if e.Kind() != reflect.Int64 && e.Kind() != reflect.Int {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -763,6 +784,11 @@ func decodeInt64(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint8(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 1 {
+		buf := [1]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Uint8FromBytes(data.Value[0])
 	if e.Kind() != reflect.Uint8 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -776,6 +802,11 @@ func decodeUint8(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint16(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 2 {
+		buf := [2]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Uint16FromBytes(data.Value)
 	if e.Kind() != reflect.Uint16 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -789,6 +820,11 @@ func decodeUint16(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint32(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 4 {
+		buf := [4]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Uint32FromBytes(data.Value)
 	if e.Kind() != reflect.Uint32 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -802,6 +838,11 @@ func decodeUint32(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint64(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 8 {
+		buf := [8]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Uint64FromBytes(data.Value)
 	if e.Kind() != reflect.Uint64 && e.Kind() != reflect.Uint {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -815,7 +856,13 @@ func decodeUint64(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeBool(data v3.KeyValue, e reflect.Value) error {
-	val := v3.BoolFromBytes(data.Value)
+	val := false
+	if len(data.Value) != 1 {
+		val = v3.BoolFromBytes([]byte{0})
+	} else {
+		val = v3.BoolFromBytes(data.Value)
+	}
+
 	if e.Kind() != reflect.Bool {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
 			return errors.New("TT: cannot unmarshal bytes into " + e.Kind().String() + " Go type")
@@ -828,6 +875,11 @@ func decodeBool(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeFloat32(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 4 {
+		buf := [4]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Float32FromBytes(data.Value)
 	if e.Kind() != reflect.Float32 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -841,6 +893,11 @@ func decodeFloat32(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeFloat64(data v3.KeyValue, e reflect.Value) error {
+	if len(data.Value) != 8 {
+		buf := [8]byte{}
+		copy(buf[:], data.Value)
+		data.Value = buf[:]
+	}
 	val := v3.Float64FromBytes(data.Value)
 	if e.Kind() != reflect.Float64 {
 		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
@@ -860,7 +917,7 @@ func decodeMap(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 		var err error
 		key := reflect.New(reflect.TypeOf(m).Key()).Elem()
 		for i := uint64(0); i < children; i++ {
-			err = v.FromBytes(dec.in)
+			err = v.FromBytes(dec.in, dec.allocLimmit)
 			if err != nil {
 				return err
 			}
@@ -901,7 +958,7 @@ func decodeMap(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 			value = reflect.New(elem).Elem()
 		}
 		for i := uint64(0); i < children; i++ {
-			err = v.FromBytes(dec.in)
+			err = v.FromBytes(dec.in, dec.allocLimmit)
 			if err != nil {
 				return err
 			}
@@ -932,7 +989,7 @@ func decodeMap(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 		}
 
 		for i := uint64(0); i < children; i++ {
-			err := v.FromBytes(dec.in)
+			err := v.FromBytes(dec.in, dec.allocLimmit)
 			if err != nil {
 				return err
 			}
@@ -941,12 +998,20 @@ func decodeMap(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 
 			key := v.Key.ExportStructID()
 			if key == "" {
-				clearNextValues(dec.in, v.Childrenn)
+				err = clearNextValues(dec.in, v.Childrenn, dec.allocLimmit)
+				if err != nil {
+					return err
+				}
+
 				continue
 			}
 			fieldIndex, ok := usableFields[key]
 			if !ok {
-				clearNextValues(dec.in, v.Childrenn)
+				err = clearNextValues(dec.in, v.Childrenn, dec.allocLimmit)
+				if err != nil {
+					return err
+				}
+
 				continue
 			}
 
@@ -970,7 +1035,7 @@ func decodeArr(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 			return nil
 		}
 		for i := 0; i < int(children); i++ {
-			err := v.FromBytes(dec.in)
+			err := v.FromBytes(dec.in, dec.allocLimmit)
 			if err != nil {
 				return err
 			}
@@ -989,7 +1054,7 @@ func decodeArr(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 			e.SetLen(int(children))
 		}
 		for i := 0; i < int(children); i++ {
-			err := v.FromBytes(dec.in)
+			err := v.FromBytes(dec.in, dec.allocLimmit)
 			if err != nil {
 				return err
 			}
@@ -1017,7 +1082,7 @@ func decodeArr(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 			value = reflect.New(valueElem).Elem()
 		}
 		for i := 0; i < int(children); i++ {
-			err = v.FromBytes(dec.in)
+			err = v.FromBytes(dec.in, dec.allocLimmit)
 			if err != nil {
 				return err
 			}
@@ -1039,6 +1104,9 @@ func decodeArr(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 }
 
 func decodeKeyv3(k v3.KeyValue, e reflect.Value) error {
+	if int(k.Vtype) > 18 {
+		return errors.New("TT: cannot unmarshal invalid key type:" + strconv.Itoa(int(k.Vtype)))
+	}
 	return decodersSlice[int(k.Vtype)](k, e)
 }
 
@@ -1109,10 +1177,14 @@ func getFieldName(field reflect.StructField) string {
 	return name
 }
 
-func clearNextValues(buf v3.Reader, values uint64) {
+func clearNextValues(buf v3.Reader, values uint64, limit uint64) error {
 	var value v3.Value
 	for ; values > 0; values-- {
-		value.FromBytes(buf)
+		err := value.FromBytes(buf, limit)
+		if err != nil {
+			return err
+		}
 		values += value.Childrenn
 	}
+	return nil
 }

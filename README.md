@@ -10,16 +10,17 @@ Data is are benchmarks that use Data, map benchmarks just convert the data to a 
 
 r5 3600 make bench
 ```
-BenchmarkV3               305139              3920 ns/op            1326 B/op         33 allocs/op
-BenchmarkV3Decode         374406              2980 ns/op             778 B/op         28 allocs/op
-BenchmarkV3Encode        1238996              1003 ns/op             545 B/op          5 allocs/op
-BenchmarkV3int64         1504563               787 ns/op             412 B/op         11 allocs/op
-BenchmarkV2               446307              2431 ns/op            1645 B/op         26 allocs/op
-BenchmarkV2Decode         976438              1254 ns/op             776 B/op         22 allocs/op
-BenchmarkV2Encode         943730              1184 ns/op             751 B/op          4 allocs/op
-BenchmarkGobMap            91776             12232 ns/op            1916 B/op         68 allocs/op
-BenchmarkGobMapDecode     165802              6618 ns/op            1260 B/op         48 allocs/op
-BenchmarkGobMapEncode     237160              5112 ns/op             656 B/op         20 allocs/op```
+BenchmarkV3               303894              3921 ns/op            1337 B/op         33 allocs/op
+BenchmarkV3Decode         401946              2827 ns/op             778 B/op         28 allocs/op
+BenchmarkV3Encode        1208140              1049 ns/op             558 B/op          5 allocs/op
+BenchmarkV3int64         1657701               730 ns/op             572 B/op         11 allocs/op
+BenchmarkV2               450891              2442 ns/op            1615 B/op         26 allocs/op
+BenchmarkV2Decode         914095              1216 ns/op             776 B/op         22 allocs/op
+BenchmarkV2Encode         962227              1174 ns/op             791 B/op          4 allocs/op
+BenchmarkGobMap            99562             11806 ns/op            1916 B/op         68 allocs/op
+BenchmarkGobMapDecode     183130              6511 ns/op            1260 B/op         48 allocs/op
+BenchmarkGobMapEncode     235747              4983 ns/op             656 B/op         20 allocs/op
+```
 
 ## notes
 - all tests are run using `GOMAXPROCS=1`, this is because on zen running on multiple threads will cause horrible cache-invalidation. A single alloc/op would cause the GC to run at some point, this would kick the benching to a diferent core. The reason I decided to run using `GOMAXPROCS=1` is because this doesnt have a big impact on Intel cpus, and any real world application would be generating garbage anyways, so eleminitin the GC from running should be part of the benchmark. Another reason coul be: real world applications would so something else in between runs causing cache-invalidation anyways.

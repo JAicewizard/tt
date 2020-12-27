@@ -660,6 +660,7 @@ func testFuz(t *testing.T, testcase FuzzStruct) {
 		t.Error(err)
 	}
 	//this only tests public fields
+	deep.NilMapsAreEmpty = true
 	if diff := deep.Equal(testcase, after.Interface()); diff != nil {
 		t.Error(testcase)
 		t.Error(after.Interface())
@@ -667,43 +668,43 @@ func testFuz(t *testing.T, testcase FuzzStruct) {
 	}
 }
 
-//{map[-1849047553:{0.70218486 0.5657049046289432} -1704443557:{0.2711049 0.1320528724201477} -579969259:{0.41055316 0.6793484076806898} -324059402:{0.2030408 0.24218549972596393} 109147779:{0.4525726 0.32443739229246954} 644540783:{0.17598473 0.6027663378651792} 1387980123:{0.53488904 0.8896629879214714} 1466347468:{0.6818829 0.03911422469086078}] 36 18963 847877453 10861296638687174198 16814441198678319341 -120 9841 1125880010 -4082773609634810997 5510737390671974350 0.87748927 0.9334683660418484 map[]}
-//{map[-1849047553:{0.70218486 0.5657049046289432} -1704443557:{0.2711049 0.1320528724201477} -579969259:{0.41055316 0.6793484076806898} -324059402:{0.2030408 0.24218549972596393} 109147779:{0.4525726 0.32443739229246954} 644540783:{0.17598473 0.6027663378651792} 1387980123:{0.53488904 0.8896629879214714} 1466347468:{0.6818829 0.03911422469086078}] 36 18963 847877453 10861296638687174198 16814441198678319341 -120 9841 1125880010 -4082773609634810997 5510737390671974350 0.87748927 0.9334683660418484 map[]}
 func TestEncodeDecodeFuzz(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping long-running test.")
+	}
 	data := make([]byte, 1000000)
 	s := FuzzStruct{}
-	for i := 0; i < 50000; i++ {
+	for i := 0; i < 10000; i++ {
 		t.Run(fmt.Sprintf("%d", i), func(te *testing.T) {
 			rand.Read(data)
 			fuzz.NewFromGoFuzz(data).Fuzz(&s)
-			if i%1 == 0 {
+			if i%100 == 0 {
 				fmt.Printf("%d\n", i)
 			}
 			testFuz(t, s)
-			if i%1 == 0 {
-				fmt.Printf("%d\n", i)
-			}
-			buf := bytes.NewBuffer(data[:10000])
-			after := map[interface{}]interface{}{}
-			err := Decodev3(buf, &after)
-			if err != nil {
-				t.Error(err)
-			}
-
 		})
 	}
 }
 
 func TestDecodeFuzz(t *testing.T) {
-	data := make([]byte, 1000000)
-	s := FuzzStruct{}
+	if testing.Short() {
+		t.Skip("Skipping long-running test.")
+	}
+	data := make([]byte, 10000)
 	for i := 0; i < 50000; i++ {
 		t.Run(fmt.Sprintf("%d", i), func(te *testing.T) {
 			rand.Read(data)
-			if i%10000 == 0 {
+			if i%500 == 0 {
 				fmt.Printf("%d\n", i)
 			}
-			testFuz(t, s)
+			buf := bytes.NewBuffer(data[:10000])
+			after := interface{}(nil)
+			dec := NewV3Decoder(buf, true)
+			dec.SetAllocLimmit(2 << 30) //1 GiB
+			err := dec.Decode(&after)
+			if err != nil {
+				t.Log(err)
+			}
 		})
 	}
 }
