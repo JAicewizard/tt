@@ -44,25 +44,13 @@ func init() {
 	}
 }
 
-/*
-no-map
-BenchmarkV3               254824              4413 ns/op            1186 B/op         34 allocs/op
-BenchmarkV3Decode         347130              3244 ns/op             810 B/op         29 allocs/op
-BenchmarkV3Encode        1000000              1032 ns/op             374 B/op          5 allocs/op
-BenchmarkV3int64         1239445               932 ns/op             510 B/op         18 allocs/op
-slice
-BenchmarkV3              2838296              4335 ns/op            1300 B/op         34 allocs/op
-BenchmarkV3Decode        3853204              3147 ns/op             810 B/op         29 allocs/op
-BenchmarkV3Encode       12269514               970 ns/op             445 B/op          5 allocs/op
-BenchmarkV3int64        13352065               898 ns/op             626 B/op         18 allocs/op
-*/
-
 //V3Encoder is the encoder used to encode a ttv3 data stream
 type V3Encoder struct {
 	out       io.Writer
 	varintbuf *[binary.MaxVarintLen64 + 1]byte
-	sync.Mutex
 	typeCache map[string]map[string]int
+	isStream  bool
+	sync.Mutex
 }
 
 var v3StreamHeader = []byte{version3, 1 << 7}
@@ -72,10 +60,9 @@ var v3NoStreamHeader = []byte{version3, 0}
 func NewV3Encoder(out io.Writer, isStream bool) *V3Encoder {
 	if isStream {
 		out.Write(v3StreamHeader)
-	} else {
-		out.Write(v3NoStreamHeader)
 	}
 	return &V3Encoder{
+		isStream:  isStream,
 		out:       out,
 		varintbuf: &[binary.MaxVarintLen64 + 1]byte{},
 		typeCache: map[string]map[string]int{},
@@ -95,9 +82,12 @@ func Encodev3(d interface{}, out io.Writer) error {
 	return enc.encodeValuev3(d, v3.KeyValue{})
 }
 
-//Encode encodes an `interface{}`` into a bytebuffer using ttv3
+//Encode encodes an `interface{}` into a bytebuffer using ttv3
 func (enc *V3Encoder) Encode(d interface{}) error {
 	enc.Lock()
+	if !enc.isStream {
+		enc.out.Write(v3NoStreamHeader)
+	}
 	ret := enc.encodeValuev3(d, v3.KeyValue{})
 	enc.Unlock()
 	return ret
@@ -372,6 +362,9 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.KeyValue) error {
 					return err
 				}
 			}
+		} else if kind == reflect.Interface || kind == reflect.Ptr {
+			enc.encodeValuev3_reflect(val.Elem(), k)
+			alreadyEncoded = true
 		} else {
 			return v3.ErrInvalidInput
 		}
@@ -394,7 +387,6 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 	case reflect.Interface, reflect.Ptr:
 		enc.encodeValuev3_reflect(d.Elem(), k)
 		alreadyEncoded = true
-
 	case reflect.String:
 		value.Value.Value = v3.StringToBytes(d.String())
 		value.Value.Vtype = v3.StringT
