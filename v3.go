@@ -6,11 +6,55 @@ import (
 	"errors"
 	"io"
 	"reflect"
-	"runtime"
+	"strconv"
 	"sync"
 
 	v3 "github.com/jaicewizard/tt/v3"
 )
+
+var (
+	decodersSlice = [...]func(v3.KeyValue, reflect.Value) error{
+		decodeUndefined,
+		decodeString,
+		decodeBytes,
+		decodeInt8,
+		decodeInt16,
+		decodeInt32,
+		decodeInt64,
+		decodeUint8,
+		decodeUint16,
+		decodeUint32,
+		decodeUint64,
+		decodeBool,
+		decodeFloat32,
+		decodeFloat64,
+		decodeUndefined,
+		decodeUndefined,
+		decodeUndefined,
+		decodeUndefined,
+	}
+	valueDecodersSlice [2]func(*V3Decoder, v3.Value, reflect.Value) error
+)
+
+func init() {
+	valueDecodersSlice = [2]func(*V3Decoder, v3.Value, reflect.Value) error{
+		decodeMap,
+		decodeArr,
+	}
+}
+
+/*
+no-map
+BenchmarkV3               254824              4413 ns/op            1186 B/op         34 allocs/op
+BenchmarkV3Decode         347130              3244 ns/op             810 B/op         29 allocs/op
+BenchmarkV3Encode        1000000              1032 ns/op             374 B/op          5 allocs/op
+BenchmarkV3int64         1239445               932 ns/op             510 B/op         18 allocs/op
+slice
+BenchmarkV3              2838296              4335 ns/op            1300 B/op         34 allocs/op
+BenchmarkV3Decode        3853204              3147 ns/op             810 B/op         29 allocs/op
+BenchmarkV3Encode       12269514               970 ns/op             445 B/op          5 allocs/op
+BenchmarkV3int64        13352065               898 ns/op             626 B/op         18 allocs/op
+*/
 
 //V3Encoder is the encoder used to encode a ttv3 data stream
 type V3Encoder struct {
@@ -47,21 +91,21 @@ func Encodev3(d interface{}, out io.Writer) error {
 		typeCache: map[string]map[string]int{},
 	}
 	//We dont have to lock/unlock since we know we are the only one witha acces
-	return enc.encodeValuev3(d, v3.Key{})
+	return enc.encodeValuev3(d, v3.KeyValue{})
 }
 
 //Encode encodes an `interface{}`` into a bytebuffer using ttv3
 func (enc *V3Encoder) Encode(d interface{}) error {
 	enc.Lock()
-	ret := enc.encodeValuev3(d, v3.Key{})
+	ret := enc.encodeValuev3(d, v3.KeyValue{})
 	enc.Unlock()
 	return ret
 }
 
-func encodeKeyv3(k interface{}) v3.Key {
-	var key v3.Key
+func encodeKeyv3(k interface{}) v3.KeyValue {
+	var key v3.KeyValue
 	if k != nil {
-		switch v := k.(type) { //making this s seperate function will decrese performance, it won't be able to inline and make more allocations
+		switch v := k.(type) { //making this a seperate function will decrese performance, it won't be able to inline and make more allocations
 		case string:
 			key.Value = v3.StringToBytes(v)
 			key.Vtype = v3.StringT
@@ -78,14 +122,10 @@ func encodeKeyv3(k interface{}) v3.Key {
 			key.Value = v3.Int32ToBytes(v)
 			key.Vtype = v3.Int32T
 		case int64:
-			var buf [8]byte
-			v3.Int64ToBytes(v, &buf)
-			key.Value = buf[:]
+			key.Value = v3.Int64ToBytes(v)
 			key.Vtype = v3.Int64T
 		case int:
-			var buf [8]byte
-			v3.Int64ToBytes(int64(v), &buf)
-			key.Value = buf[:]
+			key.Value = v3.Int64ToBytes(int64(v))
 			key.Vtype = v3.Int64T
 		case uint8:
 			key.Value = []byte{v3.Uint8ToBytes(v)}
@@ -97,14 +137,10 @@ func encodeKeyv3(k interface{}) v3.Key {
 			key.Value = v3.Uint32ToBytes(v)
 			key.Vtype = v3.Uint32T
 		case uint64:
-			var buf [8]byte
-			v3.Uint64ToBytes(v, &buf)
-			key.Value = buf[:]
+			key.Value = v3.Uint64ToBytes(v)
 			key.Vtype = v3.Uint64T
 		case uint:
-			var buf [8]byte
-			v3.Uint64ToBytes(uint64(v), &buf)
-			key.Value = buf[:]
+			key.Value = v3.Uint64ToBytes(uint64(v))
 			key.Vtype = v3.Uint64T
 		case float32:
 			key.Value = v3.Float32ToBytes(&v)
@@ -122,100 +158,156 @@ func encodeKeyv3(k interface{}) v3.Key {
 	return key
 }
 
-func encodeString(s string) v3.Key {
-	return v3.Key{
+func encodeKeyv3_reflect(d reflect.Value) v3.KeyValue {
+	var key v3.KeyValue
+	switch d.Type().Kind() {
+	case reflect.Interface, reflect.Ptr:
+		encodeKeyv3_reflect(d.Elem())
+	case reflect.String:
+		key.Value = v3.StringToBytes(d.String())
+		key.Vtype = v3.StringT
+	case reflect.Slice:
+		if d.Type().Elem().Kind() == reflect.Int8 {
+			key.Value = d.Bytes()
+			key.Vtype = v3.StringT
+		}
+	case reflect.Int8:
+		key.Value = []byte{v3.Int8ToBytes(int8(d.Int()))}
+		key.Vtype = v3.Int8T
+	case reflect.Int16:
+		key.Value = v3.Int16ToBytes(int16(d.Int()))
+		key.Vtype = v3.Int16T
+	case reflect.Int32:
+		key.Value = v3.Int32ToBytes(int32(d.Int()))
+		key.Vtype = v3.Int32T
+	case reflect.Int64:
+		key.Value = v3.Int64ToBytes(d.Int())
+		key.Vtype = v3.Int64T
+	case reflect.Int:
+		key.Value = v3.Int64ToBytes(d.Int())
+		key.Vtype = v3.Int64T
+	case reflect.Uint8:
+		key.Value = []byte{v3.Uint8ToBytes(uint8(d.Uint()))}
+		key.Vtype = v3.Uint8T
+	case reflect.Uint16:
+		key.Value = v3.Uint16ToBytes(uint16(d.Uint()))
+		key.Vtype = v3.Uint16T
+	case reflect.Uint32:
+		key.Value = v3.Uint32ToBytes(uint32(d.Uint()))
+		key.Vtype = v3.Uint32T
+	case reflect.Uint64:
+		key.Value = v3.Uint64ToBytes(d.Uint())
+		key.Vtype = v3.Uint64T
+	case reflect.Uint:
+		key.Value = v3.Uint64ToBytes(d.Uint())
+		key.Vtype = v3.Uint64T
+	case reflect.Bool:
+		key.Value = v3.BoolToBytes(d.Bool())
+		key.Vtype = v3.BoolT
+	case reflect.Float32:
+		v := float32(d.Float())
+		key.Value = v3.Float32ToBytes(&v)
+		key.Vtype = v3.Float32T
+	case reflect.Float64:
+		v := d.Float()
+		var buf [8]byte
+		v3.Float64ToBytes(v, &buf)
+		key.Value = buf[:]
+		key.Vtype = v3.Float64T
+	}
+	return key
+}
+
+func encodeString(s string) v3.KeyValue {
+	return v3.KeyValue{
 		Value: v3.StringToBytes(s),
 		Vtype: v3.StringT,
 	}
 }
-func encodeBytes(b []byte) v3.Key {
-	return v3.Key{
+func (enc *V3Encoder) encodeString(s string, k v3.KeyValue) error {
+	value := v3.Value{
+		Key: k,
+	}
+	value.Value.Value = v3.StringToBytes(s)
+	value.Value.Vtype = v3.StringT
+	v3.AddValue(enc.out, &value, enc.varintbuf)
+	return nil
+}
+
+func encodeBytes(b []byte) v3.KeyValue {
+	return v3.KeyValue{
 		Value: b,
 		Vtype: v3.BytesT,
 	}
 }
 
-func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
+func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.KeyValue) error {
 	value := v3.Value{
 		Key: k,
 	}
-	var KeepAlive interface{}
 	alreadyEncoded := false
 	//this sets value.Value, it does al the basic types and some more
 	switch v := d.(type) {
 	case string:
-		value.Value = v3.StringToBytes(v)
-		value.Vtype = v3.StringT
+		value.Value.Value = v3.StringToBytes(v)
+		value.Value.Vtype = v3.StringT
 	case []byte:
-		value.Value = v
-		value.Vtype = v3.BytesT
+		value.Value.Value = v
+		value.Value.Vtype = v3.BytesT
 	case int8:
-		value.Value = []byte{v3.Int8ToBytes(v)}
-		value.Vtype = v3.Int8T
-		KeepAlive = &v
+		value.Value.Value = []byte{v3.Int8ToBytes(v)}
+		value.Value.Vtype = v3.Int8T
 	case int16:
-		value.Value = v3.Int16ToBytes(v)
-		value.Vtype = v3.Int16T
+		value.Value.Value = v3.Int16ToBytes(v)
+		value.Value.Vtype = v3.Int16T
 	case int32:
-		value.Value = v3.Int32ToBytes(v)
-		value.Vtype = v3.Int32T
+		value.Value.Value = v3.Int32ToBytes(v)
+		value.Value.Vtype = v3.Int32T
 	case int64:
-		var buf [8]byte
-		v3.Int64ToBytes(v, &buf)
-		value.Value = buf[:]
-		value.Vtype = v3.Int64T
+		value.Value.Value = v3.Int64ToBytes(v)
+		value.Value.Vtype = v3.Int64T
 	case int:
-		var buf [8]byte
-		v3.Int64ToBytes(int64(v), &buf)
-		value.Value = buf[:]
-		value.Vtype = v3.Int64T
+		value.Value.Value = v3.Int64ToBytes(int64(v))
+		value.Value.Vtype = v3.Int64T
 	case uint8:
-		value.Value = []byte{v3.Uint8ToBytes(v)}
-		value.Vtype = v3.Uint8T
-		KeepAlive = &v
+		value.Value.Value = []byte{v3.Uint8ToBytes(v)}
+		value.Value.Vtype = v3.Uint8T
 	case uint16:
-		value.Value = v3.Uint16ToBytes(v)
-		value.Vtype = v3.Uint16T
+		value.Value.Value = v3.Uint16ToBytes(v)
+		value.Value.Vtype = v3.Uint16T
 	case uint32:
-		value.Value = v3.Uint32ToBytes(v)
-		value.Vtype = v3.Uint32T
+		value.Value.Value = v3.Uint32ToBytes(v)
+		value.Value.Vtype = v3.Uint32T
 	case uint64:
-		var buf [8]byte
-		v3.Uint64ToBytes(uint64(v), &buf)
-		value.Value = buf[:]
-		value.Vtype = v3.Uint64T
+		value.Value.Value = v3.Uint64ToBytes(v)
+		value.Value.Vtype = v3.Uint64T
 	case uint:
-		var buf [8]byte
-		v3.Uint64ToBytes(uint64(v), &buf)
-		value.Value = buf[:]
-		value.Vtype = v3.Uint64T
+		value.Value.Value = v3.Uint64ToBytes(uint64(v))
+		value.Value.Vtype = v3.Uint64T
 	case float32:
-		value.Value = v3.Float32ToBytes(&v)
-		value.Vtype = v3.Float32T
-		KeepAlive = &v
+		value.Value.Value = v3.Float32ToBytes(&v)
+		value.Value.Vtype = v3.Float32T
 	case float64:
 		var buf [8]byte
 		v3.Float64ToBytes(v, &buf)
-		value.Value = buf[:]
-		value.Vtype = v3.Float64T
+		value.Value.Value = buf[:]
+		value.Value.Vtype = v3.Float64T
 	case bool:
-		value.Value = v3.BoolToBytes(v)
-		value.Vtype = v3.BoolT
-		KeepAlive = &v
-
+		value.Value.Value = v3.BoolToBytes(v)
+		value.Value.Vtype = v3.BoolT
 	default:
 		val := reflect.ValueOf(d)
 		kind := val.Kind()
 		if kind == reflect.Map {
 			value.Childrenn = uint64(val.Len())
-			value.Vtype = v3.MapT
+			value.Value.Vtype = v3.MapT
 			alreadyEncoded = true
 			v3.AddValue(enc.out, &value, enc.varintbuf)
 
 			switch v := d.(type) {
 			case map[string]string:
 				for k, v := range v {
-					enc.encodeValuev3(v, encodeString(k))
+					enc.encodeString(v, encodeString(k))
 				}
 			case map[string]interface{}:
 				for k, v := range v {
@@ -229,23 +321,23 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 				//if its not a specific map type
 				mapRange := val.MapRange()
 				for mapRange.Next() {
-					enc.encodeValuev3(mapRange.Value().Interface(), encodeKeyv3(mapRange.Key().Interface()))
+					enc.encodeValuev3_reflect(mapRange.Value(), encodeKeyv3_reflect(mapRange.Key()))
 				}
 			}
 		} else if kind == reflect.Array || kind == reflect.Slice {
 			value.Childrenn = uint64(val.Len())
-			value.Vtype = v3.ArrT
+			value.Value.Vtype = v3.ArrT
 			alreadyEncoded = true
 			v3.AddValue(enc.out, &value, enc.varintbuf)
 			switch s := d.(type) {
 			case []string:
 				for _, v := range s {
-					enc.encodeValuev3(v, v3.Key{})
+					enc.encodeString(v, v3.KeyValue{})
 				}
 			default:
 				//if its not a specific slice type
-				for i := 0; i < val.Len(); i++ {
-					err := enc.encodeValuev3(val.Index(i).Interface(), v3.Key{})
+				for i := 0; i < int(value.Childrenn); i++ {
+					err := enc.encodeValuev3_reflect(val.Index(i), v3.KeyValue{})
 					if err != nil {
 						return err
 					}
@@ -253,11 +345,11 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 			}
 		} else if v, ok := d.(gob.GobEncoder); ok {
 			var err error
-			value.Value, err = v.GobEncode()
+			value.Value.Value, err = v.GobEncode()
 			if err != nil {
 				return err
 			}
-			value.Vtype = v3.BytesT
+			value.Value.Vtype = v3.BytesT
 		} else if kind == reflect.Struct {
 			name := val.Type().String()
 			var usableFields map[string]int
@@ -269,13 +361,12 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 			}
 
 			value.Childrenn = uint64(len(usableFields))
-			value.Vtype = v3.MapT
+			value.Value.Vtype = v3.MapT
 			alreadyEncoded = true
 			v3.AddValue(enc.out, &value, enc.varintbuf)
 			for fieldName, fieldID := range usableFields {
 				field := val.Field(fieldID)
-				e := field.Interface()
-				err := enc.encodeValuev3(e, encodeBytes([]byte(fieldName)))
+				err := enc.encodeValuev3_reflect(field, encodeBytes([]byte(fieldName)))
 				if err != nil {
 					return err
 				}
@@ -288,7 +379,177 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.Key) error {
 	if !alreadyEncoded {
 		v3.AddValue(enc.out, &value, enc.varintbuf)
 	}
-	runtime.KeepAlive(KeepAlive)
+
+	return nil
+}
+
+func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) error {
+	value := v3.Value{
+		Key: k,
+	}
+	alreadyEncoded := false
+	//this sets value.Value, it does al the basic types and some more
+	switch d.Type().Kind() {
+	case reflect.Interface, reflect.Ptr:
+		enc.encodeValuev3_reflect(d.Elem(), k)
+		alreadyEncoded = true
+
+	case reflect.String:
+		value.Value.Value = v3.StringToBytes(d.String())
+		value.Value.Vtype = v3.StringT
+	case reflect.Slice:
+		if d.Type().Elem().Kind() == reflect.Int8 {
+			value.Value.Value = d.Bytes()
+			value.Value.Vtype = v3.StringT
+		} else if d.Type().Elem().Kind() == reflect.Int8 {
+			value.Childrenn = uint64(d.Len())
+			value.Value.Vtype = v3.ArrT
+			i := d.Interface()
+			for _, v := range i.([]string) {
+				enc.encodeString(v, v3.KeyValue{})
+			}
+			//If its not a specific type
+		} else {
+			value.Childrenn = uint64(d.Len())
+			value.Value.Vtype = v3.ArrT
+			alreadyEncoded = true
+			v3.AddValue(enc.out, &value, enc.varintbuf)
+			for i := 0; i < int(value.Childrenn); i++ {
+				err := enc.encodeValuev3_reflect(d.Index(i), v3.KeyValue{})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	case reflect.Int8:
+		value.Value.Value = []byte{v3.Int8ToBytes(int8(d.Int()))}
+		value.Value.Vtype = v3.Int8T
+	case reflect.Int16:
+		value.Value.Value = v3.Int16ToBytes(int16(d.Int()))
+		value.Value.Vtype = v3.Int16T
+	case reflect.Int32:
+		value.Value.Value = v3.Int32ToBytes(int32(d.Int()))
+		value.Value.Vtype = v3.Int32T
+	case reflect.Int64:
+		value.Value.Value = v3.Int64ToBytes(d.Int())
+		value.Value.Vtype = v3.Int64T
+	case reflect.Int:
+		value.Value.Value = v3.Int64ToBytes(d.Int())
+		value.Value.Vtype = v3.Int64T
+	case reflect.Uint8:
+		value.Value.Value = []byte{v3.Uint8ToBytes(uint8(d.Uint()))}
+		value.Value.Vtype = v3.Uint8T
+	case reflect.Uint16:
+		value.Value.Value = v3.Uint16ToBytes(uint16(d.Uint()))
+		value.Value.Vtype = v3.Uint16T
+	case reflect.Uint32:
+		value.Value.Value = v3.Uint32ToBytes(uint32(d.Uint()))
+		value.Value.Vtype = v3.Uint32T
+	case reflect.Uint64:
+		value.Value.Value = v3.Uint64ToBytes(d.Uint())
+		value.Value.Vtype = v3.Uint64T
+	case reflect.Uint:
+		value.Value.Value = v3.Uint64ToBytes(d.Uint())
+		value.Value.Vtype = v3.Uint64T
+	case reflect.Bool:
+		value.Value.Value = v3.BoolToBytes(d.Bool())
+		value.Value.Vtype = v3.BoolT
+	case reflect.Float32:
+		v := float32(d.Float())
+		value.Value.Value = v3.Float32ToBytes(&v)
+		value.Value.Vtype = v3.Float32T
+	case reflect.Float64:
+		v := d.Float()
+		var buf [8]byte
+		v3.Float64ToBytes(v, &buf)
+		value.Value.Value = buf[:]
+		value.Value.Vtype = v3.Float64T
+	case reflect.Map:
+		//TODO Only check the types first and only then convert??
+		i := d.Interface()
+		value.Childrenn = uint64(d.Len())
+		value.Value.Vtype = v3.MapT
+		alreadyEncoded = true
+		v3.AddValue(enc.out, &value, enc.varintbuf)
+
+		switch v := i.(type) {
+		case map[string]string:
+			for k, v := range v {
+				enc.encodeString(v, encodeString(k))
+			}
+		case map[string]interface{}:
+			for k, v := range v {
+				enc.encodeValuev3(v, encodeString(k))
+			}
+		case map[interface{}]interface{}:
+			for k, v := range v {
+				enc.encodeValuev3(v, encodeKeyv3(k))
+			}
+		default:
+			//if its not a specific map type
+			mapRange := d.MapRange()
+			for mapRange.Next() {
+				enc.encodeValuev3_reflect(mapRange.Value(), encodeKeyv3_reflect(mapRange.Key()))
+			}
+		}
+	case reflect.Array:
+		//TODO Only check the types first and only then convert??
+		i := d.Interface()
+
+		value.Childrenn = uint64(d.Len())
+		value.Value.Vtype = v3.ArrT
+		alreadyEncoded = true
+		v3.AddValue(enc.out, &value, enc.varintbuf)
+		switch s := i.(type) {
+		case []string:
+			for _, v := range s {
+				enc.encodeString(v, v3.KeyValue{})
+			}
+		default:
+			//if its not a specific slice type
+			for i := 0; i < int(value.Childrenn); i++ {
+				err := enc.encodeValuev3_reflect(d.Index(i), v3.KeyValue{})
+				if err != nil {
+					return err
+				}
+			}
+		}
+	case reflect.Struct:
+		modelType := reflect.TypeOf((*gob.GobEncoder)(nil)).Elem()
+		if d.Type().Implements(modelType) {
+			var err error
+			value.Value.Value, err = d.Interface().(gob.GobEncoder).GobEncode()
+			if err != nil {
+				return err
+			}
+			value.Value.Vtype = v3.BytesT
+		} else {
+			name := d.Type().String()
+			var usableFields map[string]int
+			if v, ok := enc.typeCache[name]; ok {
+				usableFields = v
+			} else {
+				usableFields = getStructFields(d)
+				enc.typeCache[name] = usableFields
+			}
+
+			value.Childrenn = uint64(len(usableFields))
+			value.Value.Vtype = v3.MapT
+			alreadyEncoded = true
+			v3.AddValue(enc.out, &value, enc.varintbuf)
+			for fieldName, fieldID := range usableFields {
+				field := d.Field(fieldID)
+				err := enc.encodeValuev3_reflect(field, encodeBytes([]byte(fieldName)))
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	if !alreadyEncoded {
+		v3.AddValue(enc.out, &value, enc.varintbuf)
+	}
 
 	return nil
 }
@@ -312,6 +573,7 @@ type V3Decoder struct {
 	didDecode bool
 	in        v3.Reader
 	typeCache map[string]map[string]int
+	yetToRead uint64
 	sync.Mutex
 }
 
@@ -364,6 +626,7 @@ func Decodev3(buf v3.Reader, e interface{}) error {
 }
 
 func (dec *V3Decoder) decode(e interface{}) error {
+	var err error
 	if !dec.isStream {
 		if dec.didDecode {
 			return errors.New("TT: attempt to decode twice from non-stream")
@@ -372,7 +635,10 @@ func (dec *V3Decoder) decode(e interface{}) error {
 	}
 	if e == nil {
 		var v v3.Value
-		v.FromBytes(dec.in)
+		err = v.FromBytes(dec.in)
+		if err != nil {
+			return err
+		}
 		clearNextValues(dec.in, v.Childrenn)
 		return nil
 	}
@@ -391,70 +657,392 @@ func (dec *V3Decoder) decode(e interface{}) error {
 		}
 	} else {
 		var v v3.Value
-		v.FromBytes(dec.in)
+		err = v.FromBytes(dec.in)
+		if err != nil {
+			return err
+		}
+
 		clearNextValues(dec.in, v.Childrenn)
 		return nil
 	}
 
 	var v v3.Value
-	v.FromBytes(dec.in)
-	yetToRead := v.Childrenn
+	err = v.FromBytes(dec.in)
+	if err != nil {
+		return err
+	}
 
-	err := dec.decodeValuev3(v, value, &yetToRead)
-	if yetToRead != 0 {
-		clearNextValues(dec.in, yetToRead)
+	dec.yetToRead = v.Childrenn
+	err = dec.decodeValuev3(v, value)
+	if dec.yetToRead != 0 {
+		clearNextValues(dec.in, dec.yetToRead)
 	}
 
 	return err
 }
 
-func decodeKeyv3(k v3.Key, buf v3.Reader, e reflect.Value) error {
-	if k.Vtype == v3.StringT {
-		val := v3.StringFromBytes(k.Value)
-		if e.Kind() != reflect.String {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal string into " + e.Type().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetString(val)
+func decodeUndefined(data v3.KeyValue, e reflect.Value) error {
+	return errors.New("TT: cannot unmarshal invalid type:" + strconv.Itoa(int(data.Vtype)))
+}
+
+func decodeString(data v3.KeyValue, e reflect.Value) error {
+	val := v3.StringFromBytes(data.Value)
+	if e.Kind() != reflect.String {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal string into " + e.Type().String() + " Go type")
 		}
-	} else if k.Vtype == v3.BytesT {
-		val := k.Value
-		if e.Kind() != reflect.Slice || e.Type().Elem().Kind() != reflect.Uint8 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal bytes into " + e.Type().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetBytes(val)
-		}
-	} else if k.Vtype == v3.Float32T {
-		e.SetFloat(float64(v3.Float32FromBytes(k.Value)))
-	} else if k.Vtype == v3.Float64T {
-		e.SetFloat(v3.Float64FromBytes(k.Value))
-	} else if k.Vtype == v3.Int8T {
-		e.SetInt(int64(v3.Int8FromBytes(k.Value[0])))
-	} else if k.Vtype == v3.Int16T {
-		e.SetInt(int64(v3.Int16FromBytes(k.Value)))
-	} else if k.Vtype == v3.Int32T {
-		e.SetInt(int64(v3.Int32FromBytes(k.Value)))
-	} else if k.Vtype == v3.Int64T {
-		e.SetInt(int64(v3.Int64FromBytes(k.Value)))
-	} else if k.Vtype == v3.Uint8T {
-		e.SetUint(uint64(v3.Uint8FromBytes(k.Value[0])))
-	} else if k.Vtype == v3.Uint16T {
-		e.SetUint(uint64(v3.Uint16FromBytes(k.Value)))
-	} else if k.Vtype == v3.Uint32T {
-		e.SetUint(uint64(v3.Uint32FromBytes(k.Value)))
-	} else if k.Vtype == v3.Uint64T {
-		e.SetUint(uint64(v3.Uint64FromBytes(k.Value)))
-	} else if k.Vtype == v3.BoolT {
-		e.SetBool(v3.BoolFromBytes(k.Value))
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetString(val)
 	}
 	return nil
 }
-func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint64) error {
+
+func decodeBytes(data v3.KeyValue, e reflect.Value) error {
+	if e.Kind() != reflect.Slice || e.Type().Elem().Kind() != reflect.Uint8 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal bytes into " + e.Type().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(data.Value))
+	} else {
+		e.SetBytes(data.Value)
+	}
+	return nil
+}
+
+func decodeInt8(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Int8FromBytes(data.Value[0])
+	if e.Kind() != reflect.Int8 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal int8 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetInt(int64(val))
+	}
+	return nil
+}
+
+func decodeInt16(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Int16FromBytes(data.Value)
+	if e.Kind() != reflect.Int16 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal int16 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetInt(int64(val))
+	}
+	return nil
+}
+
+func decodeInt32(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Int32FromBytes(data.Value)
+	if e.Kind() != reflect.Int32 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal int32 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetInt(int64(val))
+	}
+	return nil
+}
+
+func decodeInt64(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Int64FromBytes(data.Value)
+	if e.Kind() != reflect.Int64 && e.Kind() != reflect.Int {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal int64 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetInt(val)
+	}
+	return nil
+}
+
+func decodeUint8(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Uint8FromBytes(data.Value[0])
+	if e.Kind() != reflect.Uint8 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal uint8 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetUint(uint64(val))
+	}
+	return nil
+}
+
+func decodeUint16(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Uint16FromBytes(data.Value)
+	if e.Kind() != reflect.Uint16 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal uint16 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetUint(uint64(val))
+	}
+	return nil
+}
+
+func decodeUint32(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Uint32FromBytes(data.Value)
+	if e.Kind() != reflect.Uint32 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal uint32 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetUint(uint64(val))
+	}
+	return nil
+}
+
+func decodeUint64(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Uint64FromBytes(data.Value)
+	if e.Kind() != reflect.Uint64 && e.Kind() != reflect.Uint {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal uint64 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetUint(val)
+	}
+	return nil
+}
+
+func decodeBool(data v3.KeyValue, e reflect.Value) error {
+	val := v3.BoolFromBytes(data.Value)
+	if e.Kind() != reflect.Bool {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal bytes into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetBool(val)
+	}
+	return nil
+}
+
+func decodeFloat32(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Float32FromBytes(data.Value)
+	if e.Kind() != reflect.Float32 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal float32 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetFloat(float64(val))
+	}
+	return nil
+}
+
+func decodeFloat64(data v3.KeyValue, e reflect.Value) error {
+	val := v3.Float64FromBytes(data.Value)
+	if e.Kind() != reflect.Float64 {
+		if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
+			return errors.New("TT: cannot unmarshal float64 into " + e.Kind().String() + " Go type")
+		}
+		e.Set(reflect.ValueOf(val))
+	} else {
+		e.SetFloat(val)
+	}
+	return nil
+}
+
+func decodeMap(dec *V3Decoder, v v3.Value, e reflect.Value) error {
+	if e.Kind() == reflect.Interface && e.NumMethod() == 0 {
+		children := v.Childrenn
+		m := make(map[interface{}]interface{}, children)
+		var err error
+		key := reflect.New(reflect.TypeOf(m).Key()).Elem()
+		for i := uint64(0); i < children; i++ {
+			err = v.FromBytes(dec.in)
+			if err != nil {
+				return err
+			}
+			dec.yetToRead += v.Childrenn - 1
+
+			err = decodeKeyv3(v.Key, key)
+			if err != nil {
+				return err
+			}
+			k := key.Interface()
+			err = dec.decodeValuev3(v, key)
+			if err != nil {
+				return err
+			}
+			if v, ok := k.([]byte); ok {
+				m[string(v)] = key.Interface()
+			} else {
+				m[k] = key.Interface()
+			}
+		}
+		e.Set(reflect.ValueOf(m))
+
+	} else if e.Kind() == reflect.Map {
+		children := v.Childrenn
+		if e.IsNil() {
+			e.Set(reflect.MakeMap(e.Type()))
+		}
+
+		var err error
+		var value reflect.Value
+		key := reflect.New(e.Type().Key()).Elem()
+
+		elem := e.Type().Elem()
+		ValueKind := elem.Kind()
+		shouldReplace := ValueKind == reflect.Array || ValueKind == reflect.Slice || ValueKind == reflect.Map
+
+		if !shouldReplace {
+			value = reflect.New(elem).Elem()
+		}
+		for i := uint64(0); i < children; i++ {
+			err = v.FromBytes(dec.in)
+			if err != nil {
+				return err
+			}
+			dec.yetToRead += v.Childrenn - 1
+
+			err = decodeKeyv3(v.Key, key)
+			if err != nil {
+				return err
+			}
+			if shouldReplace {
+				value = reflect.New(elem).Elem()
+			}
+			err = dec.decodeValuev3(v, value)
+			if err != nil {
+				return err
+			}
+			e.SetMapIndex(key, value)
+		}
+	} else if e.Kind() == reflect.Struct {
+		children := v.Childrenn
+		name := e.Type().String()
+		var usableFields map[string]int
+		if v, ok := dec.typeCache[name]; ok {
+			usableFields = v
+		} else {
+			usableFields = getStructFields(e)
+			dec.typeCache[name] = usableFields
+		}
+
+		for i := uint64(0); i < children; i++ {
+			err := v.FromBytes(dec.in)
+			if err != nil {
+				return err
+			}
+
+			dec.yetToRead += v.Childrenn - 1
+
+			key := v.Key.ExportStructID()
+			if key == "" {
+				clearNextValues(dec.in, v.Childrenn)
+				continue
+			}
+			fieldIndex, ok := usableFields[key]
+			if !ok {
+				clearNextValues(dec.in, v.Childrenn)
+				continue
+			}
+
+			field := e.Field(fieldIndex)
+
+			err = dec.decodeValuev3(v, field)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func decodeArr(dec *V3Decoder, v v3.Value, e reflect.Value) error {
+	children := v.Childrenn
+
+	if e.Kind() == reflect.Array {
+		len := e.Len()
+		if len < int(children) {
+			return nil
+		}
+		for i := 0; i < int(children); i++ {
+			err := v.FromBytes(dec.in)
+			if err != nil {
+				return err
+			}
+			dec.yetToRead += v.Childrenn - 1
+
+			err = dec.decodeValuev3(v, e.Index(i))
+			if err != nil {
+				return err
+			}
+		}
+	} else if e.Kind() == reflect.Slice {
+		len := e.Len()
+		if len < int(children) {
+			e.Set(reflect.MakeSlice(e.Type(), int(children), int(children)))
+		} else if len > int(children) {
+			e.SetLen(int(children))
+		}
+		for i := 0; i < int(children); i++ {
+			err := v.FromBytes(dec.in)
+			if err != nil {
+				return err
+			}
+			dec.yetToRead += v.Childrenn - 1
+
+			err = dec.decodeValuev3(v, e.Index(i))
+			if err != nil {
+				return err
+			}
+		}
+		/*} else if e.Kind() == reflect.Map {
+		//TODO: if kind is also a numeric value it is usable
+		e.Type().Key().Kind()
+		*/
+	} else {
+		//if all special cases fail we fall back to []interface{}
+		arr := make([]interface{}, children)
+		var err error
+		var value reflect.Value
+		valueElem := reflect.TypeOf(arr).Elem()
+		ValueKind := valueElem.Kind()
+		shouldReplace := ValueKind == reflect.Array || ValueKind == reflect.Slice || ValueKind == reflect.Map
+
+		if !shouldReplace {
+			value = reflect.New(valueElem).Elem()
+		}
+		for i := 0; i < int(children); i++ {
+			err = v.FromBytes(dec.in)
+			if err != nil {
+				return err
+			}
+			dec.yetToRead += v.Childrenn - 1
+
+			if shouldReplace {
+				value = reflect.New(valueElem).Elem()
+			}
+
+			err = dec.decodeValuev3(v, value)
+			if err != nil {
+				return err
+			}
+			arr[i] = value.Interface()
+		}
+		e.Set(reflect.ValueOf(arr))
+	}
+	return nil
+}
+
+func decodeKeyv3(k v3.KeyValue, e reflect.Value) error {
+	return decodersSlice[int(k.Vtype)](k, e)
+}
+
+func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value) error {
 	//copy from json/decode.go:indirect
 	haveAddr := false
 	e0 := e
@@ -491,7 +1079,7 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 
 		if e.Type().NumMethod() > 0 && e.CanInterface() {
 			if u, ok := e.Interface().(gob.GobDecoder); ok {
-				return u.GobDecode(v.Value)
+				return u.GobDecode(v.Value.Value)
 			}
 		}
 
@@ -502,303 +1090,14 @@ func (dec *V3Decoder) decodeValuev3(v v3.Value, e reflect.Value, yetToRead *uint
 			e = e.Elem()
 		}
 	}
-
-	switch v.Vtype {
-	case v3.StringT:
-		val := v3.StringFromBytes(v.Value)
-		if e.Kind() != reflect.String {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal string into " + e.Type().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetString(val)
-		}
-	case v3.BytesT:
-		val := v.Value
-		if e.Kind() != reflect.Slice || e.Type().Elem().Kind() != reflect.Uint8 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal bytes into " + e.Type().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetBytes(val)
-		}
-	case v3.Int8T:
-		val := v3.Int8FromBytes(v.Value[0])
-		if e.Kind() != reflect.Int8 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal int8 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetInt(int64(val))
-		}
-	case v3.Int16T:
-		val := v3.Int16FromBytes(v.Value)
-		if e.Kind() != reflect.Int16 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal int16 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetInt(int64(val))
-		}
-	case v3.Int32T:
-		val := v3.Int32FromBytes(v.Value)
-		if e.Kind() != reflect.Int32 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal int32 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetInt(int64(val))
-		}
-	case v3.Int64T:
-		val := v3.Int64FromBytes(v.Value)
-		if e.Kind() != reflect.Int64 && e.Kind() != reflect.Int {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal int64 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetInt(val)
-		}
-
-	case v3.Uint8T:
-		val := v3.Uint8FromBytes(v.Value[0])
-		if e.Kind() != reflect.Uint8 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal uint8 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetUint(uint64(val))
-		}
-	case v3.Uint16T:
-		val := v3.Uint16FromBytes(v.Value)
-		if e.Kind() != reflect.Uint16 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal uint16 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetUint(uint64(val))
-		}
-	case v3.Uint32T:
-		val := v3.Uint32FromBytes(v.Value)
-		if e.Kind() != reflect.Uint32 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal uint32 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetUint(uint64(val))
-		}
-	case v3.Uint64T:
-		val := v3.Uint64FromBytes(v.Value)
-		if e.Kind() != reflect.Uint64 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal uint64 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetUint(val)
-		}
-
-	case v3.Float32T:
-		val := v3.Float32FromBytes(v.Value)
-		if e.Kind() != reflect.Float32 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal float32 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetFloat(float64(val))
-		}
-	case v3.Float64T:
-		val := v3.Float64FromBytes(v.Value)
-		if e.Kind() != reflect.Float64 {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal float64 into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetFloat(val)
-		}
-
-	case v3.BoolT:
-		val := v3.BoolFromBytes(v.Value)
-		if e.Kind() != reflect.Bool {
-			if e.Kind() != reflect.Interface || e.Type().NumMethod() != 0 {
-				return errors.New("TT: cannot unmarshal bytes into " + e.Kind().String() + " Go type")
-			}
-			e.Set(reflect.ValueOf(val))
-		} else {
-			e.SetBool(val)
-		}
-
-	// special types
-	case v3.MapT:
-		if e.Kind() == reflect.Interface && e.NumMethod() == 0 {
-			children := v.Childrenn
-			m := make(map[interface{}]interface{}, children)
-			var err error
-			key := reflect.New(reflect.TypeOf(m).Key()).Elem()
-			for i := uint64(0); i < children; i++ {
-				v.FromBytes(dec.in)
-				*yetToRead += v.Childrenn - 1
-				err = decodeKeyv3(v.Key, dec.in, key)
-				if err != nil {
-					return err
-				}
-				k := key.Interface()
-				err = dec.decodeValuev3(v, key, yetToRead)
-				if err != nil {
-					return err
-				}
-				if v, ok := k.([]byte); ok {
-					m[string(v)] = key.Interface()
-				} else {
-					m[k] = key.Interface()
-				}
-			}
-			e.Set(reflect.ValueOf(m))
-		}
-
-		if e.Kind() == reflect.Map {
-			children := v.Childrenn
-			if e.IsNil() {
-				e.Set(reflect.MakeMap(e.Type()))
-			}
-
-			var err error
-			var value reflect.Value
-			key := reflect.New(e.Type().Key()).Elem()
-
-			ValueKind := e.Type().Elem().Kind()
-			shouldReplace := ValueKind == reflect.Array || ValueKind == reflect.Slice || ValueKind == reflect.Map
-
-			if !shouldReplace {
-				value = reflect.New(e.Type().Elem()).Elem()
-			}
-			for i := uint64(0); i < children; i++ {
-				v.FromBytes(dec.in)
-				*yetToRead += v.Childrenn - 1
-
-				err = decodeKeyv3(v.Key, dec.in, key)
-				if err != nil {
-					return err
-				}
-				if shouldReplace {
-					value = reflect.New(e.Type().Elem()).Elem()
-				}
-				err = dec.decodeValuev3(v, value, yetToRead)
-				if err != nil {
-					return err
-				}
-				e.SetMapIndex(key, value)
-			}
-		} else if e.Kind() == reflect.Struct {
-
-			children := v.Childrenn
-			name := e.Type().String()
-			var usableFields map[string]int
-			if v, ok := dec.typeCache[name]; ok {
-				usableFields = v
-			} else {
-				usableFields = getStructFields(e)
-				dec.typeCache[name] = usableFields
-			}
-
-			for i := uint64(0); i < children; i++ {
-				v.FromBytes(dec.in)
-				*yetToRead += v.Childrenn - 1
-
-				key := v.Key.ExportStructID()
-				if key == "" {
-					clearNextValues(dec.in, v.Childrenn)
-					continue
-				}
-				fieldIndex, ok := usableFields[key]
-				if !ok {
-					clearNextValues(dec.in, v.Childrenn)
-					continue
-				}
-
-				field := e.Field(fieldIndex)
-
-				err := dec.decodeValuev3(v, field, yetToRead)
-				if err != nil {
-					return err
-				}
-			}
-		}
-	case v3.ArrT:
-		children := v.Childrenn
-
-		if e.Kind() == reflect.Array {
-			len := e.Len()
-			if len < int(children) {
-				break
-			}
-			for i := 0; i < int(children); i++ {
-				v.FromBytes(dec.in)
-				*yetToRead += v.Childrenn - 1
-
-				err := dec.decodeValuev3(v, e.Index(i), yetToRead)
-				if err != nil {
-					return err
-				}
-			}
-			break
-		} else if e.Kind() == reflect.Slice {
-			len := e.Len()
-			if len < int(children) {
-				e.Set(reflect.MakeSlice(e.Type(), int(children), int(children)))
-			} else if len > int(children) {
-				e.SetLen(int(children))
-			}
-			for i := 0; i < int(children); i++ {
-				v.FromBytes(dec.in)
-				*yetToRead += v.Childrenn - 1
-				err := dec.decodeValuev3(v, e.Index(i), yetToRead)
-				if err != nil {
-					return err
-				}
-			}
-			break
-		} else if e.Kind() == reflect.Map {
-			//TODO: if kind is also a numeric value it is usable
-			e.Type().Key().Kind()
-		}
-
-		//if all special cases fail we fall back to []interface{}
-		arr := make([]interface{}, children)
-		var err error
-		var value reflect.Value
-		ValueKind := reflect.TypeOf(arr).Elem().Kind()
-		shouldReplace := ValueKind == reflect.Array || ValueKind == reflect.Slice || ValueKind == reflect.Map
-
-		if !shouldReplace {
-			value = reflect.New(reflect.TypeOf(arr).Elem()).Elem()
-		}
-		for i := 0; i < int(children); i++ {
-			v.FromBytes(dec.in)
-			*yetToRead += v.Childrenn - 1
-			if shouldReplace {
-				value = reflect.New(reflect.TypeOf(arr).Elem()).Elem()
-			}
-
-			err = dec.decodeValuev3(v, value, yetToRead)
-			if err != nil {
-				return err
-			}
-			arr[i] = value.Interface()
-		}
-		e.Set(reflect.ValueOf(arr))
+	if int(v.Value.Vtype) < 18 {
+		return decodersSlice[int(v.Value.Vtype)](v.Value, e)
+	} else if v.Value.Vtype == v3.MapT {
+		return decodeMap(dec, v, e)
+	} else if v.Value.Vtype == v3.ArrT {
+		return decodeArr(dec, v, e)
 	}
-	return nil
+	return decodeUndefined(v.Value, e)
 }
 
 func getFieldName(field reflect.StructField) string {

@@ -5,14 +5,15 @@ import (
 )
 
 type (
-	//Key is the key used for storing the key of a Value
-	Key struct {
+	//KeyValue is the key used for storing the key/value
+	KeyValue struct {
 		Value []byte //the key to the data of this object in its final form
 		Vtype ttType //the type of the data of this object in its final form
 	}
 )
 
-func (k *Key) ExportStructID() string {
+//ExportStructID returns a string identifying the value
+func (k *KeyValue) ExportStructID() string {
 	switch k.Vtype {
 	case StringT:
 		return StringFromBytes(k.Value)

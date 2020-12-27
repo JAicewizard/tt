@@ -3,6 +3,7 @@ package tt
 import (
 	"bufio"
 	"bytes"
+	"crypto/rand"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"time"
 
 	"github.com/go-test/deep"
+	fuzz "github.com/google/gofuzz"
 	v1 "github.com/jaicewizard/tt/v1"
 )
 
@@ -586,7 +588,10 @@ var testCases = []testCase{
 
 func testStructDecode(t *testing.T, testcase testCase) {
 	buf := &bytes.Buffer{}
-	Encodev3(testcase.data, buf)
+	err := Encodev3(testcase.data, buf)
+	if err != nil {
+		t.Error(err)
+	}
 	equal := false
 	bytes := []byte{}
 	var diff []string
@@ -602,7 +607,7 @@ func testStructDecode(t *testing.T, testcase testCase) {
 		t.Error(diff)
 	}
 	after := reflect.New(reflect.TypeOf(testcase.data)).Elem()
-	err := Decodev3(buf, after.Addr().Interface())
+	err = Decodev3(buf, after.Addr().Interface())
 	if err != nil {
 		t.Error(err)
 	}
@@ -622,6 +627,83 @@ func TestEncodeDecode(t *testing.T) {
 	}
 }
 
-type testStructEmbeded struct {
-	Name string `TT:"hi"`
+type FuzzStruct struct {
+	M       map[int32]Point
+	Uint8   uint8
+	Uint16  uint16
+	Uint32  uint32
+	Uint64  uint64
+	Uint    uint
+	Int8    int8
+	Int16   int16
+	Int32   int32
+	Int64   int64
+	Int     int
+	Float32 float32
+	Float64 float64
+	Map2    map[string]Point
+}
+type Point struct {
+	X float32
+	Y float64
+}
+
+func testFuz(t *testing.T, testcase FuzzStruct) {
+	buf := &bytes.Buffer{}
+	err := Encodev3(testcase, buf)
+	if err != nil {
+		t.Error(err)
+	}
+	after := reflect.New(reflect.TypeOf(testcase)).Elem()
+	err = Decodev3(buf, after.Addr().Interface())
+	if err != nil {
+		t.Error(err)
+	}
+	//this only tests public fields
+	if diff := deep.Equal(testcase, after.Interface()); diff != nil {
+		t.Error(testcase)
+		t.Error(after.Interface())
+		t.Error(diff)
+	}
+}
+
+//{map[-1849047553:{0.70218486 0.5657049046289432} -1704443557:{0.2711049 0.1320528724201477} -579969259:{0.41055316 0.6793484076806898} -324059402:{0.2030408 0.24218549972596393} 109147779:{0.4525726 0.32443739229246954} 644540783:{0.17598473 0.6027663378651792} 1387980123:{0.53488904 0.8896629879214714} 1466347468:{0.6818829 0.03911422469086078}] 36 18963 847877453 10861296638687174198 16814441198678319341 -120 9841 1125880010 -4082773609634810997 5510737390671974350 0.87748927 0.9334683660418484 map[]}
+//{map[-1849047553:{0.70218486 0.5657049046289432} -1704443557:{0.2711049 0.1320528724201477} -579969259:{0.41055316 0.6793484076806898} -324059402:{0.2030408 0.24218549972596393} 109147779:{0.4525726 0.32443739229246954} 644540783:{0.17598473 0.6027663378651792} 1387980123:{0.53488904 0.8896629879214714} 1466347468:{0.6818829 0.03911422469086078}] 36 18963 847877453 10861296638687174198 16814441198678319341 -120 9841 1125880010 -4082773609634810997 5510737390671974350 0.87748927 0.9334683660418484 map[]}
+func TestEncodeDecodeFuzz(t *testing.T) {
+	data := make([]byte, 1000000)
+	s := FuzzStruct{}
+	for i := 0; i < 50000; i++ {
+		t.Run(fmt.Sprintf("%d", i), func(te *testing.T) {
+			rand.Read(data)
+			fuzz.NewFromGoFuzz(data).Fuzz(&s)
+			if i%1 == 0 {
+				fmt.Printf("%d\n", i)
+			}
+			testFuz(t, s)
+			if i%1 == 0 {
+				fmt.Printf("%d\n", i)
+			}
+			buf := bytes.NewBuffer(data[:10000])
+			after := map[interface{}]interface{}{}
+			err := Decodev3(buf, &after)
+			if err != nil {
+				t.Error(err)
+			}
+
+		})
+	}
+}
+
+func TestDecodeFuzz(t *testing.T) {
+	data := make([]byte, 1000000)
+	s := FuzzStruct{}
+	for i := 0; i < 50000; i++ {
+		t.Run(fmt.Sprintf("%d", i), func(te *testing.T) {
+			rand.Read(data)
+			if i%10000 == 0 {
+				fmt.Printf("%d\n", i)
+			}
+			testFuz(t, s)
+		})
+	}
 }
