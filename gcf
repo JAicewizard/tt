@@ -1,0 +1,2102 @@
+# github.com/jaicewizard/tt
+./v3.go:232:6: cannot inline (*V3Encoder).encodeString: function too complex: cost 114 exceeds budget 80
+./v3.go:236:38: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:238:13: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:226:6: can inline encodeString with cost 31 as: func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:228:26: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:110:6: cannot inline encodeKeyv3: unhandled op TYPESW
+./v3.go:115:32: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:121:37: inlining call to v3.Int8ToBytes func(int8) byte { return byte(v3.u) }
+./v3.go:124:31: inlining call to v3.Int16ToBytes func(int16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], uint16(v3.f)); return v3.buf·3[:] }
+./v3.go:124:31: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:127:31: inlining call to v3.Int32ToBytes func(int32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], uint32(v3.f)); return v3.buf·3[:] }
+./v3.go:127:31: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:136:38: inlining call to v3.Uint8ToBytes func(uint8) byte { return byte(v3.u) }
+./v3.go:139:32: inlining call to v3.Uint16ToBytes func(uint16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:139:32: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:142:32: inlining call to v3.Uint32ToBytes func(uint32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:142:32: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:151:33: inlining call to v3.Float32ToBytes func(*float32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; var v3.bits·4 uint32; v3.bits·4 = <N>; v3.bits·4 = math.Float32bits(*v3.f); binary.LittleEndian.PutUint32(v3.buf·3[:], v3.bits·4); return v3.buf·3[:] }
+./v3.go:151:33: inlining call to math.Float32bits func(float32) uint32 { return *(*uint32)(unsafe.Pointer(&math.f)) }
+./v3.go:151:33: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:159:30: inlining call to v3.BoolToBytes func(bool) []byte { if v3.b { return []byte literal }; return []byte literal }
+./v3.go:166:6: cannot inline encodeKeyv3_reflect: recursive
+./v3.go:172:31: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:180:47: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:180:47: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:180:47: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:180:36: inlining call to v3.Int8ToBytes func(int8) byte { return byte(v3.u) }
+./v3.go:183:42: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:183:42: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:183:42: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:183:30: inlining call to v3.Int16ToBytes func(int16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], uint16(v3.f)); return v3.buf·3[:] }
+./v3.go:183:30: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:186:42: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:186:42: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:186:42: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:186:30: inlining call to v3.Int32ToBytes func(int32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], uint32(v3.f)); return v3.buf·3[:] }
+./v3.go:186:30: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:189:36: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:189:36: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:189:36: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:192:36: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:192:36: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:192:36: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:195:50: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:195:50: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:195:50: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:195:37: inlining call to v3.Uint8ToBytes func(uint8) byte { return byte(v3.u) }
+./v3.go:198:45: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:198:45: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:198:45: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:198:31: inlining call to v3.Uint16ToBytes func(uint16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:198:31: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:201:45: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:201:45: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:201:45: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:201:31: inlining call to v3.Uint32ToBytes func(uint32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:201:31: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:204:38: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:204:38: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:204:38: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:207:38: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:207:38: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:207:38: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:210:29: inlining call to v3.BoolToBytes func(bool) []byte { if v3.b { return []byte literal }; return []byte literal }
+./v3.go:213:23: inlining call to reflect.Value.Float method(reflect.Value) func() float64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:213:23: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:213:23: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:214:32: inlining call to v3.Float32ToBytes func(*float32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; var v3.bits·4 uint32; v3.bits·4 = <N>; v3.bits·4 = math.Float32bits(*v3.f); binary.LittleEndian.PutUint32(v3.buf·3[:], v3.bits·4); return v3.buf·3[:] }
+./v3.go:214:32: inlining call to math.Float32bits func(float32) uint32 { return *(*uint32)(unsafe.Pointer(&math.f)) }
+./v3.go:214:32: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:217:15: inlining call to reflect.Value.Float method(reflect.Value) func() float64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:217:15: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:217:15: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1200:6: cannot inline getFieldName: function too complex: cost 87 exceeds budget 80
+./v3.go:1201:23: inlining call to reflect.StructTag.Get method(reflect.StructTag) func(string) string { var reflect.v·4 string; reflect.v·4 = <N>; reflect.v·4, _ = reflect.tag.Lookup(reflect.key); return reflect.v·4 }
+./v3.go:562:6: cannot inline getStructFields2: unhandled op FOR
+./v3.go:567:55: inlining call to reflect.Value.CanInterface method(reflect.Value) func() bool { if reflect.v.flag == reflect.flag(0) { panic(&reflect.ValueError literal) }; return reflect.v.flag & reflect.flag(96) == reflect.flag(0) }
+./v3.go:1221:6: cannot inline canGobEncode: function too complex: cost 141 exceeds budget 80
+./v3.go:1223:26: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:249:6: cannot inline (*V3Encoder).encodeValuev3: unhandled op TYPESW
+./v3.go:257:39: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:263:44: inlining call to v3.Int8ToBytes func(int8) byte { return byte(v3.u) }
+./v3.go:266:38: inlining call to v3.Int16ToBytes func(int16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], uint16(v3.f)); return v3.buf·3[:] }
+./v3.go:266:38: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:269:38: inlining call to v3.Int32ToBytes func(int32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], uint32(v3.f)); return v3.buf·3[:] }
+./v3.go:269:38: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:278:45: inlining call to v3.Uint8ToBytes func(uint8) byte { return byte(v3.u) }
+./v3.go:281:39: inlining call to v3.Uint16ToBytes func(uint16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:281:39: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:284:39: inlining call to v3.Uint32ToBytes func(uint32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:284:39: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:293:40: inlining call to v3.Float32ToBytes func(*float32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; var v3.bits·4 uint32; v3.bits·4 = <N>; v3.bits·4 = math.Float32bits(*v3.f); binary.LittleEndian.PutUint32(v3.buf·3[:], v3.bits·4); return v3.buf·3[:] }
+./v3.go:293:40: inlining call to math.Float32bits func(float32) uint32 { return *(*uint32)(unsafe.Pointer(&math.f)) }
+./v3.go:293:40: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:301:37: inlining call to v3.BoolToBytes func(bool) []byte { if v3.b { return []byte literal }; return []byte literal }
+./v3.go:304:25: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:304:25: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:304:25: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:304:25: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:304:25: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:305:19: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:305:19: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:372:15: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:378:57: inlining call to encodeString func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:378:57: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:336:15: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:310:15: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:315:38: inlining call to encodeString func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:315:38: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:319:39: inlining call to encodeString func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:319:39: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:392:14: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:398:6: cannot inline (*V3Encoder).encodeValuev3_reflect: unhandled op FOR
+./v3.go:410:39: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:426:15: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:435:55: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:435:55: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:435:55: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:435:44: inlining call to v3.Int8ToBytes func(int8) byte { return byte(v3.u) }
+./v3.go:438:50: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:438:50: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:438:50: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:438:38: inlining call to v3.Int16ToBytes func(int16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], uint16(v3.f)); return v3.buf·3[:] }
+./v3.go:438:38: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:441:50: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:441:50: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:441:50: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:441:38: inlining call to v3.Int32ToBytes func(int32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], uint32(v3.f)); return v3.buf·3[:] }
+./v3.go:441:38: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:444:44: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:444:44: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:444:44: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:447:44: inlining call to reflect.Value.Int method(reflect.Value) func() int64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:447:44: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:447:44: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:450:58: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:450:58: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:450:58: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:450:45: inlining call to v3.Uint8ToBytes func(uint8) byte { return byte(v3.u) }
+./v3.go:453:53: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:453:53: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:453:53: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:453:39: inlining call to v3.Uint16ToBytes func(uint16) []byte { var v3.buf·3 [2]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint16(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:453:39: inlining call to binary.littleEndian.PutUint16 method(binary.littleEndian) func([]byte, uint16) { _ = binary.b[int(1)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)) }
+./v3.go:456:53: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:456:53: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:456:53: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:456:39: inlining call to v3.Uint32ToBytes func(uint32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; binary.LittleEndian.PutUint32(v3.buf·3[:], v3.f); return v3.buf·3[:] }
+./v3.go:456:39: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:459:46: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:459:46: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:459:46: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:462:46: inlining call to reflect.Value.Uint method(reflect.Value) func() uint64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); var reflect.p·4 unsafe.Pointer; reflect.p·4 = <N>; reflect.p·4 = reflect.v.ptr; switch statement; panic(&reflect.ValueError literal) }
+./v3.go:462:46: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:462:46: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:465:37: inlining call to v3.BoolToBytes func(bool) []byte { if v3.b { return []byte literal }; return []byte literal }
+./v3.go:468:23: inlining call to reflect.Value.Float method(reflect.Value) func() float64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:468:23: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:468:23: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:469:40: inlining call to v3.Float32ToBytes func(*float32) []byte { var v3.buf·3 [4]byte; v3.buf·3 = <N>; var v3.bits·4 uint32; v3.bits·4 = <N>; v3.bits·4 = math.Float32bits(*v3.f); binary.LittleEndian.PutUint32(v3.buf·3[:], v3.bits·4); return v3.buf·3[:] }
+./v3.go:469:40: inlining call to math.Float32bits func(float32) uint32 { return *(*uint32)(unsafe.Pointer(&math.f)) }
+./v3.go:469:40: inlining call to binary.littleEndian.PutUint32 method(binary.littleEndian) func([]byte, uint32) { _ = binary.b[int(3)]; binary.b[int(0)] = byte(binary.v); binary.b[int(1)] = byte(binary.v >> uint(8)); binary.b[int(2)] = byte(binary.v >> uint(16)); binary.b[int(3)] = byte(binary.v >> uint(24)) }
+./v3.go:472:15: inlining call to reflect.Value.Float method(reflect.Value) func() float64 { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:472:15: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:472:15: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:479:19: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:483:14: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:488:37: inlining call to encodeString func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:488:37: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:492:38: inlining call to encodeString func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:492:38: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:509:14: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:528:27: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:542:14: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:548:56: inlining call to encodeString func(string) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:548:56: inlining call to v3.StringToBytes func(string) []byte { var v3.x·3 *reflect.StringHeader; v3.x·3 = <N>; v3.x·3 = (*reflect.StringHeader)(unsafe.Pointer(&v3.s)); return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader literal)) }
+./v3.go:556:14: inlining call to v3.AddValue func(io.Writer, *v3.Value, *[21]byte) { v3.v.Tobytes(v3.out, v3.varintbuf) }
+./v3.go:87:6: cannot inline Encodev3: function too complex: cost 137 exceeds budget 80
+./v3.go:618:6: cannot inline (*V3Decoder).Init: function too complex: cost 164 exceeds budget 80
+./v3.go:603:6: can inline NewV3Decoder with cost 80 as: func(v3.Reader, bool) *V3Decoder { dec := V3Decoder literal; if init { dec.Init() }; return &dec }
+./v3.go:1209:6: cannot inline clearNextValues: unhandled op FOR
+./v3.go:1135:6: cannot inline decodeKeyv3: function too complex: cost 151 exceeds budget 80
+./v3.go:1137:76: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:1137:20: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:576:6: cannot inline getStructFieldsDec: unhandled op FOR
+./v3.go:580:55: inlining call to reflect.Value.CanInterface method(reflect.Value) func() bool { if reflect.v.flag == reflect.flag(0) { panic(&reflect.ValueError literal) }; return reflect.v.flag & reflect.flag(96) == reflect.flag(0) }
+./v3.go:713:6: cannot inline decodeUndefined: function too complex: cost 138 exceeds budget 80
+./v3.go:715:71: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:715:19: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:1142:6: cannot inline (*V3Decoder).decodeValuev3: unhandled op FOR
+./v3.go:1147:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1147:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1147:66: inlining call to reflect.Value.CanAddr method(reflect.Value) func() bool { return reflect.v.flag & reflect.flag(256) != reflect.flag(0) }
+./v3.go:1154:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1154:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1154:47: inlining call to reflect.Value.IsNil method(reflect.Value) func() bool { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:1154:47: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1154:47: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1156:14: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1156:14: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1156:44: inlining call to reflect.Value.IsNil method(reflect.Value) func() bool { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:1156:44: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1156:44: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1163:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1163:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1170:19: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1170:19: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1173:13: inlining call to reflect.Value.IsNil method(reflect.Value) func() bool { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:1173:13: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1173:13: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1177:48: inlining call to reflect.Value.CanInterface method(reflect.Value) func() bool { if reflect.v.flag == reflect.flag(0) { panic(&reflect.ValueError literal) }; return reflect.v.flag & reflect.flag(96) == reflect.flag(0) }
+./v3.go:1178:27: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:942:6: cannot inline decodeMap: unhandled op FOR
+./v3.go:943:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:943:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:972:18: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:972:18: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1009:18: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1009:18: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:974:13: inlining call to reflect.Value.IsNil method(reflect.Value) func() bool { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:974:13: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:974:13: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:975:25: inlining call to reflect.MakeMap func(reflect.Type) reflect.Value { return reflect.MakeMapWithSize(reflect.typ, int(0)) }
+./v3.go:947:36: inlining call to reflect.TypeOf func(interface {}) reflect.Type { var reflect.eface·3 reflect.emptyInterface; reflect.eface·3 = <N>; reflect.eface·3 = *(*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); return reflect.toType(reflect.eface·3.typ) }
+./v3.go:947:36: inlining call to reflect.toType func(*reflect.rtype) reflect.Type { if reflect.t == nil { return nil }; return reflect.Type(reflect.t) }
+./v3.go:959:22: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:967:25: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:965:33: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:970:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:970:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:970:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:970:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:970:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:1058:6: cannot inline decodeArr: unhandled op FOR
+./v3.go:1061:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1061:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1078:18: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:1078:18: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:1106:30: inlining call to reflect.TypeOf func(interface {}) reflect.Type { var reflect.eface·3 reflect.emptyInterface; reflect.eface·3 = <N>; reflect.eface·3 = *(*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); return reflect.toType(reflect.eface·3.typ) }
+./v3.go:1106:30: inlining call to reflect.toType func(*reflect.rtype) reflect.Type { if reflect.t == nil { return nil }; return reflect.Type(reflect.t) }
+./v3.go:1128:28: inlining call to reflect.Value.Interface method(reflect.Value) func() interface {} { return reflect.valueInterface(reflect.v, bool(true)) }
+./v3.go:1130:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:1130:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:1130:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:1130:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:1130:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:655:6: cannot inline (*V3Decoder).decode: function too complex: cost 889 exceeds budget 80
+./v3.go:659:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:672:26: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:672:26: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:672:26: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:672:26: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:672:26: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:677:20: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:679:18: inlining call to reflect.Value.IsValid method(reflect.Value) func() bool { return reflect.v.flag != reflect.flag(0) }
+./v3.go:680:16: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:680:16: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:680:49: inlining call to reflect.Value.IsNil method(reflect.Value) func() bool { var reflect.k·3 reflect.Kind; reflect.k·3 = <N>; reflect.k·3 = reflect.v.flag.kind(); switch statement; panic(&reflect.ValueError literal) }
+./v3.go:680:49: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:680:49: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:682:26: inlining call to reflect.Value.CanSet method(reflect.Value) func() bool { return reflect.v.flag & reflect.flag(352) == reflect.flag(256) }
+./v3.go:683:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:649:6: cannot inline Decodev3: function too complex: cost 150 exceeds budget 80
+./v3.go:650:21: inlining call to NewV3Decoder func(v3.Reader, bool) *V3Decoder { dec := V3Decoder literal; if init { dec.Init() }; return &dec }
+./v3.go:48:6: can inline init.0 with cost 5 as: func() { valueDecodersSlice = [2]func(*V3Decoder, v3.Value, reflect.Value) error literal }
+./v3.go:74:6: can inline NewV3Encoder with cost 75 as: func(io.Writer, bool) *V3Encoder { if isStream { out.Write(v3StreamHeader) }; return &V3Encoder literal }
+./v3.go:100:6: cannot inline (*V3Encoder).Encode: function too complex: cost 288 exceeds budget 80
+./v3.go:101:10: inlining call to sync.(*Mutex).Lock method(*sync.Mutex) func() { if "sync/atomic".CompareAndSwapInt32(&sync.m.state, int32(0), int32(1)) { if bool(false) {  }; return  }; sync.m.lockSlow() }
+./v3.go:106:12: inlining call to sync.(*Mutex).Unlock method(*sync.Mutex) func() { if bool(false) {  }; var sync.new·2 int32; sync.new·2 = <N>; sync.new·2 = "sync/atomic".AddInt32(&sync.m.state, int32(-1)); if sync.new·2 != int32(0) { sync.m.unlockSlow(sync.new·2) } }
+./v3.go:242:6: can inline encodeBytes with cost 6 as: func([]byte) v3.KeyValue { return v3.KeyValue literal }
+./v3.go:634:6: can inline (*V3Decoder).SetAllocLimmit with cost 4 as: method(*V3Decoder) func(uint64) { dec.allocLimmit = limit }
+./v3.go:641:6: cannot inline (*V3Decoder).Decode: function too complex: cost 221 exceeds budget 80
+./v3.go:642:10: inlining call to sync.(*Mutex).Lock method(*sync.Mutex) func() { if "sync/atomic".CompareAndSwapInt32(&sync.m.state, int32(0), int32(1)) { if bool(false) {  }; return  }; sync.m.lockSlow() }
+./v3.go:644:12: inlining call to sync.(*Mutex).Unlock method(*sync.Mutex) func() { if bool(false) {  }; var sync.new·2 int32; sync.new·2 = <N>; sync.new·2 = "sync/atomic".AddInt32(&sync.m.state, int32(-1)); if sync.new·2 != int32(0) { sync.m.unlockSlow(sync.new·2) } }
+./v3.go:718:6: cannot inline decodeString: function too complex: cost 503 exceeds budget 80
+./v3.go:719:27: inlining call to v3.StringFromBytes func([]byte) string { return *(*string)(unsafe.Pointer(&v3.b)) }
+./v3.go:720:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:720:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:721:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:721:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:722:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:724:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:724:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:724:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:724:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:724:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:731:6: cannot inline decodeBytes: function too complex: cost 672 exceeds budget 80
+./v3.go:732:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:732:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:733:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:733:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:734:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:736:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:736:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:736:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:736:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:736:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:743:6: cannot inline decodeInt8: function too complex: cost 502 exceeds budget 80
+./v3.go:749:25: inlining call to v3.Int8FromBytes func(byte) int8 { return int8(v3.buf) }
+./v3.go:750:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:750:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:751:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:751:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:752:64: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:752:64: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:752:73: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:752:73: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:752:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:754:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:754:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:754:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:754:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:754:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:761:6: cannot inline decodeInt16: function too complex: cost 520 exceeds budget 80
+./v3.go:767:26: inlining call to v3.Int16FromBytes func([]byte) int16 { return int16(binary.LittleEndian.Uint16(v3.buf)) }
+./v3.go:767:26: inlining call to binary.littleEndian.Uint16 method(binary.littleEndian) func([]byte) uint16 { _ = binary.b[int(1)]; return uint16(binary.b[int(0)]) | uint16(binary.b[int(1)]) << uint(8) }
+./v3.go:768:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:768:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:769:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:769:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:770:65: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:770:65: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:770:74: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:770:74: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:770:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:772:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:772:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:772:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:772:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:772:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:779:6: cannot inline decodeInt32: function too complex: cost 534 exceeds budget 80
+./v3.go:785:26: inlining call to v3.Int32FromBytes func([]byte) int32 { return int32(binary.LittleEndian.Uint32(v3.buf)) }
+./v3.go:785:26: inlining call to binary.littleEndian.Uint32 method(binary.littleEndian) func([]byte) uint32 { _ = binary.b[int(3)]; return uint32(binary.b[int(0)]) | uint32(binary.b[int(1)]) << uint(8) | uint32(binary.b[int(2)]) << uint(16) | uint32(binary.b[int(3)]) << uint(24) }
+./v3.go:786:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:786:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:787:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:787:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:788:65: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:788:65: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:788:74: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:788:74: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:788:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:790:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:790:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:790:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:790:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:790:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:797:6: cannot inline decodeInt64: function too complex: cost 577 exceeds budget 80
+./v3.go:803:26: inlining call to v3.Int64FromBytes func([]byte) int64 { return int64(binary.LittleEndian.Uint64(v3.buf)) }
+./v3.go:803:26: inlining call to binary.littleEndian.Uint64 method(binary.littleEndian) func([]byte) uint64 { _ = binary.b[int(7)]; return uint64(binary.b[int(0)]) | uint64(binary.b[int(1)]) << uint(8) | uint64(binary.b[int(2)]) << uint(16) | uint64(binary.b[int(3)]) << uint(24) | uint64(binary.b[int(4)]) << uint(32) | uint64(binary.b[int(5)]) << uint(40) | uint64(binary.b[int(6)]) << uint(48) | uint64(binary.b[int(7)]) << uint(56) }
+./v3.go:804:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:804:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:804:40: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:804:40: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:805:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:805:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:806:65: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:806:65: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:806:74: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:806:74: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:806:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:808:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:808:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:808:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:808:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:808:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:815:6: cannot inline decodeUint8: function too complex: cost 502 exceeds budget 80
+./v3.go:821:26: inlining call to v3.Uint8FromBytes func(byte) uint8 { return uint8(v3.buf) }
+./v3.go:822:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:822:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:823:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:823:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:824:65: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:824:65: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:824:74: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:824:74: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:824:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:826:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:826:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:826:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:826:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:826:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:833:6: cannot inline decodeUint16: function too complex: cost 519 exceeds budget 80
+./v3.go:839:27: inlining call to v3.Uint16FromBytes func([]byte) uint16 { return binary.LittleEndian.Uint16(v3.buf) }
+./v3.go:839:27: inlining call to binary.littleEndian.Uint16 method(binary.littleEndian) func([]byte) uint16 { _ = binary.b[int(1)]; return uint16(binary.b[int(0)]) | uint16(binary.b[int(1)]) << uint(8) }
+./v3.go:840:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:840:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:841:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:841:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:842:66: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:842:66: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:842:75: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:842:75: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:842:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:844:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:844:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:844:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:844:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:844:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:851:6: cannot inline decodeUint32: function too complex: cost 533 exceeds budget 80
+./v3.go:857:27: inlining call to v3.Uint32FromBytes func([]byte) uint32 { return binary.LittleEndian.Uint32(v3.buf) }
+./v3.go:857:27: inlining call to binary.littleEndian.Uint32 method(binary.littleEndian) func([]byte) uint32 { _ = binary.b[int(3)]; return uint32(binary.b[int(0)]) | uint32(binary.b[int(1)]) << uint(8) | uint32(binary.b[int(2)]) << uint(16) | uint32(binary.b[int(3)]) << uint(24) }
+./v3.go:858:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:858:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:859:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:859:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:860:66: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:860:66: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:860:75: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:860:75: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:860:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:862:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:862:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:862:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:862:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:862:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:869:6: cannot inline decodeUint64: function too complex: cost 576 exceeds budget 80
+./v3.go:875:27: inlining call to v3.Uint64FromBytes func([]byte) uint64 { return binary.LittleEndian.Uint64(v3.buf) }
+./v3.go:875:27: inlining call to binary.littleEndian.Uint64 method(binary.littleEndian) func([]byte) uint64 { _ = binary.b[int(7)]; return uint64(binary.b[int(0)]) | uint64(binary.b[int(1)]) << uint(8) | uint64(binary.b[int(2)]) << uint(16) | uint64(binary.b[int(3)]) << uint(24) | uint64(binary.b[int(4)]) << uint(32) | uint64(binary.b[int(5)]) << uint(40) | uint64(binary.b[int(6)]) << uint(48) | uint64(binary.b[int(7)]) << uint(56) }
+./v3.go:876:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:876:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:876:41: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:876:41: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:877:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:877:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:878:66: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:878:66: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:878:75: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:878:75: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:878:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:880:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:880:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:880:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:880:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:880:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:887:6: cannot inline decodeBool: function too complex: cost 501 exceeds budget 80
+./v3.go:892:25: inlining call to v3.BoolFromBytes func([]byte) bool { return v3.buf[int(0)] == byte(1) }
+./v3.go:890:25: inlining call to v3.BoolFromBytes func([]byte) bool { return v3.buf[int(0)] == byte(1) }
+./v3.go:895:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:895:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:896:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:896:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:897:65: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:897:65: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:897:74: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:897:74: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:897:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:899:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:899:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:899:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:899:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:899:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:906:6: cannot inline decodeFloat32: function too complex: cost 541 exceeds budget 80
+./v3.go:912:28: inlining call to v3.Float32FromBytes func([]byte) float32 { return math.Float32frombits(binary.LittleEndian.Uint32(v3.buf)) }
+./v3.go:912:28: inlining call to binary.littleEndian.Uint32 method(binary.littleEndian) func([]byte) uint32 { _ = binary.b[int(3)]; return uint32(binary.b[int(0)]) | uint32(binary.b[int(1)]) << uint(8) | uint32(binary.b[int(2)]) << uint(16) | uint32(binary.b[int(3)]) << uint(24) }
+./v3.go:912:28: inlining call to math.Float32frombits func(uint32) float32 { return *(*float32)(unsafe.Pointer(&math.b)) }
+./v3.go:913:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:913:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:914:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:914:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:915:67: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:915:67: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:915:76: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:915:76: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:915:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:917:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:917:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:917:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:917:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:917:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:924:6: cannot inline decodeFloat64: function too complex: cost 568 exceeds budget 80
+./v3.go:930:28: inlining call to v3.Float64FromBytes func([]byte) float64 { return math.Float64frombits(binary.LittleEndian.Uint64(v3.buf)) }
+./v3.go:930:28: inlining call to binary.littleEndian.Uint64 method(binary.littleEndian) func([]byte) uint64 { _ = binary.b[int(7)]; return uint64(binary.b[int(0)]) | uint64(binary.b[int(1)]) << uint(8) | uint64(binary.b[int(2)]) << uint(16) | uint64(binary.b[int(3)]) << uint(24) | uint64(binary.b[int(4)]) << uint(32) | uint64(binary.b[int(5)]) << uint(40) | uint64(binary.b[int(6)]) << uint(48) | uint64(binary.b[int(7)]) << uint(56) }
+./v3.go:930:28: inlining call to math.Float64frombits func(uint64) float64 { return *(*float64)(unsafe.Pointer(&math.b)) }
+./v3.go:931:11: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:931:11: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:932:12: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:932:12: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:933:67: inlining call to reflect.Value.Kind method(reflect.Value) func() reflect.Kind { return reflect.v.flag.kind() }
+./v3.go:933:67: inlining call to reflect.flag.kind method(reflect.flag) func() reflect.Kind { return reflect.Kind(reflect.f & reflect.flag(31)) }
+./v3.go:933:76: inlining call to reflect.Kind.String method(reflect.Kind) func() string { if int(reflect.k) < len(reflect.kindNames) { return reflect.kindNames[reflect.k] }; return string("kind") + strconv.Itoa(int(reflect.k)) }
+./v3.go:933:76: inlining call to strconv.Itoa func(int) string { return strconv.FormatInt(int64(strconv.i), int(10)) }
+./v3.go:933:21: inlining call to errors.New func(string) error { return error(&errors.errorString literal) }
+./v3.go:935:24: inlining call to reflect.ValueOf func(interface {}) reflect.Value { if reflect.i == nil { return reflect.Value literal }; reflect.escapes(reflect.i); return reflect.unpackEface(reflect.i) }
+./v3.go:935:24: inlining call to reflect.escapes func(interface {}) { if reflect.dummy.b { reflect.dummy.x = reflect.x } }
+./v3.go:935:24: inlining call to reflect.unpackEface func(interface {}) reflect.Value { var reflect.e·3 *reflect.emptyInterface; reflect.e·3 = <N>; reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)); var reflect.t·4 *reflect.rtype; reflect.t·4 = <N>; reflect.t·4 = reflect.e·3.typ; if reflect.t·4 == nil { return reflect.Value literal }; var reflect.f·5 reflect.flag; reflect.f·5 = <N>; reflect.f·5 = reflect.flag(reflect.t·4.Kind()); if reflect.ifaceIndir(reflect.t·4) { reflect.f·5 |= reflect.flag(128) }; return reflect.Value literal }
+./v3.go:935:24: inlining call to reflect.(*rtype).Kind method(*reflect.rtype) func() reflect.Kind { return reflect.Kind(reflect.t.kind & uint8(31)) }
+./v3.go:935:24: inlining call to reflect.ifaceIndir func(*reflect.rtype) bool { return reflect.t.kind & uint8(32) == uint8(0) }
+./v3.go:232:7: parameter enc leaks to {heap} with derefs=1:
+./v3.go:232:7:   flow: v3.varintbuf = *enc:
+./v3.go:232:7:     from enc.varintbuf (dot of pointer) at ./v3.go:238:34
+./v3.go:232:7:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:238:13
+./v3.go:232:7:   flow: {heap} = v3.varintbuf:
+./v3.go:232:7:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:238:13
+./v3.go:232:46: parameter k leaks to {heap} with derefs=0:
+./v3.go:232:46:   flow: value = k:
+./v3.go:232:46:     from v3.Value literal (struct literal element) at ./v3.go:233:19
+./v3.go:232:46:     from value := v3.Value literal (assign) at ./v3.go:233:8
+./v3.go:232:46:   flow: v3.v = &value:
+./v3.go:232:46:     from &value (address-of) at ./v3.go:238:23
+./v3.go:232:46:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:238:13
+./v3.go:232:46:   flow: {heap} = *v3.v:
+./v3.go:232:46:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:238:13
+./v3.go:232:7: leaking param content: enc
+./v3.go:232:36: s does not escape
+./v3.go:232:46: leaking param: k
+./v3.go:236:38: &reflect.SliceHeader literal does not escape
+./v3.go:159:30: []byte literal escapes to heap:
+./v3.go:159:30:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:159:30:     from []byte literal (spill) at ./v3.go:159:30
+./v3.go:159:30:     from ~R0 = <N> (assign-pair) at ./v3.go:159:30
+./v3.go:159:30:   flow: key = ~R0:
+./v3.go:159:30:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:159:14
+./v3.go:159:30:   flow: ~r1 = key:
+./v3.go:159:30:     from return key (return) at ./v3.go:163:2
+./v3.go:159:30: []byte literal escapes to heap:
+./v3.go:159:30:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:159:30:     from []byte literal (spill) at ./v3.go:159:30
+./v3.go:159:30:     from ~R0 = <N> (assign-pair) at ./v3.go:159:30
+./v3.go:159:30:   flow: key = ~R0:
+./v3.go:159:30:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:159:14
+./v3.go:159:30:   flow: ~r1 = key:
+./v3.go:159:30:     from return key (return) at ./v3.go:163:2
+./v3.go:154:8: buf escapes to heap:
+./v3.go:154:8:   flow: key = &buf:
+./v3.go:154:8:     from buf (address-of) at ./v3.go:156:19
+./v3.go:154:8:     from buf[:] (slice) at ./v3.go:156:19
+./v3.go:154:8:     from key.Value = buf[:] (assign) at ./v3.go:156:14
+./v3.go:154:8:   flow: ~r1 = key:
+./v3.go:154:8:     from return key (return) at ./v3.go:163:2
+./v3.go:151:33: v3.buf·3 escapes to heap:
+./v3.go:151:33:   flow: ~R0 = &v3.buf·3:
+./v3.go:151:33:     from v3.buf·3 (address-of) at ./v3.go:151:33
+./v3.go:151:33:     from v3.buf·3[:] (slice) at ./v3.go:151:33
+./v3.go:151:33:     from ~R0 = <N> (assign-pair) at ./v3.go:151:33
+./v3.go:151:33:   flow: key = ~R0:
+./v3.go:151:33:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:151:14
+./v3.go:151:33:   flow: ~r1 = key:
+./v3.go:151:33:     from return key (return) at ./v3.go:163:2
+./v3.go:142:32: v3.buf·3 escapes to heap:
+./v3.go:142:32:   flow: ~R0 = &v3.buf·3:
+./v3.go:142:32:     from v3.buf·3 (address-of) at ./v3.go:142:32
+./v3.go:142:32:     from v3.buf·3[:] (slice) at ./v3.go:142:32
+./v3.go:142:32:     from ~R0 = <N> (assign-pair) at ./v3.go:142:32
+./v3.go:142:32:   flow: key = ~R0:
+./v3.go:142:32:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:142:14
+./v3.go:142:32:   flow: ~r1 = key:
+./v3.go:142:32:     from return key (return) at ./v3.go:163:2
+./v3.go:139:32: v3.buf·3 escapes to heap:
+./v3.go:139:32:   flow: ~R0 = &v3.buf·3:
+./v3.go:139:32:     from v3.buf·3 (address-of) at ./v3.go:139:32
+./v3.go:139:32:     from v3.buf·3[:] (slice) at ./v3.go:139:32
+./v3.go:139:32:     from ~R0 = <N> (assign-pair) at ./v3.go:139:32
+./v3.go:139:32:   flow: key = ~R0:
+./v3.go:139:32:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:139:14
+./v3.go:139:32:   flow: ~r1 = key:
+./v3.go:139:32:     from return key (return) at ./v3.go:163:2
+./v3.go:136:22: []byte literal escapes to heap:
+./v3.go:136:22:   flow: key = &{storage for []byte literal}:
+./v3.go:136:22:     from []byte literal (spill) at ./v3.go:136:22
+./v3.go:136:22:     from key.Value = []byte literal (assign) at ./v3.go:136:14
+./v3.go:136:22:   flow: ~r1 = key:
+./v3.go:136:22:     from return key (return) at ./v3.go:163:2
+./v3.go:127:31: v3.buf·3 escapes to heap:
+./v3.go:127:31:   flow: ~R0 = &v3.buf·3:
+./v3.go:127:31:     from v3.buf·3 (address-of) at ./v3.go:127:31
+./v3.go:127:31:     from v3.buf·3[:] (slice) at ./v3.go:127:31
+./v3.go:127:31:     from ~R0 = <N> (assign-pair) at ./v3.go:127:31
+./v3.go:127:31:   flow: key = ~R0:
+./v3.go:127:31:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:127:14
+./v3.go:127:31:   flow: ~r1 = key:
+./v3.go:127:31:     from return key (return) at ./v3.go:163:2
+./v3.go:124:31: v3.buf·3 escapes to heap:
+./v3.go:124:31:   flow: ~R0 = &v3.buf·3:
+./v3.go:124:31:     from v3.buf·3 (address-of) at ./v3.go:124:31
+./v3.go:124:31:     from v3.buf·3[:] (slice) at ./v3.go:124:31
+./v3.go:124:31:     from ~R0 = <N> (assign-pair) at ./v3.go:124:31
+./v3.go:124:31:   flow: key = ~R0:
+./v3.go:124:31:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:124:14
+./v3.go:124:31:   flow: ~r1 = key:
+./v3.go:124:31:     from return key (return) at ./v3.go:163:2
+./v3.go:121:22: []byte literal escapes to heap:
+./v3.go:121:22:   flow: key = &{storage for []byte literal}:
+./v3.go:121:22:     from []byte literal (spill) at ./v3.go:121:22
+./v3.go:121:22:     from key.Value = []byte literal (assign) at ./v3.go:121:14
+./v3.go:121:22:   flow: ~r1 = key:
+./v3.go:121:22:     from return key (return) at ./v3.go:163:2
+./v3.go:110:18: parameter k leaks to ~r1 with derefs=1:
+./v3.go:110:18:   flow: {temp} = k:
+./v3.go:110:18:   flow: v = *{temp}:
+./v3.go:110:18:     from case []byte: key.Value = v; key.Vtype = v3.BytesT (switch case) at ./v3.go:117:3
+./v3.go:110:18:   flow: key = v:
+./v3.go:110:18:     from key.Value = v (assign) at ./v3.go:118:14
+./v3.go:110:18:   flow: ~r1 = key:
+./v3.go:110:18:     from return key (return) at ./v3.go:163:2
+./v3.go:110:18: leaking param: k to result ~r1 level=1
+./v3.go:154:8: moved to heap: buf
+./v3.go:124:31: moved to heap: v3.buf·3
+./v3.go:127:31: moved to heap: v3.buf·3
+./v3.go:139:32: moved to heap: v3.buf·3
+./v3.go:142:32: moved to heap: v3.buf·3
+./v3.go:151:33: moved to heap: v3.buf·3
+./v3.go:115:32: &reflect.SliceHeader literal does not escape
+./v3.go:121:22: []byte literal escapes to heap
+./v3.go:136:22: []byte literal escapes to heap
+./v3.go:159:30: []byte literal escapes to heap
+./v3.go:159:30: []byte literal escapes to heap
+./v3.go:180:47: &reflect.ValueError literal escapes to heap:
+./v3.go:180:47:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:180:47:     from &reflect.ValueError literal (spill) at ./v3.go:180:47
+./v3.go:180:47:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:180:47
+./v3.go:183:42: &reflect.ValueError literal escapes to heap:
+./v3.go:183:42:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:183:42:     from &reflect.ValueError literal (spill) at ./v3.go:183:42
+./v3.go:183:42:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:183:42
+./v3.go:186:42: &reflect.ValueError literal escapes to heap:
+./v3.go:186:42:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:186:42:     from &reflect.ValueError literal (spill) at ./v3.go:186:42
+./v3.go:186:42:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:186:42
+./v3.go:189:36: &reflect.ValueError literal escapes to heap:
+./v3.go:189:36:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:189:36:     from &reflect.ValueError literal (spill) at ./v3.go:189:36
+./v3.go:189:36:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:189:36
+./v3.go:192:36: &reflect.ValueError literal escapes to heap:
+./v3.go:192:36:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:192:36:     from &reflect.ValueError literal (spill) at ./v3.go:192:36
+./v3.go:192:36:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:192:36
+./v3.go:195:50: &reflect.ValueError literal escapes to heap:
+./v3.go:195:50:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:195:50:     from &reflect.ValueError literal (spill) at ./v3.go:195:50
+./v3.go:195:50:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:195:50
+./v3.go:198:45: &reflect.ValueError literal escapes to heap:
+./v3.go:198:45:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:198:45:     from &reflect.ValueError literal (spill) at ./v3.go:198:45
+./v3.go:198:45:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:198:45
+./v3.go:201:45: &reflect.ValueError literal escapes to heap:
+./v3.go:201:45:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:201:45:     from &reflect.ValueError literal (spill) at ./v3.go:201:45
+./v3.go:201:45:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:201:45
+./v3.go:204:38: &reflect.ValueError literal escapes to heap:
+./v3.go:204:38:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:204:38:     from &reflect.ValueError literal (spill) at ./v3.go:204:38
+./v3.go:204:38:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:204:38
+./v3.go:207:38: &reflect.ValueError literal escapes to heap:
+./v3.go:207:38:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:207:38:     from &reflect.ValueError literal (spill) at ./v3.go:207:38
+./v3.go:207:38:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:207:38
+./v3.go:213:23: &reflect.ValueError literal escapes to heap:
+./v3.go:213:23:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:213:23:     from &reflect.ValueError literal (spill) at ./v3.go:213:23
+./v3.go:213:23:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:213:23
+./v3.go:217:15: &reflect.ValueError literal escapes to heap:
+./v3.go:217:15:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:217:15:     from &reflect.ValueError literal (spill) at ./v3.go:217:15
+./v3.go:217:15:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:217:15
+./v3.go:166:26: parameter d leaks to {heap} with derefs=0:
+./v3.go:166:26:   flow: {heap} = d:
+./v3.go:166:26:     from d.String() (call parameter) at ./v3.go:172:40
+./v3.go:218:7: buf escapes to heap:
+./v3.go:218:7:   flow: key = &buf:
+./v3.go:218:7:     from buf (address-of) at ./v3.go:220:18
+./v3.go:218:7:     from buf[:] (slice) at ./v3.go:220:18
+./v3.go:218:7:     from key.Value = buf[:] (assign) at ./v3.go:220:13
+./v3.go:218:7:   flow: ~r1 = key:
+./v3.go:218:7:     from return key (return) at ./v3.go:223:2
+./v3.go:214:32: v3.buf·3 escapes to heap:
+./v3.go:214:32:   flow: ~R0 = &v3.buf·3:
+./v3.go:214:32:     from v3.buf·3 (address-of) at ./v3.go:214:32
+./v3.go:214:32:     from v3.buf·3[:] (slice) at ./v3.go:214:32
+./v3.go:214:32:     from ~R0 = <N> (assign-pair) at ./v3.go:214:32
+./v3.go:214:32:   flow: key = ~R0:
+./v3.go:214:32:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:214:13
+./v3.go:214:32:   flow: ~r1 = key:
+./v3.go:214:32:     from return key (return) at ./v3.go:223:2
+./v3.go:210:29: []byte literal escapes to heap:
+./v3.go:210:29:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:210:29:     from []byte literal (spill) at ./v3.go:210:29
+./v3.go:210:29:     from ~R0 = <N> (assign-pair) at ./v3.go:210:29
+./v3.go:210:29:   flow: key = ~R0:
+./v3.go:210:29:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:210:13
+./v3.go:210:29:   flow: ~r1 = key:
+./v3.go:210:29:     from return key (return) at ./v3.go:223:2
+./v3.go:210:29: []byte literal escapes to heap:
+./v3.go:210:29:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:210:29:     from []byte literal (spill) at ./v3.go:210:29
+./v3.go:210:29:     from ~R0 = <N> (assign-pair) at ./v3.go:210:29
+./v3.go:210:29:   flow: key = ~R0:
+./v3.go:210:29:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:210:13
+./v3.go:210:29:   flow: ~r1 = key:
+./v3.go:210:29:     from return key (return) at ./v3.go:223:2
+./v3.go:201:31: v3.buf·3 escapes to heap:
+./v3.go:201:31:   flow: ~R0 = &v3.buf·3:
+./v3.go:201:31:     from v3.buf·3 (address-of) at ./v3.go:201:31
+./v3.go:201:31:     from v3.buf·3[:] (slice) at ./v3.go:201:31
+./v3.go:201:31:     from ~R0 = <N> (assign-pair) at ./v3.go:201:31
+./v3.go:201:31:   flow: key = ~R0:
+./v3.go:201:31:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:201:13
+./v3.go:201:31:   flow: ~r1 = key:
+./v3.go:201:31:     from return key (return) at ./v3.go:223:2
+./v3.go:198:31: v3.buf·3 escapes to heap:
+./v3.go:198:31:   flow: ~R0 = &v3.buf·3:
+./v3.go:198:31:     from v3.buf·3 (address-of) at ./v3.go:198:31
+./v3.go:198:31:     from v3.buf·3[:] (slice) at ./v3.go:198:31
+./v3.go:198:31:     from ~R0 = <N> (assign-pair) at ./v3.go:198:31
+./v3.go:198:31:   flow: key = ~R0:
+./v3.go:198:31:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:198:13
+./v3.go:198:31:   flow: ~r1 = key:
+./v3.go:198:31:     from return key (return) at ./v3.go:223:2
+./v3.go:195:21: []byte literal escapes to heap:
+./v3.go:195:21:   flow: key = &{storage for []byte literal}:
+./v3.go:195:21:     from []byte literal (spill) at ./v3.go:195:21
+./v3.go:195:21:     from key.Value = []byte literal (assign) at ./v3.go:195:13
+./v3.go:195:21:   flow: ~r1 = key:
+./v3.go:195:21:     from return key (return) at ./v3.go:223:2
+./v3.go:186:30: v3.buf·3 escapes to heap:
+./v3.go:186:30:   flow: ~R0 = &v3.buf·3:
+./v3.go:186:30:     from v3.buf·3 (address-of) at ./v3.go:186:30
+./v3.go:186:30:     from v3.buf·3[:] (slice) at ./v3.go:186:30
+./v3.go:186:30:     from ~R0 = <N> (assign-pair) at ./v3.go:186:30
+./v3.go:186:30:   flow: key = ~R0:
+./v3.go:186:30:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:186:13
+./v3.go:186:30:   flow: ~r1 = key:
+./v3.go:186:30:     from return key (return) at ./v3.go:223:2
+./v3.go:183:30: v3.buf·3 escapes to heap:
+./v3.go:183:30:   flow: ~R0 = &v3.buf·3:
+./v3.go:183:30:     from v3.buf·3 (address-of) at ./v3.go:183:30
+./v3.go:183:30:     from v3.buf·3[:] (slice) at ./v3.go:183:30
+./v3.go:183:30:     from ~R0 = <N> (assign-pair) at ./v3.go:183:30
+./v3.go:183:30:   flow: key = ~R0:
+./v3.go:183:30:     from key.Value = ([]byte)(~R0) (assign) at ./v3.go:183:13
+./v3.go:183:30:   flow: ~r1 = key:
+./v3.go:183:30:     from return key (return) at ./v3.go:223:2
+./v3.go:180:21: []byte literal escapes to heap:
+./v3.go:180:21:   flow: key = &{storage for []byte literal}:
+./v3.go:180:21:     from []byte literal (spill) at ./v3.go:180:21
+./v3.go:180:21:     from key.Value = []byte literal (assign) at ./v3.go:180:13
+./v3.go:180:21:   flow: ~r1 = key:
+./v3.go:180:21:     from return key (return) at ./v3.go:223:2
+./v3.go:166:26: leaking param: d
+./v3.go:218:7: moved to heap: buf
+./v3.go:183:30: moved to heap: v3.buf·3
+./v3.go:186:30: moved to heap: v3.buf·3
+./v3.go:198:31: moved to heap: v3.buf·3
+./v3.go:201:31: moved to heap: v3.buf·3
+./v3.go:214:32: moved to heap: v3.buf·3
+./v3.go:172:31: &reflect.SliceHeader literal does not escape
+./v3.go:180:21: []byte literal escapes to heap
+./v3.go:180:47: &reflect.ValueError literal escapes to heap
+./v3.go:183:42: &reflect.ValueError literal escapes to heap
+./v3.go:186:42: &reflect.ValueError literal escapes to heap
+./v3.go:189:36: &reflect.ValueError literal escapes to heap
+./v3.go:192:36: &reflect.ValueError literal escapes to heap
+./v3.go:195:21: []byte literal escapes to heap
+./v3.go:195:50: &reflect.ValueError literal escapes to heap
+./v3.go:198:45: &reflect.ValueError literal escapes to heap
+./v3.go:201:45: &reflect.ValueError literal escapes to heap
+./v3.go:204:38: &reflect.ValueError literal escapes to heap
+./v3.go:207:38: &reflect.ValueError literal escapes to heap
+./v3.go:210:29: []byte literal escapes to heap
+./v3.go:210:29: []byte literal escapes to heap
+./v3.go:213:23: &reflect.ValueError literal escapes to heap
+./v3.go:217:15: &reflect.ValueError literal escapes to heap
+./v3.go:1200:19: parameter field leaks to ~r1 with derefs=0:
+./v3.go:1200:19:   flow: name = field:
+./v3.go:1200:19:     from field.Name (dot) at ./v3.go:1204:15
+./v3.go:1200:19:     from name = field.Name (assign) at ./v3.go:1204:8
+./v3.go:1200:19:   flow: ~r1 = name:
+./v3.go:1200:19:     from return name (return) at ./v3.go:1206:2
+./v3.go:1200:19: leaking param: field to result ~r1 level=0
+./v3.go:564:22: make([]string, val.NumField()) escapes to heap:
+./v3.go:564:22:   flow: {heap} = &{storage for make([]string, val.NumField())}:
+./v3.go:564:22:     from make([]string, val.NumField()) (non-constant size) at ./v3.go:564:22
+./v3.go:567:55: &reflect.ValueError literal escapes to heap:
+./v3.go:567:55:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:567:55:     from &reflect.ValueError literal (spill) at ./v3.go:567:55
+./v3.go:567:55:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:567:55
+./v3.go:562:23: parameter val leaks to {heap} with derefs=0:
+./v3.go:562:23:   flow: {heap} = val:
+./v3.go:562:23:     from val.Type() (call parameter) at ./v3.go:566:20
+./v3.go:562:23: leaking param: val
+./v3.go:564:22: make([]string, val.NumField()) escapes to heap
+./v3.go:567:55: &reflect.ValueError literal escapes to heap
+./v3.go:1221:19: parameter d leaks to {heap} with derefs=0:
+./v3.go:1221:19:   flow: {heap} = d:
+./v3.go:1221:19:     from d.MethodByName("GobEncoder") (call parameter) at ./v3.go:1222:19
+./v3.go:1221:19: leaking param: d
+./v3.go:435:55: &reflect.ValueError literal escapes to heap:
+./v3.go:435:55:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:435:55:     from &reflect.ValueError literal (spill) at ./v3.go:435:55
+./v3.go:435:55:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:435:55
+./v3.go:438:50: &reflect.ValueError literal escapes to heap:
+./v3.go:438:50:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:438:50:     from &reflect.ValueError literal (spill) at ./v3.go:438:50
+./v3.go:438:50:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:438:50
+./v3.go:441:50: &reflect.ValueError literal escapes to heap:
+./v3.go:441:50:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:441:50:     from &reflect.ValueError literal (spill) at ./v3.go:441:50
+./v3.go:441:50:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:441:50
+./v3.go:444:44: &reflect.ValueError literal escapes to heap:
+./v3.go:444:44:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:444:44:     from &reflect.ValueError literal (spill) at ./v3.go:444:44
+./v3.go:444:44:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:444:44
+./v3.go:447:44: &reflect.ValueError literal escapes to heap:
+./v3.go:447:44:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:447:44:     from &reflect.ValueError literal (spill) at ./v3.go:447:44
+./v3.go:447:44:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:447:44
+./v3.go:450:58: &reflect.ValueError literal escapes to heap:
+./v3.go:450:58:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:450:58:     from &reflect.ValueError literal (spill) at ./v3.go:450:58
+./v3.go:450:58:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:450:58
+./v3.go:453:53: &reflect.ValueError literal escapes to heap:
+./v3.go:453:53:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:453:53:     from &reflect.ValueError literal (spill) at ./v3.go:453:53
+./v3.go:453:53:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:453:53
+./v3.go:456:53: &reflect.ValueError literal escapes to heap:
+./v3.go:456:53:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:456:53:     from &reflect.ValueError literal (spill) at ./v3.go:456:53
+./v3.go:456:53:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:456:53
+./v3.go:459:46: &reflect.ValueError literal escapes to heap:
+./v3.go:459:46:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:459:46:     from &reflect.ValueError literal (spill) at ./v3.go:459:46
+./v3.go:459:46:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:459:46
+./v3.go:462:46: &reflect.ValueError literal escapes to heap:
+./v3.go:462:46:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:462:46:     from &reflect.ValueError literal (spill) at ./v3.go:462:46
+./v3.go:462:46:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:462:46
+./v3.go:468:23: &reflect.ValueError literal escapes to heap:
+./v3.go:468:23:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:468:23:     from &reflect.ValueError literal (spill) at ./v3.go:468:23
+./v3.go:468:23:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:468:23
+./v3.go:472:15: &reflect.ValueError literal escapes to heap:
+./v3.go:472:15:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:472:15:     from &reflect.ValueError literal (spill) at ./v3.go:472:15
+./v3.go:472:15:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:472:15
+./v3.go:473:7: buf escapes to heap:
+./v3.go:473:7:   flow: value = &buf:
+./v3.go:473:7:     from buf (address-of) at ./v3.go:475:26
+./v3.go:473:7:     from buf[:] (slice) at ./v3.go:475:26
+./v3.go:473:7:     from value.Value.Value = buf[:] (assign) at ./v3.go:475:21
+./v3.go:473:7:   flow: v3.v = &value:
+./v3.go:473:7:     from &value (address-of) at ./v3.go:556:24
+./v3.go:473:7:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:473:7:   flow: {heap} = *v3.v:
+./v3.go:473:7:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:469:40: v3.buf·3 escapes to heap:
+./v3.go:469:40:   flow: ~R0 = &v3.buf·3:
+./v3.go:469:40:     from v3.buf·3 (address-of) at ./v3.go:469:40
+./v3.go:469:40:     from v3.buf·3[:] (slice) at ./v3.go:469:40
+./v3.go:469:40:     from ~R0 = <N> (assign-pair) at ./v3.go:469:40
+./v3.go:469:40:   flow: value = ~R0:
+./v3.go:469:40:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:469:21
+./v3.go:469:40:   flow: v3.v = &value:
+./v3.go:469:40:     from &value (address-of) at ./v3.go:556:24
+./v3.go:469:40:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:469:40:   flow: {heap} = *v3.v:
+./v3.go:469:40:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:465:37: []byte literal escapes to heap:
+./v3.go:465:37:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:465:37:     from []byte literal (spill) at ./v3.go:465:37
+./v3.go:465:37:     from ~R0 = <N> (assign-pair) at ./v3.go:465:37
+./v3.go:465:37:   flow: value = ~R0:
+./v3.go:465:37:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:465:21
+./v3.go:465:37:   flow: v3.v = &value:
+./v3.go:465:37:     from &value (address-of) at ./v3.go:556:24
+./v3.go:465:37:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:465:37:   flow: {heap} = *v3.v:
+./v3.go:465:37:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:465:37: []byte literal escapes to heap:
+./v3.go:465:37:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:465:37:     from []byte literal (spill) at ./v3.go:465:37
+./v3.go:465:37:     from ~R0 = <N> (assign-pair) at ./v3.go:465:37
+./v3.go:465:37:   flow: value = ~R0:
+./v3.go:465:37:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:465:21
+./v3.go:465:37:   flow: v3.v = &value:
+./v3.go:465:37:     from &value (address-of) at ./v3.go:556:24
+./v3.go:465:37:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:465:37:   flow: {heap} = *v3.v:
+./v3.go:465:37:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:456:39: v3.buf·3 escapes to heap:
+./v3.go:456:39:   flow: ~R0 = &v3.buf·3:
+./v3.go:456:39:     from v3.buf·3 (address-of) at ./v3.go:456:39
+./v3.go:456:39:     from v3.buf·3[:] (slice) at ./v3.go:456:39
+./v3.go:456:39:     from ~R0 = <N> (assign-pair) at ./v3.go:456:39
+./v3.go:456:39:   flow: value = ~R0:
+./v3.go:456:39:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:456:21
+./v3.go:456:39:   flow: v3.v = &value:
+./v3.go:456:39:     from &value (address-of) at ./v3.go:556:24
+./v3.go:456:39:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:456:39:   flow: {heap} = *v3.v:
+./v3.go:456:39:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:453:39: v3.buf·3 escapes to heap:
+./v3.go:453:39:   flow: ~R0 = &v3.buf·3:
+./v3.go:453:39:     from v3.buf·3 (address-of) at ./v3.go:453:39
+./v3.go:453:39:     from v3.buf·3[:] (slice) at ./v3.go:453:39
+./v3.go:453:39:     from ~R0 = <N> (assign-pair) at ./v3.go:453:39
+./v3.go:453:39:   flow: value = ~R0:
+./v3.go:453:39:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:453:21
+./v3.go:453:39:   flow: v3.v = &value:
+./v3.go:453:39:     from &value (address-of) at ./v3.go:556:24
+./v3.go:453:39:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:453:39:   flow: {heap} = *v3.v:
+./v3.go:453:39:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:450:29: []byte literal escapes to heap:
+./v3.go:450:29:   flow: value = &{storage for []byte literal}:
+./v3.go:450:29:     from []byte literal (spill) at ./v3.go:450:29
+./v3.go:450:29:     from value.Value.Value = []byte literal (assign) at ./v3.go:450:21
+./v3.go:450:29:   flow: v3.v = &value:
+./v3.go:450:29:     from &value (address-of) at ./v3.go:556:24
+./v3.go:450:29:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:450:29:   flow: {heap} = *v3.v:
+./v3.go:450:29:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:441:38: v3.buf·3 escapes to heap:
+./v3.go:441:38:   flow: ~R0 = &v3.buf·3:
+./v3.go:441:38:     from v3.buf·3 (address-of) at ./v3.go:441:38
+./v3.go:441:38:     from v3.buf·3[:] (slice) at ./v3.go:441:38
+./v3.go:441:38:     from ~R0 = <N> (assign-pair) at ./v3.go:441:38
+./v3.go:441:38:   flow: value = ~R0:
+./v3.go:441:38:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:441:21
+./v3.go:441:38:   flow: v3.v = &value:
+./v3.go:441:38:     from &value (address-of) at ./v3.go:556:24
+./v3.go:441:38:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:441:38:   flow: {heap} = *v3.v:
+./v3.go:441:38:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:438:38: v3.buf·3 escapes to heap:
+./v3.go:438:38:   flow: ~R0 = &v3.buf·3:
+./v3.go:438:38:     from v3.buf·3 (address-of) at ./v3.go:438:38
+./v3.go:438:38:     from v3.buf·3[:] (slice) at ./v3.go:438:38
+./v3.go:438:38:     from ~R0 = <N> (assign-pair) at ./v3.go:438:38
+./v3.go:438:38:   flow: value = ~R0:
+./v3.go:438:38:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:438:21
+./v3.go:438:38:   flow: v3.v = &value:
+./v3.go:438:38:     from &value (address-of) at ./v3.go:556:24
+./v3.go:438:38:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:438:38:   flow: {heap} = *v3.v:
+./v3.go:438:38:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:435:29: []byte literal escapes to heap:
+./v3.go:435:29:   flow: value = &{storage for []byte literal}:
+./v3.go:435:29:     from []byte literal (spill) at ./v3.go:435:29
+./v3.go:435:29:     from value.Value.Value = []byte literal (assign) at ./v3.go:435:21
+./v3.go:435:29:   flow: v3.v = &value:
+./v3.go:435:29:     from &value (address-of) at ./v3.go:556:24
+./v3.go:435:29:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:435:29:   flow: {heap} = *v3.v:
+./v3.go:435:29:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:398:62: parameter k leaks to {heap} with derefs=0:
+./v3.go:398:62:   flow: value = k:
+./v3.go:398:62:     from v3.Value literal (struct literal element) at ./v3.go:399:19
+./v3.go:398:62:     from value := v3.Value literal (assign) at ./v3.go:399:8
+./v3.go:398:62:   flow: v3.v = &value:
+./v3.go:398:62:     from &value (address-of) at ./v3.go:556:24
+./v3.go:398:62:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:398:62:   flow: {heap} = *v3.v:
+./v3.go:398:62:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:249:52: parameter k leaks to {heap} with derefs=0:
+./v3.go:249:52:   flow: k = k:
+./v3.go:249:52:     from enc.encodeValuev3_reflect(val.Elem(), k) (call parameter) at ./v3.go:384:29
+./v3.go:249:52:   flow: value = k:
+./v3.go:249:52:     from v3.Value literal (struct literal element) at ./v3.go:399:19
+./v3.go:249:52:     from value := v3.Value literal (assign) at ./v3.go:399:8
+./v3.go:249:52:   flow: v3.v = &value:
+./v3.go:249:52:     from &value (address-of) at ./v3.go:556:24
+./v3.go:249:52:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:556:14
+./v3.go:249:52:   flow: {heap} = *v3.v:
+./v3.go:249:52:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:556:14
+./v3.go:398:7: parameter enc leaks to {heap} with derefs=1:
+./v3.go:398:7:   flow: {heap} = *enc:
+./v3.go:398:7:     from enc.encodeString(d.Index(i).String(), v3.KeyValue literal) (call parameter) at ./v3.go:420:21
+./v3.go:398:45: parameter d leaks to {heap} with derefs=0:
+./v3.go:398:45:   flow: {heap} = d:
+./v3.go:398:45:     from d.Type() (call parameter) at ./v3.go:403:15
+./v3.go:301:37: []byte literal escapes to heap:
+./v3.go:301:37:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:301:37:     from []byte literal (spill) at ./v3.go:301:37
+./v3.go:301:37:     from ~R0 = <N> (assign-pair) at ./v3.go:301:37
+./v3.go:301:37:   flow: value = ~R0:
+./v3.go:301:37:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:301:21
+./v3.go:301:37:   flow: v3.v = &value:
+./v3.go:301:37:     from &value (address-of) at ./v3.go:392:24
+./v3.go:301:37:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:301:37:   flow: {heap} = *v3.v:
+./v3.go:301:37:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:301:37: []byte literal escapes to heap:
+./v3.go:301:37:   flow: ~R0 = &{storage for []byte literal}:
+./v3.go:301:37:     from []byte literal (spill) at ./v3.go:301:37
+./v3.go:301:37:     from ~R0 = <N> (assign-pair) at ./v3.go:301:37
+./v3.go:301:37:   flow: value = ~R0:
+./v3.go:301:37:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:301:21
+./v3.go:301:37:   flow: v3.v = &value:
+./v3.go:301:37:     from &value (address-of) at ./v3.go:392:24
+./v3.go:301:37:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:301:37:   flow: {heap} = *v3.v:
+./v3.go:301:37:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:296:7: buf escapes to heap:
+./v3.go:296:7:   flow: value = &buf:
+./v3.go:296:7:     from buf (address-of) at ./v3.go:298:26
+./v3.go:296:7:     from buf[:] (slice) at ./v3.go:298:26
+./v3.go:296:7:     from value.Value.Value = buf[:] (assign) at ./v3.go:298:21
+./v3.go:296:7:   flow: v3.v = &value:
+./v3.go:296:7:     from &value (address-of) at ./v3.go:392:24
+./v3.go:296:7:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:296:7:   flow: {heap} = *v3.v:
+./v3.go:296:7:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:293:40: v3.buf·3 escapes to heap:
+./v3.go:293:40:   flow: ~R0 = &v3.buf·3:
+./v3.go:293:40:     from v3.buf·3 (address-of) at ./v3.go:293:40
+./v3.go:293:40:     from v3.buf·3[:] (slice) at ./v3.go:293:40
+./v3.go:293:40:     from ~R0 = <N> (assign-pair) at ./v3.go:293:40
+./v3.go:293:40:   flow: value = ~R0:
+./v3.go:293:40:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:293:21
+./v3.go:293:40:   flow: v3.v = &value:
+./v3.go:293:40:     from &value (address-of) at ./v3.go:392:24
+./v3.go:293:40:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:293:40:   flow: {heap} = *v3.v:
+./v3.go:293:40:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:284:39: v3.buf·3 escapes to heap:
+./v3.go:284:39:   flow: ~R0 = &v3.buf·3:
+./v3.go:284:39:     from v3.buf·3 (address-of) at ./v3.go:284:39
+./v3.go:284:39:     from v3.buf·3[:] (slice) at ./v3.go:284:39
+./v3.go:284:39:     from ~R0 = <N> (assign-pair) at ./v3.go:284:39
+./v3.go:284:39:   flow: value = ~R0:
+./v3.go:284:39:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:284:21
+./v3.go:284:39:   flow: v3.v = &value:
+./v3.go:284:39:     from &value (address-of) at ./v3.go:392:24
+./v3.go:284:39:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:284:39:   flow: {heap} = *v3.v:
+./v3.go:284:39:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:281:39: v3.buf·3 escapes to heap:
+./v3.go:281:39:   flow: ~R0 = &v3.buf·3:
+./v3.go:281:39:     from v3.buf·3 (address-of) at ./v3.go:281:39
+./v3.go:281:39:     from v3.buf·3[:] (slice) at ./v3.go:281:39
+./v3.go:281:39:     from ~R0 = <N> (assign-pair) at ./v3.go:281:39
+./v3.go:281:39:   flow: value = ~R0:
+./v3.go:281:39:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:281:21
+./v3.go:281:39:   flow: v3.v = &value:
+./v3.go:281:39:     from &value (address-of) at ./v3.go:392:24
+./v3.go:281:39:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:281:39:   flow: {heap} = *v3.v:
+./v3.go:281:39:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:278:29: []byte literal escapes to heap:
+./v3.go:278:29:   flow: value = &{storage for []byte literal}:
+./v3.go:278:29:     from []byte literal (spill) at ./v3.go:278:29
+./v3.go:278:29:     from value.Value.Value = []byte literal (assign) at ./v3.go:278:21
+./v3.go:278:29:   flow: v3.v = &value:
+./v3.go:278:29:     from &value (address-of) at ./v3.go:392:24
+./v3.go:278:29:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:278:29:   flow: {heap} = *v3.v:
+./v3.go:278:29:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:269:38: v3.buf·3 escapes to heap:
+./v3.go:269:38:   flow: ~R0 = &v3.buf·3:
+./v3.go:269:38:     from v3.buf·3 (address-of) at ./v3.go:269:38
+./v3.go:269:38:     from v3.buf·3[:] (slice) at ./v3.go:269:38
+./v3.go:269:38:     from ~R0 = <N> (assign-pair) at ./v3.go:269:38
+./v3.go:269:38:   flow: value = ~R0:
+./v3.go:269:38:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:269:21
+./v3.go:269:38:   flow: v3.v = &value:
+./v3.go:269:38:     from &value (address-of) at ./v3.go:392:24
+./v3.go:269:38:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:269:38:   flow: {heap} = *v3.v:
+./v3.go:269:38:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:266:38: v3.buf·3 escapes to heap:
+./v3.go:266:38:   flow: ~R0 = &v3.buf·3:
+./v3.go:266:38:     from v3.buf·3 (address-of) at ./v3.go:266:38
+./v3.go:266:38:     from v3.buf·3[:] (slice) at ./v3.go:266:38
+./v3.go:266:38:     from ~R0 = <N> (assign-pair) at ./v3.go:266:38
+./v3.go:266:38:   flow: value = ~R0:
+./v3.go:266:38:     from value.Value.Value = ([]byte)(~R0) (assign) at ./v3.go:266:21
+./v3.go:266:38:   flow: v3.v = &value:
+./v3.go:266:38:     from &value (address-of) at ./v3.go:392:24
+./v3.go:266:38:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:266:38:   flow: {heap} = *v3.v:
+./v3.go:266:38:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:263:29: []byte literal escapes to heap:
+./v3.go:263:29:   flow: value = &{storage for []byte literal}:
+./v3.go:263:29:     from []byte literal (spill) at ./v3.go:263:29
+./v3.go:263:29:     from value.Value.Value = []byte literal (assign) at ./v3.go:263:21
+./v3.go:263:29:   flow: v3.v = &value:
+./v3.go:263:29:     from &value (address-of) at ./v3.go:392:24
+./v3.go:263:29:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:263:29:   flow: {heap} = *v3.v:
+./v3.go:263:29:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:249:37: parameter d leaks to {heap} with derefs=1:
+./v3.go:249:37:   flow: {temp} = d:
+./v3.go:249:37:   flow: v = *{temp}:
+./v3.go:249:37:     from case []byte: value.Value.Value = v; value.Value.Vtype = v3.BytesT (switch case) at ./v3.go:259:2
+./v3.go:249:37:   flow: value = v:
+./v3.go:249:37:     from value.Value.Value = v (assign) at ./v3.go:260:21
+./v3.go:249:37:   flow: v3.v = &value:
+./v3.go:249:37:     from &value (address-of) at ./v3.go:392:24
+./v3.go:249:37:     from v3.out, v3.v, v3.varintbuf = <N> (assign-pair) at ./v3.go:392:14
+./v3.go:249:37:   flow: {heap} = *v3.v:
+./v3.go:249:37:     from v3.v.Tobytes(v3.out, v3.varintbuf) (call parameter) at ./v3.go:392:14
+./v3.go:249:37: parameter d leaks to {heap} with derefs=0:
+./v3.go:249:37:   flow: v = d:
+./v3.go:249:37:     from d.(gob.GobEncoder) (dot) at ./v3.go:351:23
+./v3.go:249:37:     from v, ok = d.(gob.GobEncoder) (assign-pair-dot-type) at ./v3.go:351:19
+./v3.go:249:37:   flow: {heap} = v:
+./v3.go:249:37:     from v.GobEncode() (call parameter) at ./v3.go:353:40
+./v3.go:249:7: parameter enc leaks to {heap} with derefs=1:
+./v3.go:249:7:   flow: {heap} = *enc:
+./v3.go:249:7:     from enc.encodeString(v, v3.KeyValue(~r1)) (call parameter) at ./v3.go:315:22
+./v3.go:249:7: leaking param content: enc
+./v3.go:249:37: leaking param: d
+./v3.go:249:52: leaking param: k
+./v3.go:398:7: leaking param content: enc
+./v3.go:398:45: leaking param: d
+./v3.go:398:62: leaking param: k
+./v3.go:296:7: moved to heap: buf
+./v3.go:266:38: moved to heap: v3.buf·3
+./v3.go:269:38: moved to heap: v3.buf·3
+./v3.go:281:39: moved to heap: v3.buf·3
+./v3.go:284:39: moved to heap: v3.buf·3
+./v3.go:293:40: moved to heap: v3.buf·3
+./v3.go:473:7: moved to heap: buf
+./v3.go:438:38: moved to heap: v3.buf·3
+./v3.go:441:38: moved to heap: v3.buf·3
+./v3.go:453:39: moved to heap: v3.buf·3
+./v3.go:456:39: moved to heap: v3.buf·3
+./v3.go:469:40: moved to heap: v3.buf·3
+./v3.go:257:39: &reflect.SliceHeader literal does not escape
+./v3.go:263:29: []byte literal escapes to heap
+./v3.go:278:29: []byte literal escapes to heap
+./v3.go:301:37: []byte literal escapes to heap
+./v3.go:301:37: []byte literal escapes to heap
+./v3.go:315:38: &reflect.SliceHeader literal does not escape
+./v3.go:319:39: &reflect.SliceHeader literal does not escape
+./v3.go:378:57: &reflect.SliceHeader literal does not escape
+./v3.go:410:39: &reflect.SliceHeader literal does not escape
+./v3.go:435:29: []byte literal escapes to heap
+./v3.go:435:55: &reflect.ValueError literal escapes to heap
+./v3.go:438:50: &reflect.ValueError literal escapes to heap
+./v3.go:441:50: &reflect.ValueError literal escapes to heap
+./v3.go:444:44: &reflect.ValueError literal escapes to heap
+./v3.go:447:44: &reflect.ValueError literal escapes to heap
+./v3.go:450:29: []byte literal escapes to heap
+./v3.go:450:58: &reflect.ValueError literal escapes to heap
+./v3.go:453:53: &reflect.ValueError literal escapes to heap
+./v3.go:456:53: &reflect.ValueError literal escapes to heap
+./v3.go:459:46: &reflect.ValueError literal escapes to heap
+./v3.go:462:46: &reflect.ValueError literal escapes to heap
+./v3.go:465:37: []byte literal escapes to heap
+./v3.go:465:37: []byte literal escapes to heap
+./v3.go:468:23: &reflect.ValueError literal escapes to heap
+./v3.go:472:15: &reflect.ValueError literal escapes to heap
+./v3.go:488:37: &reflect.SliceHeader literal does not escape
+./v3.go:492:38: &reflect.SliceHeader literal does not escape
+./v3.go:548:56: &reflect.SliceHeader literal does not escape
+./v3.go:87:15: parameter d leaks to {heap} with derefs=0:
+./v3.go:87:15:   flow: {heap} = d:
+./v3.go:87:15:     from enc.encodeValuev3(d, v3.KeyValue literal) (call parameter) at ./v3.go:96:26
+./v3.go:93:43: map[reflect.Type]fieldsstruct literal escapes to heap:
+./v3.go:93:43:   flow: {storage for &V3Encoder literal} = &{storage for map[reflect.Type]fieldsstruct literal}:
+./v3.go:93:43:     from map[reflect.Type]fieldsstruct literal (spill) at ./v3.go:93:43
+./v3.go:93:43:     from V3Encoder literal (struct literal element) at ./v3.go:90:19
+./v3.go:93:43:   flow: enc = &{storage for &V3Encoder literal}:
+./v3.go:93:43:     from &V3Encoder literal (spill) at ./v3.go:90:9
+./v3.go:93:43:     from enc := &V3Encoder literal (assign) at ./v3.go:90:6
+./v3.go:93:43:   flow: {heap} = *enc:
+./v3.go:93:43:     from enc.encodeValuev3(d, v3.KeyValue literal) (call parameter) at ./v3.go:96:26
+./v3.go:92:14: &[21]byte literal escapes to heap:
+./v3.go:92:14:   flow: {storage for &V3Encoder literal} = &{storage for &[21]byte literal}:
+./v3.go:92:14:     from &[21]byte literal (spill) at ./v3.go:92:14
+./v3.go:92:14:     from V3Encoder literal (struct literal element) at ./v3.go:90:19
+./v3.go:92:14:   flow: enc = &{storage for &V3Encoder literal}:
+./v3.go:92:14:     from &V3Encoder literal (spill) at ./v3.go:90:9
+./v3.go:92:14:     from enc := &V3Encoder literal (assign) at ./v3.go:90:6
+./v3.go:92:14:   flow: {heap} = *enc:
+./v3.go:92:14:     from enc.encodeValuev3(d, v3.KeyValue literal) (call parameter) at ./v3.go:96:26
+./v3.go:87:30: parameter out leaks to {heap} with derefs=0:
+./v3.go:87:30:   flow: {heap} = out:
+./v3.go:87:30:     from out.Write(v3NoStreamHeader) (call parameter) at ./v3.go:88:11
+./v3.go:87:15: leaking param: d
+./v3.go:87:30: leaking param: out
+./v3.go:90:9: &V3Encoder literal does not escape
+./v3.go:92:14: &[21]byte literal escapes to heap
+./v3.go:93:43: map[reflect.Type]fieldsstruct literal escapes to heap
+./v3.go:618:7: parameter dec leaks to {heap} with derefs=1:
+./v3.go:618:7:   flow: {heap} = *dec:
+./v3.go:618:7:     from dec.in (dot of pointer) at ./v3.go:619:21
+./v3.go:618:7:     from dec.in.ReadByte() (call parameter) at ./v3.go:619:33
+./v3.go:618:7: leaking param content: dec
+./v3.go:1209:22: parameter buf leaks to {heap} with derefs=0:
+./v3.go:1209:22:   flow: {heap} = buf:
+./v3.go:1209:22:     from value.FromBytes(buf, limit) (call parameter) at ./v3.go:1212:25
+./v3.go:1209:22: leaking param: buf
+./v3.go:1135:33: parameter e leaks to {heap} with derefs=0:
+./v3.go:1135:33:   flow: {heap} = e:
+./v3.go:1135:33:     from decodersSlice[int(k.Vtype)](k, e) (call parameter) at ./v3.go:1139:36
+./v3.go:1135:18: parameter k leaks to {heap} with derefs=0:
+./v3.go:1135:18:   flow: {heap} = k:
+./v3.go:1135:18:     from decodersSlice[int(k.Vtype)](k, e) (call parameter) at ./v3.go:1139:36
+./v3.go:1137:20: &errors.errorString literal escapes to heap:
+./v3.go:1137:20:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:1137:20:     from &errors.errorString literal (spill) at ./v3.go:1137:20
+./v3.go:1137:20:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:1137:20
+./v3.go:1137:20:     from ~R0 = <N> (assign-pair) at ./v3.go:1137:20
+./v3.go:1137:20:   flow: ~r2 = ~R0:
+./v3.go:1137:20:     from return error(~R0) (return) at ./v3.go:1137:3
+./v3.go:1137:62: "TT: cannot unmarshal invalid key type:" + string(~R0) escapes to heap:
+./v3.go:1137:62:   flow: errors.text = &{storage for "TT: cannot unmarshal invalid key type:" + string(~R0)}:
+./v3.go:1137:62:     from "TT: cannot unmarshal invalid key type:" + string(~R0) (spill) at ./v3.go:1137:62
+./v3.go:1137:62:     from errors.text = <N> (assign-pair) at ./v3.go:1137:20
+./v3.go:1137:62:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:1137:62:     from errors.errorString literal (struct literal element) at ./v3.go:1137:20
+./v3.go:1135:18: leaking param: k
+./v3.go:1135:33: leaking param: e
+./v3.go:1137:62: "TT: cannot unmarshal invalid key type:" + string(~R0) escapes to heap
+./v3.go:1137:20: &errors.errorString literal escapes to heap
+./v3.go:580:55: &reflect.ValueError literal escapes to heap:
+./v3.go:580:55:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:580:55:     from &reflect.ValueError literal (spill) at ./v3.go:580:55
+./v3.go:580:55:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:580:55
+./v3.go:576:25: parameter val leaks to {heap} with derefs=0:
+./v3.go:576:25:   flow: {heap} = val:
+./v3.go:576:25:     from val.Type() (call parameter) at ./v3.go:579:20
+./v3.go:577:22: make(map[string]int, val.NumField()) escapes to heap:
+./v3.go:577:22:   flow: usableFields = &{storage for make(map[string]int, val.NumField())}:
+./v3.go:577:22:     from make(map[string]int, val.NumField()) (spill) at ./v3.go:577:22
+./v3.go:577:22:     from usableFields := make(map[string]int, val.NumField()) (assign) at ./v3.go:577:15
+./v3.go:577:22:   flow: ~r1 = usableFields:
+./v3.go:577:22:     from return usableFields (return) at ./v3.go:585:2
+./v3.go:576:25: leaking param: val
+./v3.go:577:22: make(map[string]int, val.NumField()) escapes to heap
+./v3.go:580:55: &reflect.ValueError literal escapes to heap
+./v3.go:715:19: &errors.errorString literal escapes to heap:
+./v3.go:715:19:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:715:19:     from &errors.errorString literal (spill) at ./v3.go:715:19
+./v3.go:715:19:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:715:19
+./v3.go:715:19:     from ~R0 = <N> (assign-pair) at ./v3.go:715:19
+./v3.go:715:19:   flow: ~r2 = ~R0:
+./v3.go:715:19:     from return error(~R0) (return) at ./v3.go:715:2
+./v3.go:715:57: "TT: cannot unmarshal invalid type:" + string(~R0) escapes to heap:
+./v3.go:715:57:   flow: errors.text = &{storage for "TT: cannot unmarshal invalid type:" + string(~R0)}:
+./v3.go:715:57:     from "TT: cannot unmarshal invalid type:" + string(~R0) (spill) at ./v3.go:715:57
+./v3.go:715:57:     from errors.text = <N> (assign-pair) at ./v3.go:715:19
+./v3.go:715:57:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:715:57:     from errors.errorString literal (struct literal element) at ./v3.go:715:19
+./v3.go:713:22: data does not escape
+./v3.go:713:40: e does not escape
+./v3.go:715:57: "TT: cannot unmarshal invalid type:" + string(~R0) escapes to heap
+./v3.go:715:19: &errors.errorString literal escapes to heap
+./v3.go:1154:47: &reflect.ValueError literal escapes to heap:
+./v3.go:1154:47:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:1154:47:     from &reflect.ValueError literal (spill) at ./v3.go:1154:47
+./v3.go:1154:47:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:1154:47
+./v3.go:1156:44: &reflect.ValueError literal escapes to heap:
+./v3.go:1156:44:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:1156:44:     from &reflect.ValueError literal (spill) at ./v3.go:1156:44
+./v3.go:1156:44:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:1156:44
+./v3.go:1173:13: &reflect.ValueError literal escapes to heap:
+./v3.go:1173:13:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:1173:13:     from &reflect.ValueError literal (spill) at ./v3.go:1173:13
+./v3.go:1173:13:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:1173:13
+./v3.go:1177:48: &reflect.ValueError literal escapes to heap:
+./v3.go:1177:48:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:1177:48:     from &reflect.ValueError literal (spill) at ./v3.go:1177:48
+./v3.go:1177:48:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:1177:48
+./v3.go:965:6: string(v) escapes to heap:
+./v3.go:965:6:   flow: {heap} = &{storage for string(v)}:
+./v3.go:965:6:     from string(v) (spill) at ./v3.go:965:6
+./v3.go:965:6:     from m[string(v)] (key of map put) at ./v3.go:965:6
+./v3.go:965:13: string(v) escapes to heap:
+./v3.go:965:13:   flow: {storage for string(v)} = &{storage for string(v)}:
+./v3.go:965:13:     from string(v) (spill) at ./v3.go:965:13
+./v3.go:965:13:     from string(v) (interface-converted) at ./v3.go:965:6
+./v3.go:974:13: &reflect.ValueError literal escapes to heap:
+./v3.go:974:13:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:974:13:     from &reflect.ValueError literal (spill) at ./v3.go:974:13
+./v3.go:974:13:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:974:13
+./v3.go:1103:14: make([]interface {}, children) escapes to heap:
+./v3.go:1103:14:   flow: {heap} = &{storage for make([]interface {}, children)}:
+./v3.go:1103:14:     from make([]interface {}, children) (non-constant size) at ./v3.go:1103:14
+./v3.go:1130:24: arr escapes to heap:
+./v3.go:1130:24:   flow: reflect.i = &{storage for arr}:
+./v3.go:1130:24:     from arr (spill) at ./v3.go:1130:24
+./v3.go:1130:24:     from reflect.i = <N> (assign-pair) at ./v3.go:1130:24
+./v3.go:1130:24:   flow: reflect.i = reflect.i:
+./v3.go:1130:24:     from reflect.i = <N> (assign-pair) at ./v3.go:1130:24
+./v3.go:1130:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:1130:24:     from &reflect.i (address-of) at ./v3.go:1130:24
+./v3.go:1130:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:1130:24
+./v3.go:1130:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:1130:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:1130:24
+./v3.go:1130:24:     from reflect.Value literal (struct literal element) at ./v3.go:1130:24
+./v3.go:1130:24:     from ~R0 = <N> (assign-pair) at ./v3.go:1130:24
+./v3.go:1130:24:   flow: ~R0 = ~R0:
+./v3.go:1130:24:     from ~R0 = <N> (assign-pair) at ./v3.go:1130:24
+./v3.go:1130:24:   flow: {heap} = ~R0:
+./v3.go:1130:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:1130:8
+./v3.go:1106:30: arr escapes to heap:
+./v3.go:1106:30:   flow: reflect.i = &{storage for arr}:
+./v3.go:1106:30:     from arr (spill) at ./v3.go:1106:30
+./v3.go:1106:30:     from reflect.i = <N> (assign-pair) at ./v3.go:1106:30
+./v3.go:1106:30:   flow: reflect.eface·3 = reflect.i:
+./v3.go:1106:30:     from &reflect.i (address-of) at ./v3.go:1106:30
+./v3.go:1106:30:     from *(*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (indirection) at ./v3.go:1106:30
+./v3.go:1106:30:     from reflect.eface·3 = *(*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:1106:30
+./v3.go:1106:30:   flow: reflect.t = reflect.eface·3:
+./v3.go:1106:30:     from reflect.eface·3.typ (dot) at ./v3.go:1106:30
+./v3.go:1106:30:     from reflect.t = <N> (assign-pair) at ./v3.go:1106:30
+./v3.go:1106:30:   flow: ~R0 = reflect.t:
+./v3.go:1106:30:     from reflect.Type(reflect.t) (interface-converted) at ./v3.go:1106:30
+./v3.go:1106:30:     from ~R0 = <N> (assign-pair) at ./v3.go:1106:30
+./v3.go:1106:30:   flow: ~R0 = ~R0:
+./v3.go:1106:30:     from ~R0 = <N> (assign-pair) at ./v3.go:1106:30
+./v3.go:1106:30:   flow: {heap} = ~R0:
+./v3.go:1106:30:     from reflect.Type(~R0).Elem() (call parameter) at ./v3.go:1106:40
+./v3.go:1058:16: parameter dec leaks to {heap} with derefs=1:
+./v3.go:1058:16:   flow: {heap} = *dec:
+./v3.go:1058:16:     from dec.in (dot of pointer) at ./v3.go:1067:26
+./v3.go:1058:16:     from v.FromBytes(dec.in, dec.allocLimmit) (call parameter) at ./v3.go:1067:22
+./v3.go:1142:7: parameter dec leaks to {heap} with derefs=1:
+./v3.go:1142:7:   flow: dec = dec:
+./v3.go:1142:7:     from decodeArr(dec, v, e) (call parameter) at ./v3.go:1195:19
+./v3.go:1142:7:   flow: {heap} = *dec:
+./v3.go:1142:7:     from dec.in (dot of pointer) at ./v3.go:1067:26
+./v3.go:1142:7:     from v.FromBytes(dec.in, dec.allocLimmit) (call parameter) at ./v3.go:1067:22
+./v3.go:1058:44: parameter e leaks to {heap} with derefs=0:
+./v3.go:1058:44:   flow: {heap} = e:
+./v3.go:1058:44:     from e.Len() (call parameter) at ./v3.go:1062:15
+./v3.go:945:12: make(map[interface {}]interface {}, children) escapes to heap:
+./v3.go:945:12:   flow: m = &{storage for make(map[interface {}]interface {}, children)}:
+./v3.go:945:12:     from make(map[interface {}]interface {}, children) (spill) at ./v3.go:945:12
+./v3.go:945:12:     from m := make(map[interface {}]interface {}, children) (assign) at ./v3.go:945:5
+./v3.go:945:12:   flow: reflect.i = m:
+./v3.go:945:12:     from m (interface-converted) at ./v3.go:970:24
+./v3.go:945:12:     from reflect.i = <N> (assign-pair) at ./v3.go:970:24
+./v3.go:945:12:   flow: reflect.i = reflect.i:
+./v3.go:945:12:     from reflect.i = <N> (assign-pair) at ./v3.go:970:24
+./v3.go:945:12:   flow: reflect.e·3 = &reflect.i:
+./v3.go:945:12:     from &reflect.i (address-of) at ./v3.go:970:24
+./v3.go:945:12:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:970:24
+./v3.go:945:12:   flow: ~R0 = *reflect.e·3:
+./v3.go:945:12:     from reflect.e·3.word (dot of pointer) at ./v3.go:970:24
+./v3.go:945:12:     from reflect.Value literal (struct literal element) at ./v3.go:970:24
+./v3.go:945:12:     from ~R0 = <N> (assign-pair) at ./v3.go:970:24
+./v3.go:945:12:   flow: ~R0 = ~R0:
+./v3.go:945:12:     from ~R0 = <N> (assign-pair) at ./v3.go:970:24
+./v3.go:945:12:   flow: {heap} = ~R0:
+./v3.go:945:12:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:970:8
+./v3.go:942:44: parameter e leaks to {heap} with derefs=0:
+./v3.go:942:44:   flow: {heap} = e:
+./v3.go:942:44:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:970:8
+./v3.go:942:32: parameter v leaks to {heap} with derefs=0:
+./v3.go:942:32:   flow: {heap} = v:
+./v3.go:942:32:     from v.Key (dot) at ./v3.go:955:23
+./v3.go:942:32:     from decodeKeyv3(v.Key, key) (call parameter) at ./v3.go:955:21
+./v3.go:942:16: parameter dec leaks to {heap} with derefs=1:
+./v3.go:942:16:   flow: {heap} = *dec:
+./v3.go:942:16:     from dec.in (dot of pointer) at ./v3.go:949:25
+./v3.go:942:16:     from v.FromBytes(dec.in, dec.allocLimmit) (call parameter) at ./v3.go:949:21
+./v3.go:1142:37: parameter v leaks to {heap} with derefs=0:
+./v3.go:1142:37:   flow: {heap} = v:
+./v3.go:1142:37:     from v.Value (dot) at ./v3.go:1179:25
+./v3.go:1142:37:     from v.Value.Value (dot) at ./v3.go:1179:31
+./v3.go:1142:37:     from u.GobDecode(v.Value.Value) (call parameter) at ./v3.go:1179:23
+./v3.go:1058:32: parameter v leaks to {heap} with derefs=0:
+./v3.go:1058:32:   flow: v = v:
+./v3.go:1058:32:     from dec.decodeValuev3(v, e.Index(i)) (call parameter) at ./v3.go:1073:27
+./v3.go:1058:32:   flow: {heap} = v:
+./v3.go:1058:32:     from v.Value (dot) at ./v3.go:1179:25
+./v3.go:1058:32:     from v.Value.Value (dot) at ./v3.go:1179:31
+./v3.go:1058:32:     from u.GobDecode(v.Value.Value) (call parameter) at ./v3.go:1179:23
+./v3.go:1142:49: parameter e leaks to {heap} with derefs=0:
+./v3.go:1142:49:   flow: {heap} = e:
+./v3.go:1142:49:     from e.Type() (call parameter) at ./v3.go:1147:38
+./v3.go:1142:7: leaking param content: dec
+./v3.go:1142:37: leaking param: v
+./v3.go:1142:49: leaking param: e
+./v3.go:942:16: leaking param content: dec
+./v3.go:942:32: leaking param: v
+./v3.go:942:44: leaking param: e
+./v3.go:1058:16: leaking param content: dec
+./v3.go:1058:32: leaking param: v
+./v3.go:1058:44: leaking param: e
+./v3.go:1154:47: &reflect.ValueError literal escapes to heap
+./v3.go:1156:44: &reflect.ValueError literal escapes to heap
+./v3.go:1173:13: &reflect.ValueError literal escapes to heap
+./v3.go:1177:48: &reflect.ValueError literal escapes to heap
+./v3.go:945:12: make(map[interface {}]interface {}, children) escapes to heap
+./v3.go:965:6: string(v) escapes to heap
+./v3.go:965:13: string(v) escapes to heap
+./v3.go:974:13: &reflect.ValueError literal escapes to heap
+./v3.go:1103:14: make([]interface {}, children) escapes to heap
+./v3.go:1106:30: arr escapes to heap
+./v3.go:1130:24: arr escapes to heap
+./v3.go:680:49: &reflect.ValueError literal escapes to heap:
+./v3.go:680:49:   flow: {heap} = &{storage for &reflect.ValueError literal}:
+./v3.go:680:49:     from &reflect.ValueError literal (spill) at ./v3.go:680:49
+./v3.go:680:49:     from panic(&reflect.ValueError literal) (call parameter) at ./v3.go:680:49
+./v3.go:655:30: parameter e leaks to {heap} with derefs=0:
+./v3.go:655:30:   flow: reflect.i = e:
+./v3.go:655:30:     from reflect.i = <N> (assign-pair) at ./v3.go:672:26
+./v3.go:655:30:   flow: reflect.i = reflect.i:
+./v3.go:655:30:     from reflect.i = <N> (assign-pair) at ./v3.go:672:26
+./v3.go:655:30:   flow: reflect.e·3 = &reflect.i:
+./v3.go:655:30:     from &reflect.i (address-of) at ./v3.go:672:26
+./v3.go:655:30:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:672:26
+./v3.go:655:30:   flow: ~R0 = *reflect.e·3:
+./v3.go:655:30:     from reflect.e·3.word (dot of pointer) at ./v3.go:672:26
+./v3.go:655:30:     from reflect.Value literal (struct literal element) at ./v3.go:672:26
+./v3.go:655:30:     from ~R0 = <N> (assign-pair) at ./v3.go:672:26
+./v3.go:655:30:   flow: ~R0 = ~R0:
+./v3.go:655:30:     from ~R0 = <N> (assign-pair) at ./v3.go:672:26
+./v3.go:655:30:   flow: value = ~R0:
+./v3.go:655:30:     from value := reflect.Value(~R0) (assign) at ./v3.go:672:8
+./v3.go:655:30:   flow: {heap} = value:
+./v3.go:655:30:     from value.Type() (call parameter) at ./v3.go:676:15
+./v3.go:655:7: parameter dec leaks to {heap} with derefs=1:
+./v3.go:655:7:   flow: {heap} = *dec:
+./v3.go:655:7:     from dec.in (dot of pointer) at ./v3.go:665:24
+./v3.go:655:7:     from v.FromBytes(dec.in, dec.allocLimmit) (call parameter) at ./v3.go:665:20
+./v3.go:683:21: &errors.errorString literal escapes to heap:
+./v3.go:683:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:683:21:     from &errors.errorString literal (spill) at ./v3.go:683:21
+./v3.go:683:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:683:21
+./v3.go:683:21:     from ~R0 = <N> (assign-pair) at ./v3.go:683:21
+./v3.go:683:21:   flow: ~r1 = ~R0:
+./v3.go:683:21:     from return error(~R0) (return) at ./v3.go:683:4
+./v3.go:677:20: &errors.errorString literal escapes to heap:
+./v3.go:677:20:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:677:20:     from &errors.errorString literal (spill) at ./v3.go:677:20
+./v3.go:677:20:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:677:20
+./v3.go:677:20:     from ~R0 = <N> (assign-pair) at ./v3.go:677:20
+./v3.go:677:20:   flow: ~r1 = ~R0:
+./v3.go:677:20:     from return error(~R0) (return) at ./v3.go:677:3
+./v3.go:659:21: &errors.errorString literal escapes to heap:
+./v3.go:659:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:659:21:     from &errors.errorString literal (spill) at ./v3.go:659:21
+./v3.go:659:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:659:21
+./v3.go:659:21:     from ~R0 = <N> (assign-pair) at ./v3.go:659:21
+./v3.go:659:21:   flow: ~r1 = ~R0:
+./v3.go:659:21:     from return error(~R0) (return) at ./v3.go:659:4
+./v3.go:655:7: leaking param content: dec
+./v3.go:655:30: leaking param: e
+./v3.go:659:21: &errors.errorString literal escapes to heap
+./v3.go:677:20: &errors.errorString literal escapes to heap
+./v3.go:680:49: &reflect.ValueError literal escapes to heap
+./v3.go:683:21: &errors.errorString literal escapes to heap
+./v3.go:649:30: parameter e leaks to {heap} with derefs=0:
+./v3.go:649:30:   flow: {heap} = e:
+./v3.go:649:30:     from dec.decode(e) (call parameter) at ./v3.go:652:19
+./v3.go:650:21: map[string]map[string]int literal escapes to heap:
+./v3.go:650:21:   flow: dec = &{storage for map[string]map[string]int literal}:
+./v3.go:650:21:     from map[string]map[string]int literal (spill) at ./v3.go:650:21
+./v3.go:650:21:     from V3Decoder literal (struct literal element) at ./v3.go:650:21
+./v3.go:650:21:     from dec := V3Decoder literal (assign) at ./v3.go:650:21
+./v3.go:650:21:   flow: {heap} = dec:
+./v3.go:650:21:     from dec (address-of) at ./v3.go:650:21
+./v3.go:650:21:     from dec.Init() (call parameter) at ./v3.go:650:21
+./v3.go:649:15: parameter buf leaks to {heap} with derefs=0:
+./v3.go:649:15:   flow: in = buf:
+./v3.go:649:15:     from in, init = <N> (assign-pair) at ./v3.go:650:21
+./v3.go:649:15:   flow: dec = in:
+./v3.go:649:15:     from V3Decoder literal (struct literal element) at ./v3.go:650:21
+./v3.go:649:15:     from dec := V3Decoder literal (assign) at ./v3.go:650:21
+./v3.go:649:15:   flow: {heap} = dec:
+./v3.go:649:15:     from dec (address-of) at ./v3.go:650:21
+./v3.go:649:15:     from dec.Init() (call parameter) at ./v3.go:650:21
+./v3.go:649:15: leaking param: buf
+./v3.go:649:30: leaking param: e
+./v3.go:650:21: map[string]map[string]int literal escapes to heap
+./v3.go:74:19: parameter out leaks to {heap} with derefs=0:
+./v3.go:74:19:   flow: {heap} = out:
+./v3.go:74:19:     from out.Write(v3StreamHeader) (call parameter) at ./v3.go:76:12
+./v3.go:78:9: &V3Encoder literal escapes to heap:
+./v3.go:78:9:   flow: ~r2 = &{storage for &V3Encoder literal}:
+./v3.go:78:9:     from &V3Encoder literal (spill) at ./v3.go:78:9
+./v3.go:78:9:     from return &V3Encoder literal (return) at ./v3.go:78:2
+./v3.go:82:43: map[reflect.Type]fieldsstruct literal escapes to heap:
+./v3.go:82:43:   flow: {storage for &V3Encoder literal} = &{storage for map[reflect.Type]fieldsstruct literal}:
+./v3.go:82:43:     from map[reflect.Type]fieldsstruct literal (spill) at ./v3.go:82:43
+./v3.go:82:43:     from V3Encoder literal (struct literal element) at ./v3.go:78:19
+./v3.go:81:14: &[21]byte literal escapes to heap:
+./v3.go:81:14:   flow: {storage for &V3Encoder literal} = &{storage for &[21]byte literal}:
+./v3.go:81:14:     from &[21]byte literal (spill) at ./v3.go:81:14
+./v3.go:81:14:     from V3Encoder literal (struct literal element) at ./v3.go:78:19
+./v3.go:74:19: parameter out leaks to {storage for &V3Encoder literal} with derefs=0:
+./v3.go:74:19:   flow: {storage for &V3Encoder literal} = out:
+./v3.go:74:19:     from V3Encoder literal (struct literal element) at ./v3.go:78:19
+./v3.go:74:19: leaking param: out
+./v3.go:78:9: &V3Encoder literal escapes to heap
+./v3.go:81:14: &[21]byte literal escapes to heap
+./v3.go:82:43: map[reflect.Type]fieldsstruct literal escapes to heap
+./v3.go:100:7: parameter enc leaks to {heap} with derefs=0:
+./v3.go:100:7:   flow: sync.m = enc:
+./v3.go:100:7:     from enc.Mutex (dot of pointer) at ./v3.go:106:5
+./v3.go:100:7:     from enc.Mutex (address-of) at ./v3.go:106:5
+./v3.go:100:7:     from sync.m = enc.Mutex (assign) at ./v3.go:106:12
+./v3.go:100:7:   flow: {heap} = sync.m:
+./v3.go:100:7:     from sync.m.state (dot of pointer) at ./v3.go:106:12
+./v3.go:100:7:     from &sync.m.state (address-of) at ./v3.go:106:12
+./v3.go:100:7:     from "sync/atomic".AddInt32(&sync.m.state, int32(-1)) (call parameter) at ./v3.go:106:12
+./v3.go:100:30: parameter d leaks to {heap} with derefs=0:
+./v3.go:100:30:   flow: {heap} = d:
+./v3.go:100:30:     from enc.encodeValuev3(d, v3.KeyValue literal) (call parameter) at ./v3.go:105:26
+./v3.go:100:7: parameter enc leaks to {heap} with derefs=0:
+./v3.go:100:7:   flow: sync.m = enc:
+./v3.go:100:7:     from enc.Mutex (dot of pointer) at ./v3.go:106:5
+./v3.go:100:7:     from enc.Mutex (address-of) at ./v3.go:106:5
+./v3.go:100:7:     from sync.m = enc.Mutex (assign) at ./v3.go:106:12
+./v3.go:100:7:   flow: {heap} = sync.m:
+./v3.go:100:7:     from sync.m.state (dot of pointer) at ./v3.go:106:12
+./v3.go:100:7:     from &sync.m.state (address-of) at ./v3.go:106:12
+./v3.go:100:7:     from "sync/atomic".AddInt32(&sync.m.state, int32(-1)) (call parameter) at ./v3.go:106:12
+./v3.go:100:7: leaking param: enc
+./v3.go:100:30: leaking param: d
+./v3.go:226:19: s does not escape
+./v3.go:228:26: &reflect.SliceHeader literal does not escape
+./v3.go:242:18: parameter b leaks to ~r1 with derefs=0:
+./v3.go:242:18:   flow: ~r1 = b:
+./v3.go:242:18:     from v3.KeyValue literal (struct literal element) at ./v3.go:243:20
+./v3.go:242:18:     from return v3.KeyValue literal (return) at ./v3.go:243:2
+./v3.go:242:18: leaking param: b to result ~r1 level=0
+./v3.go:607:41: map[string]map[string]int literal escapes to heap:
+./v3.go:607:41:   flow: dec = &{storage for map[string]map[string]int literal}:
+./v3.go:607:41:     from map[string]map[string]int literal (spill) at ./v3.go:607:41
+./v3.go:607:41:     from V3Decoder literal (struct literal element) at ./v3.go:604:18
+./v3.go:607:41:     from dec := V3Decoder literal (assign) at ./v3.go:604:6
+./v3.go:607:41:   flow: {heap} = dec:
+./v3.go:607:41:     from dec (address-of) at ./v3.go:611:6
+./v3.go:607:41:     from dec.Init() (call parameter) at ./v3.go:611:11
+./v3.go:603:19: parameter in leaks to {heap} with derefs=0:
+./v3.go:603:19:   flow: dec = in:
+./v3.go:603:19:     from V3Decoder literal (struct literal element) at ./v3.go:604:18
+./v3.go:603:19:     from dec := V3Decoder literal (assign) at ./v3.go:604:6
+./v3.go:603:19:   flow: {heap} = dec:
+./v3.go:603:19:     from dec (address-of) at ./v3.go:611:6
+./v3.go:603:19:     from dec.Init() (call parameter) at ./v3.go:611:11
+./v3.go:604:2: dec escapes to heap:
+./v3.go:604:2:   flow: ~r2 = &dec:
+./v3.go:604:2:     from &dec (address-of) at ./v3.go:613:9
+./v3.go:604:2:     from return &dec (return) at ./v3.go:613:2
+./v3.go:603:19: parameter in leaks to dec with derefs=0:
+./v3.go:603:19:   flow: dec = in:
+./v3.go:603:19:     from V3Decoder literal (struct literal element) at ./v3.go:604:18
+./v3.go:603:19:     from dec := V3Decoder literal (assign) at ./v3.go:604:6
+./v3.go:603:19: leaking param: in
+./v3.go:604:2: moved to heap: dec
+./v3.go:607:41: map[string]map[string]int literal escapes to heap
+./v3.go:634:7: dec does not escape
+./v3.go:641:7: parameter dec leaks to {heap} with derefs=0:
+./v3.go:641:7:   flow: sync.m = dec:
+./v3.go:641:7:     from dec.Mutex (dot of pointer) at ./v3.go:644:5
+./v3.go:641:7:     from dec.Mutex (address-of) at ./v3.go:644:5
+./v3.go:641:7:     from sync.m = dec.Mutex (assign) at ./v3.go:644:12
+./v3.go:641:7:   flow: {heap} = sync.m:
+./v3.go:641:7:     from sync.m.state (dot of pointer) at ./v3.go:644:12
+./v3.go:641:7:     from &sync.m.state (address-of) at ./v3.go:644:12
+./v3.go:641:7:     from "sync/atomic".AddInt32(&sync.m.state, int32(-1)) (call parameter) at ./v3.go:644:12
+./v3.go:641:30: parameter e leaks to {heap} with derefs=0:
+./v3.go:641:30:   flow: {heap} = e:
+./v3.go:641:30:     from dec.decode(e) (call parameter) at ./v3.go:643:19
+./v3.go:641:7: parameter dec leaks to {heap} with derefs=0:
+./v3.go:641:7:   flow: sync.m = dec:
+./v3.go:641:7:     from dec.Mutex (dot of pointer) at ./v3.go:644:5
+./v3.go:641:7:     from dec.Mutex (address-of) at ./v3.go:644:5
+./v3.go:641:7:     from sync.m = dec.Mutex (assign) at ./v3.go:644:12
+./v3.go:641:7:   flow: {heap} = sync.m:
+./v3.go:641:7:     from sync.m.state (dot of pointer) at ./v3.go:644:12
+./v3.go:641:7:     from &sync.m.state (address-of) at ./v3.go:644:12
+./v3.go:641:7:     from "sync/atomic".AddInt32(&sync.m.state, int32(-1)) (call parameter) at ./v3.go:644:12
+./v3.go:641:7: leaking param: dec
+./v3.go:641:30: leaking param: e
+./v3.go:718:19: parameter data leaks to {heap} with derefs=0:
+./v3.go:718:19:   flow: v3.b = data:
+./v3.go:718:19:     from data.Value (dot) at ./v3.go:719:32
+./v3.go:718:19:     from v3.b = <N> (assign-pair) at ./v3.go:719:27
+./v3.go:718:19:   flow: ~R0 = v3.b:
+./v3.go:718:19:     from &v3.b (address-of) at ./v3.go:719:27
+./v3.go:718:19:     from *(*string)(unsafe.Pointer(&v3.b)) (indirection) at ./v3.go:719:27
+./v3.go:718:19:     from ~R0 = <N> (assign-pair) at ./v3.go:719:27
+./v3.go:718:19:   flow: val = ~R0:
+./v3.go:718:19:     from val := string(~R0) (assign) at ./v3.go:719:6
+./v3.go:718:19:   flow: {heap} = val:
+./v3.go:718:19:     from e.SetString(val) (call parameter) at ./v3.go:726:14
+./v3.go:724:24: val escapes to heap:
+./v3.go:724:24:   flow: reflect.i = &{storage for val}:
+./v3.go:724:24:     from val (spill) at ./v3.go:724:24
+./v3.go:724:24:     from reflect.i = <N> (assign-pair) at ./v3.go:724:24
+./v3.go:724:24:   flow: reflect.i = reflect.i:
+./v3.go:724:24:     from reflect.i = <N> (assign-pair) at ./v3.go:724:24
+./v3.go:724:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:724:24:     from &reflect.i (address-of) at ./v3.go:724:24
+./v3.go:724:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:724:24
+./v3.go:724:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:724:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:724:24
+./v3.go:724:24:     from reflect.Value literal (struct literal element) at ./v3.go:724:24
+./v3.go:724:24:     from ~R0 = <N> (assign-pair) at ./v3.go:724:24
+./v3.go:724:24:   flow: ~R0 = ~R0:
+./v3.go:724:24:     from ~R0 = <N> (assign-pair) at ./v3.go:724:24
+./v3.go:724:24:   flow: {heap} = ~R0:
+./v3.go:724:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:724:8
+./v3.go:718:37: parameter e leaks to {heap} with derefs=0:
+./v3.go:718:37:   flow: {heap} = e:
+./v3.go:718:37:     from e.Type() (call parameter) at ./v3.go:721:45
+./v3.go:718:19: parameter data leaks to {storage for val} with derefs=0:
+./v3.go:718:19:   flow: v3.b = data:
+./v3.go:718:19:     from data.Value (dot) at ./v3.go:719:32
+./v3.go:718:19:     from v3.b = <N> (assign-pair) at ./v3.go:719:27
+./v3.go:718:19:   flow: ~R0 = v3.b:
+./v3.go:718:19:     from &v3.b (address-of) at ./v3.go:719:27
+./v3.go:718:19:     from *(*string)(unsafe.Pointer(&v3.b)) (indirection) at ./v3.go:719:27
+./v3.go:718:19:     from ~R0 = <N> (assign-pair) at ./v3.go:719:27
+./v3.go:718:19:   flow: val = ~R0:
+./v3.go:718:19:     from val := string(~R0) (assign) at ./v3.go:719:6
+./v3.go:718:19:   flow: {storage for val} = val:
+./v3.go:718:19:     from val (interface-converted) at ./v3.go:724:24
+./v3.go:722:21: &errors.errorString literal escapes to heap:
+./v3.go:722:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:722:21:     from &errors.errorString literal (spill) at ./v3.go:722:21
+./v3.go:722:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:722:21
+./v3.go:722:21:     from ~R0 = <N> (assign-pair) at ./v3.go:722:21
+./v3.go:722:21:   flow: ~r2 = ~R0:
+./v3.go:722:21:     from return error(~R0) (return) at ./v3.go:722:4
+./v3.go:722:78: "TT: cannot unmarshal string into " + e.Type().String() + " Go type" escapes to heap:
+./v3.go:722:78:   flow: errors.text = &{storage for "TT: cannot unmarshal string into " + e.Type().String() + " Go type"}:
+./v3.go:722:78:     from "TT: cannot unmarshal string into " + e.Type().String() + " Go type" (spill) at ./v3.go:722:78
+./v3.go:722:78:     from errors.text = <N> (assign-pair) at ./v3.go:722:21
+./v3.go:722:78:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:722:78:     from errors.errorString literal (struct literal element) at ./v3.go:722:21
+./v3.go:718:19: leaking param: data
+./v3.go:718:37: leaking param: e
+./v3.go:722:78: "TT: cannot unmarshal string into " + e.Type().String() + " Go type" escapes to heap
+./v3.go:722:21: &errors.errorString literal escapes to heap
+./v3.go:724:24: val escapes to heap
+./v3.go:731:18: parameter data leaks to {heap} with derefs=0:
+./v3.go:731:18:   flow: {heap} = data:
+./v3.go:731:18:     from data.Value (dot) at ./v3.go:738:18
+./v3.go:731:18:     from e.SetBytes(data.Value) (call parameter) at ./v3.go:738:13
+./v3.go:736:29: data.Value escapes to heap:
+./v3.go:736:29:   flow: reflect.i = &{storage for data.Value}:
+./v3.go:736:29:     from data.Value (spill) at ./v3.go:736:29
+./v3.go:736:29:     from reflect.i = <N> (assign-pair) at ./v3.go:736:24
+./v3.go:736:29:   flow: reflect.i = reflect.i:
+./v3.go:736:29:     from reflect.i = <N> (assign-pair) at ./v3.go:736:24
+./v3.go:736:29:   flow: reflect.e·3 = &reflect.i:
+./v3.go:736:29:     from &reflect.i (address-of) at ./v3.go:736:24
+./v3.go:736:29:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:736:24
+./v3.go:736:29:   flow: ~R0 = *reflect.e·3:
+./v3.go:736:29:     from reflect.e·3.word (dot of pointer) at ./v3.go:736:24
+./v3.go:736:29:     from reflect.Value literal (struct literal element) at ./v3.go:736:24
+./v3.go:736:29:     from ~R0 = <N> (assign-pair) at ./v3.go:736:24
+./v3.go:736:29:   flow: ~R0 = ~R0:
+./v3.go:736:29:     from ~R0 = <N> (assign-pair) at ./v3.go:736:24
+./v3.go:736:29:   flow: {heap} = ~R0:
+./v3.go:736:29:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:736:8
+./v3.go:731:36: parameter e leaks to {heap} with derefs=0:
+./v3.go:731:36:   flow: {heap} = e:
+./v3.go:731:36:     from e.Type() (call parameter) at ./v3.go:732:40
+./v3.go:731:18: parameter data leaks to {storage for data.Value} with derefs=0:
+./v3.go:731:18:   flow: {storage for data.Value} = data:
+./v3.go:731:18:     from data.Value (dot) at ./v3.go:736:29
+./v3.go:731:18:     from data.Value (interface-converted) at ./v3.go:736:29
+./v3.go:734:21: &errors.errorString literal escapes to heap:
+./v3.go:734:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:734:21:     from &errors.errorString literal (spill) at ./v3.go:734:21
+./v3.go:734:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:734:21
+./v3.go:734:21:     from ~R0 = <N> (assign-pair) at ./v3.go:734:21
+./v3.go:734:21:   flow: ~r2 = ~R0:
+./v3.go:734:21:     from return error(~R0) (return) at ./v3.go:734:4
+./v3.go:734:77: "TT: cannot unmarshal bytes into " + e.Type().String() + " Go type" escapes to heap:
+./v3.go:734:77:   flow: errors.text = &{storage for "TT: cannot unmarshal bytes into " + e.Type().String() + " Go type"}:
+./v3.go:734:77:     from "TT: cannot unmarshal bytes into " + e.Type().String() + " Go type" (spill) at ./v3.go:734:77
+./v3.go:734:77:     from errors.text = <N> (assign-pair) at ./v3.go:734:21
+./v3.go:734:77:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:734:77:     from errors.errorString literal (struct literal element) at ./v3.go:734:21
+./v3.go:731:18: leaking param: data
+./v3.go:731:36: leaking param: e
+./v3.go:734:77: "TT: cannot unmarshal bytes into " + e.Type().String() + " Go type" escapes to heap
+./v3.go:734:21: &errors.errorString literal escapes to heap
+./v3.go:736:29: data.Value escapes to heap
+./v3.go:754:24: val escapes to heap:
+./v3.go:754:24:   flow: reflect.i = &{storage for val}:
+./v3.go:754:24:     from val (spill) at ./v3.go:754:24
+./v3.go:754:24:     from reflect.i = <N> (assign-pair) at ./v3.go:754:24
+./v3.go:754:24:   flow: reflect.i = reflect.i:
+./v3.go:754:24:     from reflect.i = <N> (assign-pair) at ./v3.go:754:24
+./v3.go:754:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:754:24:     from &reflect.i (address-of) at ./v3.go:754:24
+./v3.go:754:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:754:24
+./v3.go:754:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:754:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:754:24
+./v3.go:754:24:     from reflect.Value literal (struct literal element) at ./v3.go:754:24
+./v3.go:754:24:     from ~R0 = <N> (assign-pair) at ./v3.go:754:24
+./v3.go:754:24:   flow: ~R0 = ~R0:
+./v3.go:754:24:     from ~R0 = <N> (assign-pair) at ./v3.go:754:24
+./v3.go:754:24:   flow: {heap} = ~R0:
+./v3.go:754:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:754:8
+./v3.go:743:35: parameter e leaks to {heap} with derefs=0:
+./v3.go:743:35:   flow: {heap} = e:
+./v3.go:743:35:     from e.Type() (call parameter) at ./v3.go:751:45
+./v3.go:752:21: &errors.errorString literal escapes to heap:
+./v3.go:752:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:752:21:     from &errors.errorString literal (spill) at ./v3.go:752:21
+./v3.go:752:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:752:21
+./v3.go:752:21:     from ~R0 = <N> (assign-pair) at ./v3.go:752:21
+./v3.go:752:21:   flow: ~r2 = ~R0:
+./v3.go:752:21:     from return error(~R0) (return) at ./v3.go:752:4
+./v3.go:752:76: "TT: cannot unmarshal int8 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:752:76:   flow: errors.text = &{storage for "TT: cannot unmarshal int8 into " + string(~R0) + " Go type"}:
+./v3.go:752:76:     from "TT: cannot unmarshal int8 into " + string(~R0) + " Go type" (spill) at ./v3.go:752:76
+./v3.go:752:76:     from errors.text = <N> (assign-pair) at ./v3.go:752:21
+./v3.go:752:76:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:752:76:     from errors.errorString literal (struct literal element) at ./v3.go:752:21
+./v3.go:743:17: data does not escape
+./v3.go:743:35: leaking param: e
+./v3.go:752:76: "TT: cannot unmarshal int8 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:752:73: string("kind") + string(~R0) does not escape
+./v3.go:752:21: &errors.errorString literal escapes to heap
+./v3.go:754:24: val escapes to heap
+./v3.go:772:24: val escapes to heap:
+./v3.go:772:24:   flow: reflect.i = &{storage for val}:
+./v3.go:772:24:     from val (spill) at ./v3.go:772:24
+./v3.go:772:24:     from reflect.i = <N> (assign-pair) at ./v3.go:772:24
+./v3.go:772:24:   flow: reflect.i = reflect.i:
+./v3.go:772:24:     from reflect.i = <N> (assign-pair) at ./v3.go:772:24
+./v3.go:772:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:772:24:     from &reflect.i (address-of) at ./v3.go:772:24
+./v3.go:772:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:772:24
+./v3.go:772:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:772:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:772:24
+./v3.go:772:24:     from reflect.Value literal (struct literal element) at ./v3.go:772:24
+./v3.go:772:24:     from ~R0 = <N> (assign-pair) at ./v3.go:772:24
+./v3.go:772:24:   flow: ~R0 = ~R0:
+./v3.go:772:24:     from ~R0 = <N> (assign-pair) at ./v3.go:772:24
+./v3.go:772:24:   flow: {heap} = ~R0:
+./v3.go:772:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:772:8
+./v3.go:761:36: parameter e leaks to {heap} with derefs=0:
+./v3.go:761:36:   flow: {heap} = e:
+./v3.go:761:36:     from e.Type() (call parameter) at ./v3.go:769:45
+./v3.go:770:21: &errors.errorString literal escapes to heap:
+./v3.go:770:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:770:21:     from &errors.errorString literal (spill) at ./v3.go:770:21
+./v3.go:770:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:770:21
+./v3.go:770:21:     from ~R0 = <N> (assign-pair) at ./v3.go:770:21
+./v3.go:770:21:   flow: ~r2 = ~R0:
+./v3.go:770:21:     from return error(~R0) (return) at ./v3.go:770:4
+./v3.go:770:77: "TT: cannot unmarshal int16 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:770:77:   flow: errors.text = &{storage for "TT: cannot unmarshal int16 into " + string(~R0) + " Go type"}:
+./v3.go:770:77:     from "TT: cannot unmarshal int16 into " + string(~R0) + " Go type" (spill) at ./v3.go:770:77
+./v3.go:770:77:     from errors.text = <N> (assign-pair) at ./v3.go:770:21
+./v3.go:770:77:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:770:77:     from errors.errorString literal (struct literal element) at ./v3.go:770:21
+./v3.go:761:18: data does not escape
+./v3.go:761:36: leaking param: e
+./v3.go:770:77: "TT: cannot unmarshal int16 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:770:74: string("kind") + string(~R0) does not escape
+./v3.go:770:21: &errors.errorString literal escapes to heap
+./v3.go:772:24: val escapes to heap
+./v3.go:790:24: val escapes to heap:
+./v3.go:790:24:   flow: reflect.i = &{storage for val}:
+./v3.go:790:24:     from val (spill) at ./v3.go:790:24
+./v3.go:790:24:     from reflect.i = <N> (assign-pair) at ./v3.go:790:24
+./v3.go:790:24:   flow: reflect.i = reflect.i:
+./v3.go:790:24:     from reflect.i = <N> (assign-pair) at ./v3.go:790:24
+./v3.go:790:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:790:24:     from &reflect.i (address-of) at ./v3.go:790:24
+./v3.go:790:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:790:24
+./v3.go:790:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:790:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:790:24
+./v3.go:790:24:     from reflect.Value literal (struct literal element) at ./v3.go:790:24
+./v3.go:790:24:     from ~R0 = <N> (assign-pair) at ./v3.go:790:24
+./v3.go:790:24:   flow: ~R0 = ~R0:
+./v3.go:790:24:     from ~R0 = <N> (assign-pair) at ./v3.go:790:24
+./v3.go:790:24:   flow: {heap} = ~R0:
+./v3.go:790:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:790:8
+./v3.go:779:36: parameter e leaks to {heap} with derefs=0:
+./v3.go:779:36:   flow: {heap} = e:
+./v3.go:779:36:     from e.Type() (call parameter) at ./v3.go:787:45
+./v3.go:788:21: &errors.errorString literal escapes to heap:
+./v3.go:788:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:788:21:     from &errors.errorString literal (spill) at ./v3.go:788:21
+./v3.go:788:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:788:21
+./v3.go:788:21:     from ~R0 = <N> (assign-pair) at ./v3.go:788:21
+./v3.go:788:21:   flow: ~r2 = ~R0:
+./v3.go:788:21:     from return error(~R0) (return) at ./v3.go:788:4
+./v3.go:788:77: "TT: cannot unmarshal int32 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:788:77:   flow: errors.text = &{storage for "TT: cannot unmarshal int32 into " + string(~R0) + " Go type"}:
+./v3.go:788:77:     from "TT: cannot unmarshal int32 into " + string(~R0) + " Go type" (spill) at ./v3.go:788:77
+./v3.go:788:77:     from errors.text = <N> (assign-pair) at ./v3.go:788:21
+./v3.go:788:77:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:788:77:     from errors.errorString literal (struct literal element) at ./v3.go:788:21
+./v3.go:779:18: data does not escape
+./v3.go:779:36: leaking param: e
+./v3.go:788:77: "TT: cannot unmarshal int32 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:788:74: string("kind") + string(~R0) does not escape
+./v3.go:788:21: &errors.errorString literal escapes to heap
+./v3.go:790:24: val escapes to heap
+./v3.go:808:24: val escapes to heap:
+./v3.go:808:24:   flow: reflect.i = &{storage for val}:
+./v3.go:808:24:     from val (spill) at ./v3.go:808:24
+./v3.go:808:24:     from reflect.i = <N> (assign-pair) at ./v3.go:808:24
+./v3.go:808:24:   flow: reflect.i = reflect.i:
+./v3.go:808:24:     from reflect.i = <N> (assign-pair) at ./v3.go:808:24
+./v3.go:808:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:808:24:     from &reflect.i (address-of) at ./v3.go:808:24
+./v3.go:808:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:808:24
+./v3.go:808:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:808:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:808:24
+./v3.go:808:24:     from reflect.Value literal (struct literal element) at ./v3.go:808:24
+./v3.go:808:24:     from ~R0 = <N> (assign-pair) at ./v3.go:808:24
+./v3.go:808:24:   flow: ~R0 = ~R0:
+./v3.go:808:24:     from ~R0 = <N> (assign-pair) at ./v3.go:808:24
+./v3.go:808:24:   flow: {heap} = ~R0:
+./v3.go:808:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:808:8
+./v3.go:797:36: parameter e leaks to {heap} with derefs=0:
+./v3.go:797:36:   flow: {heap} = e:
+./v3.go:797:36:     from e.Type() (call parameter) at ./v3.go:805:45
+./v3.go:806:21: &errors.errorString literal escapes to heap:
+./v3.go:806:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:806:21:     from &errors.errorString literal (spill) at ./v3.go:806:21
+./v3.go:806:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:806:21
+./v3.go:806:21:     from ~R0 = <N> (assign-pair) at ./v3.go:806:21
+./v3.go:806:21:   flow: ~r2 = ~R0:
+./v3.go:806:21:     from return error(~R0) (return) at ./v3.go:806:4
+./v3.go:806:77: "TT: cannot unmarshal int64 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:806:77:   flow: errors.text = &{storage for "TT: cannot unmarshal int64 into " + string(~R0) + " Go type"}:
+./v3.go:806:77:     from "TT: cannot unmarshal int64 into " + string(~R0) + " Go type" (spill) at ./v3.go:806:77
+./v3.go:806:77:     from errors.text = <N> (assign-pair) at ./v3.go:806:21
+./v3.go:806:77:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:806:77:     from errors.errorString literal (struct literal element) at ./v3.go:806:21
+./v3.go:797:18: data does not escape
+./v3.go:797:36: leaking param: e
+./v3.go:806:77: "TT: cannot unmarshal int64 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:806:74: string("kind") + string(~R0) does not escape
+./v3.go:806:21: &errors.errorString literal escapes to heap
+./v3.go:808:24: val escapes to heap
+./v3.go:826:24: val escapes to heap:
+./v3.go:826:24:   flow: reflect.i = &{storage for val}:
+./v3.go:826:24:     from val (spill) at ./v3.go:826:24
+./v3.go:826:24:     from reflect.i = <N> (assign-pair) at ./v3.go:826:24
+./v3.go:826:24:   flow: reflect.i = reflect.i:
+./v3.go:826:24:     from reflect.i = <N> (assign-pair) at ./v3.go:826:24
+./v3.go:826:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:826:24:     from &reflect.i (address-of) at ./v3.go:826:24
+./v3.go:826:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:826:24
+./v3.go:826:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:826:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:826:24
+./v3.go:826:24:     from reflect.Value literal (struct literal element) at ./v3.go:826:24
+./v3.go:826:24:     from ~R0 = <N> (assign-pair) at ./v3.go:826:24
+./v3.go:826:24:   flow: ~R0 = ~R0:
+./v3.go:826:24:     from ~R0 = <N> (assign-pair) at ./v3.go:826:24
+./v3.go:826:24:   flow: {heap} = ~R0:
+./v3.go:826:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:826:8
+./v3.go:815:36: parameter e leaks to {heap} with derefs=0:
+./v3.go:815:36:   flow: {heap} = e:
+./v3.go:815:36:     from e.Type() (call parameter) at ./v3.go:823:45
+./v3.go:824:21: &errors.errorString literal escapes to heap:
+./v3.go:824:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:824:21:     from &errors.errorString literal (spill) at ./v3.go:824:21
+./v3.go:824:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:824:21
+./v3.go:824:21:     from ~R0 = <N> (assign-pair) at ./v3.go:824:21
+./v3.go:824:21:   flow: ~r2 = ~R0:
+./v3.go:824:21:     from return error(~R0) (return) at ./v3.go:824:4
+./v3.go:824:77: "TT: cannot unmarshal uint8 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:824:77:   flow: errors.text = &{storage for "TT: cannot unmarshal uint8 into " + string(~R0) + " Go type"}:
+./v3.go:824:77:     from "TT: cannot unmarshal uint8 into " + string(~R0) + " Go type" (spill) at ./v3.go:824:77
+./v3.go:824:77:     from errors.text = <N> (assign-pair) at ./v3.go:824:21
+./v3.go:824:77:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:824:77:     from errors.errorString literal (struct literal element) at ./v3.go:824:21
+./v3.go:815:18: data does not escape
+./v3.go:815:36: leaking param: e
+./v3.go:824:77: "TT: cannot unmarshal uint8 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:824:74: string("kind") + string(~R0) does not escape
+./v3.go:824:21: &errors.errorString literal escapes to heap
+./v3.go:826:24: val escapes to heap
+./v3.go:844:24: val escapes to heap:
+./v3.go:844:24:   flow: reflect.i = &{storage for val}:
+./v3.go:844:24:     from val (spill) at ./v3.go:844:24
+./v3.go:844:24:     from reflect.i = <N> (assign-pair) at ./v3.go:844:24
+./v3.go:844:24:   flow: reflect.i = reflect.i:
+./v3.go:844:24:     from reflect.i = <N> (assign-pair) at ./v3.go:844:24
+./v3.go:844:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:844:24:     from &reflect.i (address-of) at ./v3.go:844:24
+./v3.go:844:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:844:24
+./v3.go:844:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:844:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:844:24
+./v3.go:844:24:     from reflect.Value literal (struct literal element) at ./v3.go:844:24
+./v3.go:844:24:     from ~R0 = <N> (assign-pair) at ./v3.go:844:24
+./v3.go:844:24:   flow: ~R0 = ~R0:
+./v3.go:844:24:     from ~R0 = <N> (assign-pair) at ./v3.go:844:24
+./v3.go:844:24:   flow: {heap} = ~R0:
+./v3.go:844:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:844:8
+./v3.go:833:37: parameter e leaks to {heap} with derefs=0:
+./v3.go:833:37:   flow: {heap} = e:
+./v3.go:833:37:     from e.Type() (call parameter) at ./v3.go:841:45
+./v3.go:842:21: &errors.errorString literal escapes to heap:
+./v3.go:842:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:842:21:     from &errors.errorString literal (spill) at ./v3.go:842:21
+./v3.go:842:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:842:21
+./v3.go:842:21:     from ~R0 = <N> (assign-pair) at ./v3.go:842:21
+./v3.go:842:21:   flow: ~r2 = ~R0:
+./v3.go:842:21:     from return error(~R0) (return) at ./v3.go:842:4
+./v3.go:842:78: "TT: cannot unmarshal uint16 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:842:78:   flow: errors.text = &{storage for "TT: cannot unmarshal uint16 into " + string(~R0) + " Go type"}:
+./v3.go:842:78:     from "TT: cannot unmarshal uint16 into " + string(~R0) + " Go type" (spill) at ./v3.go:842:78
+./v3.go:842:78:     from errors.text = <N> (assign-pair) at ./v3.go:842:21
+./v3.go:842:78:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:842:78:     from errors.errorString literal (struct literal element) at ./v3.go:842:21
+./v3.go:833:19: data does not escape
+./v3.go:833:37: leaking param: e
+./v3.go:842:78: "TT: cannot unmarshal uint16 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:842:75: string("kind") + string(~R0) does not escape
+./v3.go:842:21: &errors.errorString literal escapes to heap
+./v3.go:844:24: val escapes to heap
+./v3.go:862:24: val escapes to heap:
+./v3.go:862:24:   flow: reflect.i = &{storage for val}:
+./v3.go:862:24:     from val (spill) at ./v3.go:862:24
+./v3.go:862:24:     from reflect.i = <N> (assign-pair) at ./v3.go:862:24
+./v3.go:862:24:   flow: reflect.i = reflect.i:
+./v3.go:862:24:     from reflect.i = <N> (assign-pair) at ./v3.go:862:24
+./v3.go:862:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:862:24:     from &reflect.i (address-of) at ./v3.go:862:24
+./v3.go:862:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:862:24
+./v3.go:862:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:862:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:862:24
+./v3.go:862:24:     from reflect.Value literal (struct literal element) at ./v3.go:862:24
+./v3.go:862:24:     from ~R0 = <N> (assign-pair) at ./v3.go:862:24
+./v3.go:862:24:   flow: ~R0 = ~R0:
+./v3.go:862:24:     from ~R0 = <N> (assign-pair) at ./v3.go:862:24
+./v3.go:862:24:   flow: {heap} = ~R0:
+./v3.go:862:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:862:8
+./v3.go:851:37: parameter e leaks to {heap} with derefs=0:
+./v3.go:851:37:   flow: {heap} = e:
+./v3.go:851:37:     from e.Type() (call parameter) at ./v3.go:859:45
+./v3.go:860:21: &errors.errorString literal escapes to heap:
+./v3.go:860:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:860:21:     from &errors.errorString literal (spill) at ./v3.go:860:21
+./v3.go:860:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:860:21
+./v3.go:860:21:     from ~R0 = <N> (assign-pair) at ./v3.go:860:21
+./v3.go:860:21:   flow: ~r2 = ~R0:
+./v3.go:860:21:     from return error(~R0) (return) at ./v3.go:860:4
+./v3.go:860:78: "TT: cannot unmarshal uint32 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:860:78:   flow: errors.text = &{storage for "TT: cannot unmarshal uint32 into " + string(~R0) + " Go type"}:
+./v3.go:860:78:     from "TT: cannot unmarshal uint32 into " + string(~R0) + " Go type" (spill) at ./v3.go:860:78
+./v3.go:860:78:     from errors.text = <N> (assign-pair) at ./v3.go:860:21
+./v3.go:860:78:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:860:78:     from errors.errorString literal (struct literal element) at ./v3.go:860:21
+./v3.go:851:19: data does not escape
+./v3.go:851:37: leaking param: e
+./v3.go:860:78: "TT: cannot unmarshal uint32 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:860:75: string("kind") + string(~R0) does not escape
+./v3.go:860:21: &errors.errorString literal escapes to heap
+./v3.go:862:24: val escapes to heap
+./v3.go:880:24: val escapes to heap:
+./v3.go:880:24:   flow: reflect.i = &{storage for val}:
+./v3.go:880:24:     from val (spill) at ./v3.go:880:24
+./v3.go:880:24:     from reflect.i = <N> (assign-pair) at ./v3.go:880:24
+./v3.go:880:24:   flow: reflect.i = reflect.i:
+./v3.go:880:24:     from reflect.i = <N> (assign-pair) at ./v3.go:880:24
+./v3.go:880:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:880:24:     from &reflect.i (address-of) at ./v3.go:880:24
+./v3.go:880:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:880:24
+./v3.go:880:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:880:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:880:24
+./v3.go:880:24:     from reflect.Value literal (struct literal element) at ./v3.go:880:24
+./v3.go:880:24:     from ~R0 = <N> (assign-pair) at ./v3.go:880:24
+./v3.go:880:24:   flow: ~R0 = ~R0:
+./v3.go:880:24:     from ~R0 = <N> (assign-pair) at ./v3.go:880:24
+./v3.go:880:24:   flow: {heap} = ~R0:
+./v3.go:880:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:880:8
+./v3.go:869:37: parameter e leaks to {heap} with derefs=0:
+./v3.go:869:37:   flow: {heap} = e:
+./v3.go:869:37:     from e.Type() (call parameter) at ./v3.go:877:45
+./v3.go:878:21: &errors.errorString literal escapes to heap:
+./v3.go:878:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:878:21:     from &errors.errorString literal (spill) at ./v3.go:878:21
+./v3.go:878:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:878:21
+./v3.go:878:21:     from ~R0 = <N> (assign-pair) at ./v3.go:878:21
+./v3.go:878:21:   flow: ~r2 = ~R0:
+./v3.go:878:21:     from return error(~R0) (return) at ./v3.go:878:4
+./v3.go:878:78: "TT: cannot unmarshal uint64 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:878:78:   flow: errors.text = &{storage for "TT: cannot unmarshal uint64 into " + string(~R0) + " Go type"}:
+./v3.go:878:78:     from "TT: cannot unmarshal uint64 into " + string(~R0) + " Go type" (spill) at ./v3.go:878:78
+./v3.go:878:78:     from errors.text = <N> (assign-pair) at ./v3.go:878:21
+./v3.go:878:78:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:878:78:     from errors.errorString literal (struct literal element) at ./v3.go:878:21
+./v3.go:869:19: data does not escape
+./v3.go:869:37: leaking param: e
+./v3.go:878:78: "TT: cannot unmarshal uint64 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:878:75: string("kind") + string(~R0) does not escape
+./v3.go:878:21: &errors.errorString literal escapes to heap
+./v3.go:880:24: val escapes to heap
+./v3.go:899:24: val escapes to heap:
+./v3.go:899:24:   flow: reflect.i = &{storage for val}:
+./v3.go:899:24:     from val (spill) at ./v3.go:899:24
+./v3.go:899:24:     from reflect.i = <N> (assign-pair) at ./v3.go:899:24
+./v3.go:899:24:   flow: reflect.i = reflect.i:
+./v3.go:899:24:     from reflect.i = <N> (assign-pair) at ./v3.go:899:24
+./v3.go:899:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:899:24:     from &reflect.i (address-of) at ./v3.go:899:24
+./v3.go:899:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:899:24
+./v3.go:899:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:899:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:899:24
+./v3.go:899:24:     from reflect.Value literal (struct literal element) at ./v3.go:899:24
+./v3.go:899:24:     from ~R0 = <N> (assign-pair) at ./v3.go:899:24
+./v3.go:899:24:   flow: ~R0 = ~R0:
+./v3.go:899:24:     from ~R0 = <N> (assign-pair) at ./v3.go:899:24
+./v3.go:899:24:   flow: {heap} = ~R0:
+./v3.go:899:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:899:8
+./v3.go:887:35: parameter e leaks to {heap} with derefs=0:
+./v3.go:887:35:   flow: {heap} = e:
+./v3.go:887:35:     from e.Type() (call parameter) at ./v3.go:896:45
+./v3.go:897:21: &errors.errorString literal escapes to heap:
+./v3.go:897:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:897:21:     from &errors.errorString literal (spill) at ./v3.go:897:21
+./v3.go:897:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:897:21
+./v3.go:897:21:     from ~R0 = <N> (assign-pair) at ./v3.go:897:21
+./v3.go:897:21:   flow: ~r2 = ~R0:
+./v3.go:897:21:     from return error(~R0) (return) at ./v3.go:897:4
+./v3.go:897:77: "TT: cannot unmarshal bytes into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:897:77:   flow: errors.text = &{storage for "TT: cannot unmarshal bytes into " + string(~R0) + " Go type"}:
+./v3.go:897:77:     from "TT: cannot unmarshal bytes into " + string(~R0) + " Go type" (spill) at ./v3.go:897:77
+./v3.go:897:77:     from errors.text = <N> (assign-pair) at ./v3.go:897:21
+./v3.go:897:77:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:897:77:     from errors.errorString literal (struct literal element) at ./v3.go:897:21
+./v3.go:887:17: data does not escape
+./v3.go:887:35: leaking param: e
+./v3.go:890:32: []byte literal does not escape
+./v3.go:897:77: "TT: cannot unmarshal bytes into " + string(~R0) + " Go type" escapes to heap
+./v3.go:897:74: string("kind") + string(~R0) does not escape
+./v3.go:897:21: &errors.errorString literal escapes to heap
+./v3.go:899:24: val escapes to heap
+./v3.go:917:24: val escapes to heap:
+./v3.go:917:24:   flow: reflect.i = &{storage for val}:
+./v3.go:917:24:     from val (spill) at ./v3.go:917:24
+./v3.go:917:24:     from reflect.i = <N> (assign-pair) at ./v3.go:917:24
+./v3.go:917:24:   flow: reflect.i = reflect.i:
+./v3.go:917:24:     from reflect.i = <N> (assign-pair) at ./v3.go:917:24
+./v3.go:917:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:917:24:     from &reflect.i (address-of) at ./v3.go:917:24
+./v3.go:917:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:917:24
+./v3.go:917:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:917:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:917:24
+./v3.go:917:24:     from reflect.Value literal (struct literal element) at ./v3.go:917:24
+./v3.go:917:24:     from ~R0 = <N> (assign-pair) at ./v3.go:917:24
+./v3.go:917:24:   flow: ~R0 = ~R0:
+./v3.go:917:24:     from ~R0 = <N> (assign-pair) at ./v3.go:917:24
+./v3.go:917:24:   flow: {heap} = ~R0:
+./v3.go:917:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:917:8
+./v3.go:906:38: parameter e leaks to {heap} with derefs=0:
+./v3.go:906:38:   flow: {heap} = e:
+./v3.go:906:38:     from e.Type() (call parameter) at ./v3.go:914:45
+./v3.go:915:21: &errors.errorString literal escapes to heap:
+./v3.go:915:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:915:21:     from &errors.errorString literal (spill) at ./v3.go:915:21
+./v3.go:915:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:915:21
+./v3.go:915:21:     from ~R0 = <N> (assign-pair) at ./v3.go:915:21
+./v3.go:915:21:   flow: ~r2 = ~R0:
+./v3.go:915:21:     from return error(~R0) (return) at ./v3.go:915:4
+./v3.go:915:79: "TT: cannot unmarshal float32 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:915:79:   flow: errors.text = &{storage for "TT: cannot unmarshal float32 into " + string(~R0) + " Go type"}:
+./v3.go:915:79:     from "TT: cannot unmarshal float32 into " + string(~R0) + " Go type" (spill) at ./v3.go:915:79
+./v3.go:915:79:     from errors.text = <N> (assign-pair) at ./v3.go:915:21
+./v3.go:915:79:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:915:79:     from errors.errorString literal (struct literal element) at ./v3.go:915:21
+./v3.go:906:20: data does not escape
+./v3.go:906:38: leaking param: e
+./v3.go:915:79: "TT: cannot unmarshal float32 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:915:76: string("kind") + string(~R0) does not escape
+./v3.go:915:21: &errors.errorString literal escapes to heap
+./v3.go:917:24: val escapes to heap
+./v3.go:935:24: val escapes to heap:
+./v3.go:935:24:   flow: reflect.i = &{storage for val}:
+./v3.go:935:24:     from val (spill) at ./v3.go:935:24
+./v3.go:935:24:     from reflect.i = <N> (assign-pair) at ./v3.go:935:24
+./v3.go:935:24:   flow: reflect.i = reflect.i:
+./v3.go:935:24:     from reflect.i = <N> (assign-pair) at ./v3.go:935:24
+./v3.go:935:24:   flow: reflect.e·3 = &reflect.i:
+./v3.go:935:24:     from &reflect.i (address-of) at ./v3.go:935:24
+./v3.go:935:24:     from reflect.e·3 = (*reflect.emptyInterface)(unsafe.Pointer(&reflect.i)) (assign) at ./v3.go:935:24
+./v3.go:935:24:   flow: ~R0 = *reflect.e·3:
+./v3.go:935:24:     from reflect.e·3.word (dot of pointer) at ./v3.go:935:24
+./v3.go:935:24:     from reflect.Value literal (struct literal element) at ./v3.go:935:24
+./v3.go:935:24:     from ~R0 = <N> (assign-pair) at ./v3.go:935:24
+./v3.go:935:24:   flow: ~R0 = ~R0:
+./v3.go:935:24:     from ~R0 = <N> (assign-pair) at ./v3.go:935:24
+./v3.go:935:24:   flow: {heap} = ~R0:
+./v3.go:935:24:     from e.Set(reflect.Value(~R0)) (call parameter) at ./v3.go:935:8
+./v3.go:924:38: parameter e leaks to {heap} with derefs=0:
+./v3.go:924:38:   flow: {heap} = e:
+./v3.go:924:38:     from e.Type() (call parameter) at ./v3.go:932:45
+./v3.go:933:21: &errors.errorString literal escapes to heap:
+./v3.go:933:21:   flow: ~R0 = &{storage for &errors.errorString literal}:
+./v3.go:933:21:     from &errors.errorString literal (spill) at ./v3.go:933:21
+./v3.go:933:21:     from error(&errors.errorString literal) (interface-converted) at ./v3.go:933:21
+./v3.go:933:21:     from ~R0 = <N> (assign-pair) at ./v3.go:933:21
+./v3.go:933:21:   flow: ~r2 = ~R0:
+./v3.go:933:21:     from return error(~R0) (return) at ./v3.go:933:4
+./v3.go:933:79: "TT: cannot unmarshal float64 into " + string(~R0) + " Go type" escapes to heap:
+./v3.go:933:79:   flow: errors.text = &{storage for "TT: cannot unmarshal float64 into " + string(~R0) + " Go type"}:
+./v3.go:933:79:     from "TT: cannot unmarshal float64 into " + string(~R0) + " Go type" (spill) at ./v3.go:933:79
+./v3.go:933:79:     from errors.text = <N> (assign-pair) at ./v3.go:933:21
+./v3.go:933:79:   flow: {storage for &errors.errorString literal} = errors.text:
+./v3.go:933:79:     from errors.errorString literal (struct literal element) at ./v3.go:933:21
+./v3.go:924:20: data does not escape
+./v3.go:924:38: leaking param: e
+./v3.go:933:79: "TT: cannot unmarshal float64 into " + string(~R0) + " Go type" escapes to heap
+./v3.go:933:76: string("kind") + string(~R0) does not escape
+./v3.go:933:21: &errors.errorString literal escapes to heap
+./v3.go:935:24: val escapes to heap

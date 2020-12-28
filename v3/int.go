@@ -15,10 +15,8 @@ func Int8FromBytes(buf byte) int8 {
 }
 
 //Int16ToBytes converts a int16 into bytes
-func Int16ToBytes(f int16) []byte {
-	var buf [2]byte
-	binary.LittleEndian.PutUint16(buf[:], uint16(f))
-	return buf[:]
+func Int16ToBytes(f int16, buf []byte) {
+	binary.LittleEndian.PutUint16(buf, uint16(f))
 }
 
 //Int16FromBytes converts bytes into an int16
@@ -27,10 +25,8 @@ func Int16FromBytes(buf []byte) int16 {
 }
 
 //Int32ToBytes converts a int32 into bytes
-func Int32ToBytes(f int32) []byte {
-	var buf [4]byte
-	binary.LittleEndian.PutUint32(buf[:], uint32(f))
-	return buf[:]
+func Int32ToBytes(f int32, buf []byte) {
+	binary.LittleEndian.PutUint32(buf, uint32(f))
 }
 
 //Int32FromBytes converts bytes into an int32
@@ -39,10 +35,8 @@ func Int32FromBytes(buf []byte) int32 {
 }
 
 //Int64ToBytes converts a int64 into bytes
-func Int64ToBytes(f int64) []byte {
-	var buf [8]byte
-	binary.LittleEndian.PutUint64(buf[:], uint64(f))
-	return buf[:]
+func Int64ToBytes(f int64, buf []byte) {
+	binary.LittleEndian.PutUint64(buf, uint64(f))
 }
 
 //Int64FromBytes converts bytes into an int64
@@ -61,10 +55,8 @@ func Uint8FromBytes(buf byte) uint8 {
 }
 
 //Uint16ToBytes converts a uint16 into bytes
-func Uint16ToBytes(f uint16) []byte {
-	var buf [2]byte
-	binary.LittleEndian.PutUint16(buf[:], f)
-	return buf[:]
+func Uint16ToBytes(f uint16, buf []byte) {
+	binary.LittleEndian.PutUint16(buf, f)
 }
 
 //Uint16FromBytes converts bytes into an uint16
@@ -73,10 +65,8 @@ func Uint16FromBytes(buf []byte) uint16 {
 }
 
 //Uint32ToBytes converts a uint32 into bytes
-func Uint32ToBytes(f uint32) []byte {
-	var buf [4]byte
-	binary.LittleEndian.PutUint32(buf[:], f)
-	return buf[:]
+func Uint32ToBytes(f uint32, buf []byte) {
+	binary.LittleEndian.PutUint32(buf, f)
 }
 
 //Uint32FromBytes converts bytes into an uint32
@@ -85,10 +75,8 @@ func Uint32FromBytes(buf []byte) uint32 {
 }
 
 //Uint64ToBytes converts a uint64 into bytes
-func Uint64ToBytes(f uint64) []byte {
-	var buf [8]byte
-	binary.LittleEndian.PutUint64(buf[:], uint64(f))
-	return buf[:]
+func Uint64ToBytes(f uint64, buf []byte) {
+	binary.LittleEndian.PutUint64(buf, uint64(f))
 }
 
 //Uint64FromBytes converts bytes into an uint64

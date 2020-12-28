@@ -38,21 +38,20 @@ func (r readFirstByte) ReadByte() (byte, error) {
 }
 
 //AddValue is just a wrapper around v.Tobytes
-func AddValue(out io.Writer, v *Value, varintbuf *[binary.MaxVarintLen64 + 1]byte) {
+func AddValue(out io.Writer, v *Value, varintbuf *[2*binary.MaxVarintLen64 + 1]byte) {
 	v.Tobytes(out, varintbuf)
 }
 
 //Tobytes writes te Value into a io.Writer
-func (v *Value) Tobytes(out io.Writer, varintbuf *[binary.MaxVarintLen64 + 1]byte) {
+func (v *Value) Tobytes(out io.Writer, varintbuf *[2*binary.MaxVarintLen64 + 1]byte) {
 	var klen = len(v.Key.Value)
 	var vlen = len(v.Value.Value)
 
-	varintBytes := binary.PutUvarint(varintbuf[:], uint64(vlen))
-	out.Write(varintbuf[:varintBytes])
+	varintBytes1 := PutUvarint(varintbuf[:], uint64(vlen))
 
-	varintBytes = binary.PutUvarint(varintbuf[:], uint64(klen))
-	varintbuf[varintBytes] = byte(v.Value.Vtype)
-	out.Write(varintbuf[:varintBytes+1])
+	varintBytes := PutUvarint(varintbuf[varintBytes1:], uint64(klen))
+	varintbuf[varintBytes1+varintBytes] = byte(v.Value.Vtype)
+	out.Write(varintbuf[:varintBytes1+varintBytes+1])
 
 	out.Write(v.Value.Value)
 
@@ -60,7 +59,7 @@ func (v *Value) Tobytes(out io.Writer, varintbuf *[binary.MaxVarintLen64 + 1]byt
 	out.Write(varintbuf[:1])
 	out.Write(v.Key.Value)
 
-	varintBytes = binary.PutUvarint(varintbuf[:], v.Childrenn)
+	varintBytes = PutUvarint(varintbuf[:], v.Childrenn)
 	out.Write(varintbuf[:varintBytes])
 }
 
@@ -125,4 +124,19 @@ func readerReadUvarint(r Reader) (uint64, error) {
 		s += 7
 	}
 	return x, errEverflow
+}
+
+// copy of binary.PutUvarint with diferent return
+
+// PutUvarint encodes a uint64 into buf and returns the number of bytes written.
+// If the buffer is too small, PutUvarint will panic.
+func PutUvarint(buf []byte, x uint64) uint8 {
+	i := uint8(0)
+	for x >= 0x80 {
+		buf[i] = byte(x) | 0x80
+		x >>= 7
+		i++
+	}
+	buf[i] = byte(x)
+	return i + 1
 }

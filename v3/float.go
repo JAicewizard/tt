@@ -6,11 +6,9 @@ import (
 )
 
 //Float32ToBytes converts a float32 into bytes
-func Float32ToBytes(f *float32) []byte {
-	var buf [4]byte
-	bits := math.Float32bits(*f)
-	binary.LittleEndian.PutUint32(buf[:], bits)
-	return buf[:]
+func Float32ToBytes(f float32, buf []byte) {
+	bits := math.Float32bits(f)
+	binary.LittleEndian.PutUint32(buf, bits)
 }
 
 //Float32FromBytes bytes into a float32
@@ -19,9 +17,9 @@ func Float32FromBytes(buf []byte) float32 {
 }
 
 //Float64ToBytes converts a float64 into bytes
-func Float64ToBytes(f float64, buf *[8]byte) {
+func Float64ToBytes(f float64, buf []byte) {
 	bits := math.Float64bits(f)
-	binary.LittleEndian.PutUint64(buf[:], bits)
+	binary.LittleEndian.PutUint64(buf, bits)
 }
 
 //Float64FromBytes bytes into a float64

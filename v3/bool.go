@@ -1,11 +1,11 @@
 package v3
 
 //BoolToBytes converts a bool into bytes
-func BoolToBytes(b bool) []byte {
+func BoolToBytes(b bool) byte {
 	if b {
-		return []byte{1}
+		return byte(1)
 	}
-	return []byte{0}
+	return byte(0)
 }
 
 //BoolFromBytes converts bytes into a bool

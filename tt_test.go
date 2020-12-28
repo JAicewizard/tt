@@ -1,7 +1,6 @@
 package tt
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/rand"
 	"encoding/gob"
@@ -328,16 +327,25 @@ func BenchmarkV3(b *testing.B) {
 	var byt []byte
 
 	buf := bytes.NewBuffer(byt)
+	enc := NewV3Encoder(buf, true)
+	dec := NewV3Decoder(buf, true)
+
 	for n := 0; n < b.N; n++ {
-		Encodev3(testDataGobOnly, buf)
+		enc.Encode(testDataGobOnly)
 	}
 
 	buf2 := bytes.NewBuffer(nil)
+	enc2 := NewV3Encoder(buf2, true)
 
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		Encodev3(testDataGobOnly, buf2)
-		err := Decodev3(buf, &data)
+		buf2.Reset()
+		err := enc2.Encode(testDataGobOnly)
+		if err != nil {
+			b.Error(err)
+		}
+
+		err = dec.Decode(&data)
 		if err != nil {
 			b.Error(err)
 		}
@@ -349,17 +357,20 @@ func BenchmarkV3Decode(b *testing.B) {
 	b.StopTimer()
 	var data map[string]interface{}
 	var byt []byte
+
 	buf := bytes.NewBuffer(byt)
+	enc := NewV3Encoder(buf, true)
+	dec := NewV3Decoder(buf, true)
+
 	for n := 0; n < b.N; n++ {
-		Encodev3(testDataGobOnly, buf)
+		enc.Encode(testDataGobOnly)
 	}
 
 	b.StartTimer()
-	bu := bufio.NewReader(buf)
 	for n := 0; n < b.N; n++ {
-		err := Decodev3(bu, &data)
+		err := dec.Decode(&data)
 		if err != nil {
-			panic(err)
+			b.Error(err)
 		}
 	}
 }
@@ -369,10 +380,15 @@ func BenchmarkV3Encode(b *testing.B) {
 	b.StopTimer()
 
 	buf := bytes.NewBuffer(nil)
+	enc := NewV3Encoder(buf, true)
 
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		Encodev3(testDataGobOnly, buf)
+		buf.Reset()
+		err := enc.Encode(testDataGobOnly)
+		if err != nil {
+			b.Error(err)
+		}
 	}
 }
 
@@ -381,11 +397,17 @@ func BenchmarkV3int64(b *testing.B) {
 	b.StopTimer()
 
 	buf := bytes.NewBuffer(nil)
-
+	enc := NewV3Encoder(buf, true)
+	data := []int64{6734, 5, 34598, 2354983045, 8732, 37, 23492}
 	b.StartTimer()
 	for n := 0; n < b.N; n++ {
-		Encodev3([]int64{6734, 5, 34598, 2354983045, 8732, 37, 23492}, buf)
+		buf.Reset()
+		err := enc.Encode(data)
+		if err != nil {
+			b.Error(err)
+		}
 	}
+
 }
 
 func BenchmarkV2(b *testing.B) {
@@ -522,9 +544,10 @@ type testCase struct {
 
 var testCases = []testCase{
 	{
-		name:  "testBasicStruct",
-		data:  testBasicStruct{"hello"},
-		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
+		name: "testBasicStruct",
+		data: testBasicStruct{"hello"},
+		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 1, 104, 105, 0},
+			{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
 	},
 	{
 		name:  "testBasicSlice",
@@ -567,16 +590,18 @@ var testCases = []testCase{
 			{3, 0, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 8, 3, 13, 24, 45, 68, 84, 251, 33, 9, 64, 1, 98, 121, 101, 0}},
 	},
 	{
-		name:  "testEmbeddedPrivateStruct",
-		data:  testembeddedPrivateStruct{Pame: "hi", testBasicStruct: testBasicStruct{Name: "lol"}},
-		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+		name: "testEmbeddedPrivateStruct",
+		data: testembeddedPrivateStruct{Pame: "hi", testBasicStruct: testBasicStruct{Name: "lol"}},
+		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 1, 111, 111, 112, 115, 0},
+			{3, 0, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
 	},
 	{
 		name: "testEmbeddedStruct",
 		data: testembeddedStruct{Pame: "hi", Embed: testBasicStruct{Name: "lol"}},
 		bytes: [][]byte{
-			{3, 0, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0},
-			{3, 0, 0, 0, 18, 0, 2, 0, 5, 18, 2, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 2, 104, 105, 0, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+
+			{3, 0, 0, 0, 18, 0, 2, 0, 5, 18, 1, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 1, 104, 105, 0, 2, 4, 1, 104, 105, 1, 111, 111, 112, 115, 0},
+			{3, 0, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 1, 111, 111, 112, 115, 0, 0, 5, 18, 1, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 1, 104, 105, 0}},
 	},
 	{
 		name: "testSingleValueToInterface",

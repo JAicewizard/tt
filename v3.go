@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"reflect"
+	"runtime/debug"
 	"strconv"
 	"sync"
 
@@ -44,12 +45,20 @@ func init() {
 	}
 }
 
+type fieldsstruct struct {
+	canGob bool
+	usable uint
+	fields []string
+}
+
 //V3Encoder is the encoder used to encode a ttv3 data stream
 type V3Encoder struct {
-	out       io.Writer
-	varintbuf *[binary.MaxVarintLen64 + 1]byte
-	typeCache map[string]map[string]int
-	isStream  bool
+	out        io.Writer
+	varintbuf  *[2*binary.MaxVarintLen64 + 1]byte
+	typeCache  map[reflect.Type]fieldsstruct
+	isStream   bool
+	fsKeyBuf   [8]byte //Fixed Size buffer for keys
+	fsValueBuf [8]byte //Fixed Size buffer for values
 	sync.Mutex
 }
 
@@ -64,8 +73,8 @@ func NewV3Encoder(out io.Writer, isStream bool) *V3Encoder {
 	return &V3Encoder{
 		isStream:  isStream,
 		out:       out,
-		varintbuf: &[binary.MaxVarintLen64 + 1]byte{},
-		typeCache: map[string]map[string]int{},
+		varintbuf: &[2*binary.MaxVarintLen64 + 1]byte{},
+		typeCache: map[reflect.Type]fieldsstruct{},
 	}
 }
 
@@ -75,8 +84,8 @@ func Encodev3(d interface{}, out io.Writer) error {
 
 	enc := &V3Encoder{
 		out:       out,
-		varintbuf: &[binary.MaxVarintLen64 + 1]byte{},
-		typeCache: map[string]map[string]int{},
+		varintbuf: &[2*binary.MaxVarintLen64 + 1]byte{},
+		typeCache: map[reflect.Type]fieldsstruct{},
 	}
 	//We dont have to lock/unlock since we know we are the only one witha acces
 	return enc.encodeValuev3(d, v3.KeyValue{})
@@ -93,7 +102,7 @@ func (enc *V3Encoder) Encode(d interface{}) error {
 	return ret
 }
 
-func encodeKeyv3(k interface{}) v3.KeyValue {
+func encodeKeyv3(k interface{}, fsKeyBuf *[8]byte) v3.KeyValue {
 	var key v3.KeyValue
 	if k != nil {
 		switch v := k.(type) { //making this a seperate function will decrese performance, it won't be able to inline and make more allocations
@@ -104,56 +113,67 @@ func encodeKeyv3(k interface{}) v3.KeyValue {
 			key.Value = v
 			key.Vtype = v3.BytesT
 		case int8:
-			key.Value = []byte{v3.Int8ToBytes(v)}
+			key.Value = fsKeyBuf[:1]
+			fsKeyBuf[0] = v3.Int8ToBytes(v)
 			key.Vtype = v3.Int8T
 		case int16:
-			key.Value = v3.Int16ToBytes(v)
+			key.Value = fsKeyBuf[:2]
+			v3.Int16ToBytes(v, key.Value)
 			key.Vtype = v3.Int16T
 		case int32:
-			key.Value = v3.Int32ToBytes(v)
+			key.Value = fsKeyBuf[:4]
+			v3.Int32ToBytes(v, key.Value)
 			key.Vtype = v3.Int32T
 		case int64:
-			key.Value = v3.Int64ToBytes(v)
+			key.Value = fsKeyBuf[:8]
+			v3.Int64ToBytes(v, key.Value)
 			key.Vtype = v3.Int64T
 		case int:
-			key.Value = v3.Int64ToBytes(int64(v))
+			key.Value = fsKeyBuf[:8]
+			v3.Int64ToBytes(int64(v), key.Value)
 			key.Vtype = v3.Int64T
 		case uint8:
-			key.Value = []byte{v3.Uint8ToBytes(v)}
+			key.Value = fsKeyBuf[:1]
+			fsKeyBuf[0] = v3.Uint8ToBytes(v)
 			key.Vtype = v3.Uint8T
 		case uint16:
-			key.Value = v3.Uint16ToBytes(v)
+			key.Value = fsKeyBuf[:2]
+			v3.Uint16ToBytes(v, key.Value)
 			key.Vtype = v3.Uint16T
 		case uint32:
-			key.Value = v3.Uint32ToBytes(v)
+			key.Value = fsKeyBuf[:4]
+			v3.Uint32ToBytes(v, key.Value)
 			key.Vtype = v3.Uint32T
 		case uint64:
-			key.Value = v3.Uint64ToBytes(v)
+			key.Value = fsKeyBuf[:8]
+			v3.Uint64ToBytes(v, key.Value)
 			key.Vtype = v3.Uint64T
 		case uint:
-			key.Value = v3.Uint64ToBytes(uint64(v))
+			key.Value = fsKeyBuf[:8]
+			v3.Uint64ToBytes(uint64(v), key.Value)
 			key.Vtype = v3.Uint64T
 		case float32:
-			key.Value = v3.Float32ToBytes(&v)
+			key.Value = fsKeyBuf[:4]
+			v3.Float32ToBytes(v, key.Value)
 			key.Vtype = v3.Float32T
 		case float64:
-			var buf [8]byte
-			v3.Float64ToBytes(v, &buf)
-			key.Value = buf[:]
+			key.Value = fsKeyBuf[:8]
+			v3.Float64ToBytes(v, key.Value)
 			key.Vtype = v3.Float64T
 		case bool:
-			key.Value = v3.BoolToBytes(v)
+			key.Value = fsKeyBuf[:1]
+			fsKeyBuf[0] = v3.BoolToBytes(v)
 			key.Vtype = v3.BoolT
 		}
 	}
 	return key
 }
 
-func encodeKeyv3_reflect(d reflect.Value) v3.KeyValue {
+func encodeKeyv3_reflect(d reflect.Value, fsKeyBuf *[8]byte) v3.KeyValue {
 	var key v3.KeyValue
 	switch d.Type().Kind() {
 	case reflect.Interface, reflect.Ptr:
-		encodeKeyv3_reflect(d.Elem())
+		encodeKeyv3_reflect(d.Elem(), fsKeyBuf)
 	case reflect.String:
 		key.Value = v3.StringToBytes(d.String())
 		key.Vtype = v3.StringT
@@ -163,47 +183,48 @@ func encodeKeyv3_reflect(d reflect.Value) v3.KeyValue {
 			key.Vtype = v3.StringT
 		}
 	case reflect.Int8:
-		key.Value = []byte{v3.Int8ToBytes(int8(d.Int()))}
+		key.Value = fsKeyBuf[:1]
+		fsKeyBuf[0] = v3.Int8ToBytes(int8(d.Int()))
 		key.Vtype = v3.Int8T
 	case reflect.Int16:
-		key.Value = v3.Int16ToBytes(int16(d.Int()))
+		key.Value = fsKeyBuf[:2]
+		v3.Int16ToBytes(int16(d.Int()), key.Value)
 		key.Vtype = v3.Int16T
 	case reflect.Int32:
-		key.Value = v3.Int32ToBytes(int32(d.Int()))
+		key.Value = fsKeyBuf[:4]
+		v3.Int32ToBytes(int32(d.Int()), key.Value)
 		key.Vtype = v3.Int32T
-	case reflect.Int64:
-		key.Value = v3.Int64ToBytes(d.Int())
-		key.Vtype = v3.Int64T
-	case reflect.Int:
-		key.Value = v3.Int64ToBytes(d.Int())
+	case reflect.Int64, reflect.Int:
+		key.Value = fsKeyBuf[:8]
+		v3.Int64ToBytes(d.Int(), key.Value)
 		key.Vtype = v3.Int64T
 	case reflect.Uint8:
-		key.Value = []byte{v3.Uint8ToBytes(uint8(d.Uint()))}
+		key.Value = fsKeyBuf[:1]
+		fsKeyBuf[0] = v3.Uint8ToBytes(uint8(d.Uint()))
 		key.Vtype = v3.Uint8T
 	case reflect.Uint16:
-		key.Value = v3.Uint16ToBytes(uint16(d.Uint()))
+		key.Value = fsKeyBuf[:2]
+		v3.Uint16ToBytes(uint16(d.Uint()), key.Value)
 		key.Vtype = v3.Uint16T
 	case reflect.Uint32:
-		key.Value = v3.Uint32ToBytes(uint32(d.Uint()))
+		key.Value = fsKeyBuf[:4]
+		v3.Uint32ToBytes(uint32(d.Uint()), key.Value)
 		key.Vtype = v3.Uint32T
-	case reflect.Uint64:
-		key.Value = v3.Uint64ToBytes(d.Uint())
-		key.Vtype = v3.Uint64T
-	case reflect.Uint:
-		key.Value = v3.Uint64ToBytes(d.Uint())
+	case reflect.Uint64, reflect.Uint:
+		key.Value = fsKeyBuf[:8]
+		v3.Uint64ToBytes(d.Uint(), key.Value)
 		key.Vtype = v3.Uint64T
 	case reflect.Bool:
-		key.Value = v3.BoolToBytes(d.Bool())
+		key.Value = fsKeyBuf[:1]
+		fsKeyBuf[0] = v3.BoolToBytes(d.Bool())
 		key.Vtype = v3.BoolT
 	case reflect.Float32:
-		v := float32(d.Float())
-		key.Value = v3.Float32ToBytes(&v)
+		key.Value = fsKeyBuf[:4]
+		v3.Float32ToBytes(float32(d.Float()), key.Value)
 		key.Vtype = v3.Float32T
 	case reflect.Float64:
-		v := d.Float()
-		var buf [8]byte
-		v3.Float64ToBytes(v, &buf)
-		key.Value = buf[:]
+		key.Value = fsKeyBuf[:8]
+		v3.Float64ToBytes(d.Float(), key.Value)
 		key.Vtype = v3.Float64T
 	}
 	return key
@@ -218,9 +239,11 @@ func encodeString(s string) v3.KeyValue {
 func (enc *V3Encoder) encodeString(s string, k v3.KeyValue) error {
 	value := v3.Value{
 		Key: k,
+		Value: v3.KeyValue{
+			Value: v3.StringToBytes(s),
+			Vtype: v3.StringT,
+		},
 	}
-	value.Value.Value = v3.StringToBytes(s)
-	value.Value.Vtype = v3.StringT
 	v3.AddValue(enc.out, &value, enc.varintbuf)
 	return nil
 }
@@ -246,45 +269,56 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.KeyValue) error {
 		value.Value.Value = v
 		value.Value.Vtype = v3.BytesT
 	case int8:
-		value.Value.Value = []byte{v3.Int8ToBytes(v)}
+		value.Value.Value = enc.fsValueBuf[:1]
+		enc.fsValueBuf[0] = v3.Int8ToBytes(v)
 		value.Value.Vtype = v3.Int8T
 	case int16:
-		value.Value.Value = v3.Int16ToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:2]
+		v3.Int16ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Int16T
 	case int32:
-		value.Value.Value = v3.Int32ToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:4]
+		v3.Int32ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Int32T
 	case int64:
-		value.Value.Value = v3.Int64ToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Int64ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Int64T
 	case int:
-		value.Value.Value = v3.Int64ToBytes(int64(v))
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Int64ToBytes(int64(v), value.Value.Value)
 		value.Value.Vtype = v3.Int64T
 	case uint8:
-		value.Value.Value = []byte{v3.Uint8ToBytes(v)}
+		value.Value.Value = enc.fsValueBuf[:1]
+		enc.fsValueBuf[0] = v3.Uint8ToBytes(v)
 		value.Value.Vtype = v3.Uint8T
 	case uint16:
-		value.Value.Value = v3.Uint16ToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:2]
+		v3.Uint16ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Uint16T
 	case uint32:
-		value.Value.Value = v3.Uint32ToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:4]
+		v3.Uint32ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Uint32T
 	case uint64:
-		value.Value.Value = v3.Uint64ToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Uint64ToBytes(uint64(v), value.Value.Value)
 		value.Value.Vtype = v3.Uint64T
 	case uint:
-		value.Value.Value = v3.Uint64ToBytes(uint64(v))
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Uint64ToBytes(uint64(v), value.Value.Value)
 		value.Value.Vtype = v3.Uint64T
 	case float32:
-		value.Value.Value = v3.Float32ToBytes(&v)
+		value.Value.Value = enc.fsValueBuf[:4]
+		v3.Float32ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Float32T
 	case float64:
-		var buf [8]byte
-		v3.Float64ToBytes(v, &buf)
-		value.Value.Value = buf[:]
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Float64ToBytes(v, value.Value.Value)
 		value.Value.Vtype = v3.Float64T
 	case bool:
-		value.Value.Value = v3.BoolToBytes(v)
+		value.Value.Value = enc.fsValueBuf[:1]
+		enc.fsValueBuf[0] = v3.BoolToBytes(v)
 		value.Value.Vtype = v3.BoolT
 	default:
 		val := reflect.ValueOf(d)
@@ -306,13 +340,13 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.KeyValue) error {
 				}
 			case map[interface{}]interface{}:
 				for k, v := range v {
-					enc.encodeValuev3(v, encodeKeyv3(k))
+					enc.encodeValuev3(v, encodeKeyv3(k, &enc.fsKeyBuf))
 				}
 			default:
 				//if its not a specific map type
 				mapRange := val.MapRange()
 				for mapRange.Next() {
-					enc.encodeValuev3_reflect(mapRange.Value(), encodeKeyv3_reflect(mapRange.Key()))
+					enc.encodeValuev3_reflect(mapRange.Value(), encodeKeyv3_reflect(mapRange.Key(), &enc.fsKeyBuf))
 				}
 			}
 		} else if kind == reflect.Array || kind == reflect.Slice {
@@ -342,22 +376,26 @@ func (enc *V3Encoder) encodeValuev3(d interface{}, k v3.KeyValue) error {
 			}
 			value.Value.Vtype = v3.BytesT
 		} else if kind == reflect.Struct {
-			name := val.Type().String()
-			var usableFields map[string]int
-			if v, ok := enc.typeCache[name]; ok {
+			typ := val.Type()
+			var usableFields fieldsstruct
+			if v, ok := enc.typeCache[typ]; ok {
 				usableFields = v
 			} else {
-				usableFields = getStructFields(val)
-				enc.typeCache[name] = usableFields
+				usableFields = getStructFields2(val)
+				usableFields.canGob = false
+				enc.typeCache[typ] = usableFields
 			}
 
-			value.Childrenn = uint64(len(usableFields))
+			value.Childrenn = uint64(usableFields.usable)
 			value.Value.Vtype = v3.MapT
 			alreadyEncoded = true
 			v3.AddValue(enc.out, &value, enc.varintbuf)
-			for fieldName, fieldID := range usableFields {
+			for fieldID, fieldName := range usableFields.fields {
+				if fieldName == "" {
+					continue
+				}
 				field := val.Field(fieldID)
-				err := enc.encodeValuev3_reflect(field, encodeBytes([]byte(fieldName)))
+				err := enc.encodeValuev3_reflect(field, encodeString(fieldName))
 				if err != nil {
 					return err
 				}
@@ -382,8 +420,9 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 		Key: k,
 	}
 	alreadyEncoded := false
+	typ := d.Type()
 	//this sets value.Value, it does al the basic types and some more
-	switch d.Type().Kind() {
+	switch typ.Kind() {
 	case reflect.Interface, reflect.Ptr:
 		enc.encodeValuev3_reflect(d.Elem(), k)
 		alreadyEncoded = true
@@ -391,17 +430,15 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 		value.Value.Value = v3.StringToBytes(d.String())
 		value.Value.Vtype = v3.StringT
 	case reflect.Slice:
-		if d.Type().Elem().Kind() == reflect.Int8 {
+		if typ.Elem().Kind() == reflect.Int8 {
 			value.Value.Value = d.Bytes()
 			value.Value.Vtype = v3.StringT
-		} else if d.Type().Elem().Kind() == reflect.Int8 {
+		} else if typ.Elem().Kind() == reflect.String {
 			value.Childrenn = uint64(d.Len())
 			value.Value.Vtype = v3.ArrT
-			i := d.Interface()
-			for _, v := range i.([]string) {
-				enc.encodeString(v, v3.KeyValue{})
+			for i := 0; i < int(value.Childrenn); i++ {
+				enc.encodeString(d.Index(i).String(), v3.KeyValue{})
 			}
-			//If its not a specific type
 		} else {
 			value.Childrenn = uint64(d.Len())
 			value.Value.Vtype = v3.ArrT
@@ -415,47 +452,48 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 			}
 		}
 	case reflect.Int8:
-		value.Value.Value = []byte{v3.Int8ToBytes(int8(d.Int()))}
+		value.Value.Value = enc.fsValueBuf[:1]
+		enc.fsValueBuf[0] = v3.Int8ToBytes(int8(d.Int()))
 		value.Value.Vtype = v3.Int8T
 	case reflect.Int16:
-		value.Value.Value = v3.Int16ToBytes(int16(d.Int()))
+		value.Value.Value = enc.fsValueBuf[:2]
+		v3.Int16ToBytes(int16(d.Int()), value.Value.Value)
 		value.Value.Vtype = v3.Int16T
 	case reflect.Int32:
-		value.Value.Value = v3.Int32ToBytes(int32(d.Int()))
+		value.Value.Value = enc.fsValueBuf[:4]
+		v3.Int32ToBytes(int32(d.Int()), value.Value.Value)
 		value.Value.Vtype = v3.Int32T
-	case reflect.Int64:
-		value.Value.Value = v3.Int64ToBytes(d.Int())
-		value.Value.Vtype = v3.Int64T
-	case reflect.Int:
-		value.Value.Value = v3.Int64ToBytes(d.Int())
+	case reflect.Int64, reflect.Int:
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Int64ToBytes(d.Int(), value.Value.Value)
 		value.Value.Vtype = v3.Int64T
 	case reflect.Uint8:
-		value.Value.Value = []byte{v3.Uint8ToBytes(uint8(d.Uint()))}
+		value.Value.Value = enc.fsValueBuf[:1]
+		enc.fsValueBuf[0] = v3.Uint8ToBytes(uint8(d.Uint()))
 		value.Value.Vtype = v3.Uint8T
 	case reflect.Uint16:
-		value.Value.Value = v3.Uint16ToBytes(uint16(d.Uint()))
+		value.Value.Value = enc.fsValueBuf[:2]
+		v3.Uint16ToBytes(uint16(d.Uint()), value.Value.Value)
 		value.Value.Vtype = v3.Uint16T
 	case reflect.Uint32:
-		value.Value.Value = v3.Uint32ToBytes(uint32(d.Uint()))
+		value.Value.Value = enc.fsValueBuf[:4]
+		v3.Uint32ToBytes(uint32(d.Uint()), value.Value.Value)
 		value.Value.Vtype = v3.Uint32T
-	case reflect.Uint64:
-		value.Value.Value = v3.Uint64ToBytes(d.Uint())
-		value.Value.Vtype = v3.Uint64T
-	case reflect.Uint:
-		value.Value.Value = v3.Uint64ToBytes(d.Uint())
+	case reflect.Uint64, reflect.Uint:
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Uint64ToBytes(d.Uint(), value.Value.Value)
 		value.Value.Vtype = v3.Uint64T
 	case reflect.Bool:
-		value.Value.Value = v3.BoolToBytes(d.Bool())
+		value.Value.Value = enc.fsValueBuf[:1]
+		enc.fsValueBuf[0] = v3.BoolToBytes(d.Bool())
 		value.Value.Vtype = v3.BoolT
 	case reflect.Float32:
-		v := float32(d.Float())
-		value.Value.Value = v3.Float32ToBytes(&v)
+		value.Value.Value = enc.fsValueBuf[:4]
+		v3.Float32ToBytes(float32(d.Float()), value.Value.Value)
 		value.Value.Vtype = v3.Float32T
 	case reflect.Float64:
-		v := d.Float()
-		var buf [8]byte
-		v3.Float64ToBytes(v, &buf)
-		value.Value.Value = buf[:]
+		value.Value.Value = enc.fsValueBuf[:8]
+		v3.Float64ToBytes(d.Float(), value.Value.Value)
 		value.Value.Vtype = v3.Float64T
 	case reflect.Map:
 		//TODO Only check the types first and only then convert??
@@ -476,13 +514,13 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 			}
 		case map[interface{}]interface{}:
 			for k, v := range v {
-				enc.encodeValuev3(v, encodeKeyv3(k))
+				enc.encodeValuev3(v, encodeKeyv3(k, &enc.fsKeyBuf))
 			}
 		default:
 			//if its not a specific map type
 			mapRange := d.MapRange()
 			for mapRange.Next() {
-				enc.encodeValuev3_reflect(mapRange.Value(), encodeKeyv3_reflect(mapRange.Key()))
+				enc.encodeValuev3_reflect(mapRange.Value(), encodeKeyv3_reflect(mapRange.Key(), &enc.fsKeyBuf))
 			}
 		}
 	case reflect.Array:
@@ -498,34 +536,39 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 			}
 		}
 	case reflect.Struct:
-		modelType := reflect.TypeOf((*gob.GobEncoder)(nil)).Elem()
-		if d.Type().Implements(modelType) {
-			var err error
-			value.Value.Value, err = d.Interface().(gob.GobEncoder).GobEncode()
-			if err != nil {
-				return err
-			}
-			value.Value.Vtype = v3.BytesT
+		var usableFields fieldsstruct
+		if v, ok := enc.typeCache[typ]; ok {
+			usableFields = v
 		} else {
-			name := d.Type().String()
-			var usableFields map[string]int
-			if v, ok := enc.typeCache[name]; ok {
-				usableFields = v
-			} else {
-				usableFields = getStructFields(d)
-				enc.typeCache[name] = usableFields
-			}
+			usableFields = getStructFields2(d)
+			usableFields.canGob = canGobEncode(d)
+			enc.typeCache[typ] = usableFields
+		}
 
-			value.Childrenn = uint64(len(usableFields))
-			value.Value.Vtype = v3.MapT
-			alreadyEncoded = true
-			v3.AddValue(enc.out, &value, enc.varintbuf)
-			for fieldName, fieldID := range usableFields {
-				field := d.Field(fieldID)
-				err := enc.encodeValuev3_reflect(field, encodeBytes([]byte(fieldName)))
+		if usableFields.canGob {
+			if i, ok := d.Interface().(gob.GobEncoder); ok {
+				var err error
+				value.Value.Value, err = i.GobEncode()
 				if err != nil {
 					return err
 				}
+				value.Value.Vtype = v3.BytesT
+			}
+			break
+		}
+
+		value.Childrenn = uint64(usableFields.usable)
+		value.Value.Vtype = v3.MapT
+		alreadyEncoded = true
+		v3.AddValue(enc.out, &value, enc.varintbuf)
+		for fieldID, fieldName := range usableFields.fields {
+			if fieldName == "" {
+				continue
+			}
+			field := d.Field(fieldID)
+			err := enc.encodeValuev3_reflect(field, encodeString(fieldName))
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -537,7 +580,21 @@ func (enc *V3Encoder) encodeValuev3_reflect(d reflect.Value, k v3.KeyValue) erro
 	return nil
 }
 
-func getStructFields(val reflect.Value) map[string]int {
+func getStructFields2(val reflect.Value) fieldsstruct {
+	fields := fieldsstruct{}
+	fields.fields = make([]string, val.NumField())
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Type().Field(i)
+		if field.PkgPath != "" || !val.Field(i).CanInterface() {
+			continue
+		}
+		fields.fields[i] = getFieldName(field)
+		fields.usable++
+	}
+	return fields
+}
+
+func getStructFieldsDec(val reflect.Value) map[string]int {
 	usableFields := make(map[string]int, val.NumField())
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Type().Field(i)
@@ -666,7 +723,7 @@ func (dec *V3Decoder) decode(e interface{}) error {
 	err = dec.decodeValuev3(v, value)
 	if dec.yetToRead != 0 {
 		err2 := clearNextValues(dec.in, dec.yetToRead, dec.allocLimmit)
-		if err2 != nil {
+		if err == nil {
 			return err2
 		}
 	}
@@ -675,6 +732,7 @@ func (dec *V3Decoder) decode(e interface{}) error {
 }
 
 func decodeUndefined(data v3.KeyValue, e reflect.Value) error {
+	debug.Stack()
 	return errors.New("TT: cannot unmarshal invalid type:" + strconv.Itoa(int(data.Vtype)))
 }
 
@@ -704,8 +762,8 @@ func decodeBytes(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt8(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 1 {
-		buf := [1]byte{}
+	if len(data.Value) < 1 {
+		var buf [1]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -722,8 +780,8 @@ func decodeInt8(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt16(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 2 {
-		buf := [2]byte{}
+	if len(data.Value) < 2 {
+		var buf [2]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -740,8 +798,8 @@ func decodeInt16(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt32(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 4 {
-		buf := [4]byte{}
+	if len(data.Value) < 4 {
+		var buf [4]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -758,8 +816,8 @@ func decodeInt32(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeInt64(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 8 {
-		buf := [8]byte{}
+	if len(data.Value) < 8 {
+		var buf [8]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -776,8 +834,8 @@ func decodeInt64(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint8(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 1 {
-		buf := [1]byte{}
+	if len(data.Value) < 1 {
+		var buf [1]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -794,8 +852,8 @@ func decodeUint8(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint16(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 2 {
-		buf := [2]byte{}
+	if len(data.Value) < 2 {
+		var buf [2]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -812,8 +870,8 @@ func decodeUint16(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint32(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 4 {
-		buf := [4]byte{}
+	if len(data.Value) < 4 {
+		var buf [4]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -830,8 +888,8 @@ func decodeUint32(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeUint64(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 8 {
-		buf := [8]byte{}
+	if len(data.Value) < 8 {
+		var buf [8]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -849,7 +907,7 @@ func decodeUint64(data v3.KeyValue, e reflect.Value) error {
 
 func decodeBool(data v3.KeyValue, e reflect.Value) error {
 	val := false
-	if len(data.Value) != 1 {
+	if len(data.Value) < 1 {
 		val = v3.BoolFromBytes([]byte{0})
 	} else {
 		val = v3.BoolFromBytes(data.Value)
@@ -867,8 +925,8 @@ func decodeBool(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeFloat32(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 4 {
-		buf := [4]byte{}
+	if len(data.Value) < 4 {
+		var buf [4]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -885,8 +943,8 @@ func decodeFloat32(data v3.KeyValue, e reflect.Value) error {
 }
 
 func decodeFloat64(data v3.KeyValue, e reflect.Value) error {
-	if len(data.Value) != 8 {
-		buf := [8]byte{}
+	if len(data.Value) < 8 {
+		var buf [8]byte
 		copy(buf[:], data.Value)
 		data.Value = buf[:]
 	}
@@ -976,7 +1034,7 @@ func decodeMap(dec *V3Decoder, v v3.Value, e reflect.Value) error {
 		if v, ok := dec.typeCache[name]; ok {
 			usableFields = v
 		} else {
-			usableFields = getStructFields(e)
+			usableFields = getStructFieldsDec(e)
 			dec.typeCache[name] = usableFields
 		}
 
@@ -1179,4 +1237,13 @@ func clearNextValues(buf v3.Reader, values uint64, limit uint64) error {
 		values += value.Childrenn
 	}
 	return nil
+}
+
+func canGobEncode(d reflect.Value) bool {
+	if _, ok := d.Type().MethodByName("GobEncode"); ok {
+		if _, ok := d.Interface().(gob.GobEncoder); ok {
+			return true
+		}
+	}
+	return false
 }
