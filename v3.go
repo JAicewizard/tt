@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"reflect"
-	"runtime/debug"
 	"strconv"
 	"sync"
 
@@ -732,7 +731,6 @@ func (dec *V3Decoder) decode(e interface{}) error {
 }
 
 func decodeUndefined(data v3.KeyValue, e reflect.Value) error {
-	debug.Stack()
 	return errors.New("TT: cannot unmarshal invalid type:" + strconv.Itoa(int(data.Vtype)))
 }
 
