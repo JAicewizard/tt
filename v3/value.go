@@ -64,7 +64,7 @@ func (v *Value) Tobytes(out io.Writer, varintbuf *[2*binary.MaxVarintLen64 + 1]b
 }
 
 //FromBytes reads bytes from a v3.Reader into Value
-func (v *Value) FromBytes(in Reader, limit uint64) error {
+func (v *Value) FromBytes(in Reader, limit uint64, buf *[]byte) error {
 	vlen, err := readerReadUvarint(in)
 	if err != nil {
 		return errors.New(corruptinputdata)
@@ -76,8 +76,12 @@ func (v *Value) FromBytes(in Reader, limit uint64) error {
 	if 1+vlen+1+klen+1 > limit {
 		return errors.New(oversizedInputData)
 	}
-	data := make([]byte, 1+vlen+1+klen+1)
-	_, err = io.ReadAtLeast(in, data, int(1+vlen+1+klen+1))
+	totalLength := int(1 + vlen + 1 + klen + 1)
+	if tryGrowByReslice(buf, totalLength) {
+		*buf = make([]byte, 1+vlen+1+klen+1)
+	}
+	data := (*buf)[:1+vlen+1+klen+1]
+	err = readAtLeast(in, data)
 	if err != nil {
 		return errors.New(corruptinputdata)
 	}
@@ -109,15 +113,14 @@ var errEverflow = errors.New("binary: varint overflows a 64-bit integer")
 func readerReadUvarint(r Reader) (uint64, error) {
 	var x uint64
 	var s uint
-	for i := 0; i < binary.MaxVarintLen64; i++ {
-		b, err := r.ReadByte()
+	var b byte
+	var err error
+	for i := 0; i < binary.MaxVarintLen64 && !(i == 9 && b > 1); i++ {
+		b, err = r.ReadByte()
 		if err != nil {
 			return x, err
 		}
 		if b < 0x80 {
-			if i == 9 && b > 1 {
-				return x, errEverflow
-			}
 			return x | uint64(b)<<s, nil
 		}
 		x |= uint64(b&0x7f) << s
@@ -139,4 +142,31 @@ func PutUvarint(buf []byte, x uint64) uint8 {
 	}
 	buf[i] = byte(x)
 	return i + 1
+}
+
+// simplified copy of bytes.tryGrowByReslice with diferent return
+
+// tryGrowByReslice is a inlineable version of grow for the fast-case where the
+// internal buffer only needs to be resliced.
+func tryGrowByReslice(buf *[]byte, n int) bool {
+	if n <= cap(*buf) {
+		*buf = (*buf)[:n]
+		return false
+	}
+	return true
+}
+
+// cimplified copy of io.ReadAtLeast with diferent return
+
+// readAtLeast reads from r into buf until it has read into the whole buffer.
+// It returns an error if the reader returned it
+func readAtLeast(r Reader, buf []byte) error {
+	var err error
+	var n int
+	for n < len(buf) && err == nil {
+		var nn int
+		nn, err = r.Read(buf[n:])
+		n += nn
+	}
+	return err
 }

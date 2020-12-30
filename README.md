@@ -10,16 +10,16 @@ Data is are benchmarks that use Data, map benchmarks just convert the data to a 
 
 r5 3600 make bench
 ```
-BenchmarkV3               303894              3921 ns/op            1337 B/op         33 allocs/op
-BenchmarkV3Decode         401946              2827 ns/op             778 B/op         28 allocs/op
-BenchmarkV3Encode        1208140              1049 ns/op             558 B/op          5 allocs/op
-BenchmarkV3int64         1657701               730 ns/op             572 B/op         11 allocs/op
-BenchmarkV2               450891              2442 ns/op            1615 B/op         26 allocs/op
-BenchmarkV2Decode         914095              1216 ns/op             776 B/op         22 allocs/op
-BenchmarkV2Encode         962227              1174 ns/op             791 B/op          4 allocs/op
-BenchmarkGobMap            99562             11806 ns/op            1916 B/op         68 allocs/op
-BenchmarkGobMapDecode     183130              6511 ns/op            1260 B/op         48 allocs/op
-BenchmarkGobMapEncode     235747              4983 ns/op             656 B/op         20 allocs/op
+BenchmarkV3               325105              3691 ns/op             669 B/op         25 allocs/op
+BenchmarkV3Decode         396320              2806 ns/op             669 B/op         25 allocs/op
+BenchmarkV3Encode        1585117               756 ns/op               0 B/op          0 allocs/op
+BenchmarkV3int64         2334561               494 ns/op              32 B/op          1 allocs/op
+BenchmarkV2               475154              2546 ns/op            1521 B/op         26 allocs/op
+BenchmarkV2Decode         952143              1265 ns/op             776 B/op         22 allocs/op
+BenchmarkV2Encode         939524              1210 ns/op             811 B/op          4 allocs/op
+BenchmarkGobMap            96040             12636 ns/op            1916 B/op         68 allocs/op
+BenchmarkGobMapDecode     175570              6705 ns/op            1260 B/op         48 allocs/op
+BenchmarkGobMapEncode     231436              5177 ns/op             656 B/op         20 allocs/op
 ```
 
 ## notes

@@ -537,9 +537,10 @@ type testembeddedStruct struct {
 }
 
 type testCase struct {
-	name  string
-	data  interface{}
-	bytes [][]byte
+	name           string
+	data           interface{}
+	bytes          [][]byte
+	typelessReturn interface{}
 }
 
 var testCases = []testCase{
@@ -548,11 +549,21 @@ var testCases = []testCase{
 		data: testBasicStruct{"hello"},
 		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 1, 104, 105, 0},
 			{3, 0, 0, 0, 18, 0, 1, 5, 2, 1, 104, 101, 108, 108, 111, 2, 104, 105, 0}},
+		typelessReturn: map[interface{}]interface{}{
+			"hi": "hello",
+		},
 	},
 	{
-		name:  "testBasicSlice",
-		data:  []string{"hello", "world"},
-		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
+		name:           "testBasicArray",
+		data:           [...]string{"hello", "world"},
+		bytes:          [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
+		typelessReturn: []interface{}{"hello", "world"},
+	},
+	{
+		name:           "testBasicSlice",
+		data:           []string{"hello", "world"},
+		bytes:          [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 5, 0, 1, 119, 111, 114, 108, 100, 0, 0}},
+		typelessReturn: []interface{}{"hello", "world"},
 	},
 	{
 		name:  "testcomplexSlice",
@@ -560,14 +571,16 @@ var testCases = []testCase{
 		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 5, 0, 1, 104, 101, 108, 108, 111, 0, 0, 8, 0, 6, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
 	},
 	{
-		name:  "testBasicFloatSlice",
-		data:  []float32{0.14, 0.20},
-		bytes: [][]byte{{3, 0, 0, 0, 19, 0, 2, 4, 0, 12, 41, 92, 15, 62, 0, 0, 4, 0, 12, 205, 204, 76, 62, 0, 0}},
+		name:           "testBasicFloatSlice",
+		data:           []float32{0.14, 0.20},
+		bytes:          [][]byte{{3, 0, 0, 0, 19, 0, 2, 4, 0, 12, 41, 92, 15, 62, 0, 0, 4, 0, 12, 205, 204, 76, 62, 0, 0}},
+		typelessReturn: []interface{}{float32(0.14), float32(0.20)},
 	},
 	{
-		name:  "testBasicGobEncoder",
-		data:  time.Date(2020, time.January, 26, 21, 6, 30, 5, time.UTC),
-		bytes: [][]byte{{3, 0, 15, 0, 2, 1, 0, 0, 0, 14, 213, 191, 246, 86, 0, 0, 0, 5, 255, 255, 0, 0}},
+		name:           "testBasicGobEncoder",
+		data:           time.Date(2020, time.January, 26, 21, 6, 30, 5, time.UTC),
+		bytes:          [][]byte{{3, 0, 15, 0, 2, 1, 0, 0, 0, 14, 213, 191, 246, 86, 0, 0, 0, 5, 255, 255, 0, 0}},
+		typelessReturn: []byte{1, 0, 0, 0, 14, 213, 191, 246, 86, 0, 0, 0, 5, 255, 255},
 	},
 	{
 		name: "testBasicMap",
@@ -578,6 +591,10 @@ var testCases = []testCase{
 		bytes: [][]byte{
 			{3, 0, 0, 0, 18, 0, 2, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0},
 			{3, 0, 0, 0, 18, 0, 2, 2, 3, 1, 112, 105, 1, 98, 121, 101, 0, 4, 3, 1, 106, 117, 100, 101, 1, 104, 101, 121, 0}},
+		typelessReturn: map[interface{}]interface{}{
+			"hey": "jude",
+			"bye": "pi",
+		},
 	},
 	{
 		name: "testComplexMap",
@@ -594,6 +611,9 @@ var testCases = []testCase{
 		data: testembeddedPrivateStruct{Pame: "hi", testBasicStruct: testBasicStruct{Name: "lol"}},
 		bytes: [][]byte{{3, 0, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 1, 111, 111, 112, 115, 0},
 			{3, 0, 0, 0, 18, 0, 1, 2, 4, 1, 104, 105, 2, 111, 111, 112, 115, 0}},
+		typelessReturn: map[interface{}]interface{}{
+			"oops": "hi",
+		},
 	},
 	{
 		name: "testEmbeddedStruct",
@@ -602,6 +622,12 @@ var testCases = []testCase{
 
 			{3, 0, 0, 0, 18, 0, 2, 0, 5, 18, 1, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 1, 104, 105, 0, 2, 4, 1, 104, 105, 1, 111, 111, 112, 115, 0},
 			{3, 0, 0, 0, 18, 0, 2, 2, 4, 1, 104, 105, 1, 111, 111, 112, 115, 0, 0, 5, 18, 1, 69, 109, 98, 101, 100, 1, 3, 2, 1, 108, 111, 108, 1, 104, 105, 0}},
+		typelessReturn: map[interface{}]interface{}{
+			"oops": "hi",
+			"Embed": map[interface{}]interface{}{
+				"hi": "lol",
+			},
+		},
 	},
 	{
 		name: "testSingleValueToInterface",
@@ -617,6 +643,7 @@ func testStructDecode(t *testing.T, testcase testCase) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	equal := false
 	bytes := []byte{}
 	var diff []string
@@ -638,10 +665,34 @@ func testStructDecode(t *testing.T, testcase testCase) {
 	}
 	//this only tests public fields
 	if diff := deep.Equal(testcase.data, after.Interface()); diff != nil {
+		t.Error("typefull decode")
 		t.Error(testcase.data)
 		t.Error(after.Interface())
 		t.Error(diff)
 	}
+
+	//Check if it behaved when no type data is given
+	if testcase.typelessReturn == nil {
+		testcase.typelessReturn = testcase.data
+	}
+	err = Encodev3(testcase.data, buf)
+	if err != nil {
+		t.Error(err)
+	}
+
+	after2 := interface{}(nil)
+	err = Decodev3(buf, &after2)
+	if err != nil {
+		t.Error(err)
+	}
+	//this only tests public fields
+	if diff := deep.Equal(testcase.typelessReturn, after2); diff != nil {
+		t.Error("typeless decode")
+		t.Error(testcase.typelessReturn)
+		t.Error(after2)
+		t.Error(diff)
+	}
+
 }
 
 func TestEncodeDecode(t *testing.T) {

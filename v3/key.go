@@ -1,9 +1,5 @@
 package v3
 
-import (
-	"strconv"
-)
-
 type (
 	//KeyValue is the key used for storing the key/value
 	KeyValue struct {
@@ -14,33 +10,35 @@ type (
 
 //ExportStructID returns a string identifying the value
 func (k *KeyValue) ExportStructID() string {
-	switch k.Vtype {
-	case StringT:
+	if k.Vtype == StringT || k.Vtype == BytesT {
 		return StringFromBytes(k.Value)
-	case BytesT:
-		return string(k.Value)
-	case Float32T:
-		return strconv.FormatFloat(float64(Float32FromBytes(k.Value)), 'X', -1, 32)
-	case Float64T:
-		return strconv.FormatFloat(Float64FromBytes(k.Value), 'X', -1, 32)
-	case Int8T:
-		return strconv.FormatInt(int64(Int8FromBytes(k.Value[0])), 10)
-	case Int16T:
-		return strconv.FormatInt(int64(Int16FromBytes(k.Value)), 10)
-	case Int32T:
-		return strconv.FormatInt(int64(Int32FromBytes(k.Value)), 10)
-	case Int64T:
-		return strconv.FormatInt(int64(Int64FromBytes(k.Value)), 10)
-	case Uint8T:
-		return strconv.FormatUint(uint64(Uint8FromBytes(k.Value[0])), 10)
-	case Uint16T:
-		return strconv.FormatUint(uint64(Uint16FromBytes(k.Value)), 10)
-	case Uint32T:
-		return strconv.FormatUint(uint64(Uint32FromBytes(k.Value)), 10)
-	case Uint64T:
-		return strconv.FormatUint(uint64(Uint64FromBytes(k.Value)), 10)
-	case BoolT:
-		return strconv.FormatBool(BoolFromBytes(k.Value))
 	}
 	return ""
+	/*switch k.Vtype {
+	case StringT, BytesT:
+		return StringFromBytes(k.Value)
+	case Float32T:
+		return "", errors.New("cannot load float32 as struct field name")
+	case Float64T:
+		return "", errors.New("cannot load float64 as struct field name")
+	case Int8T:
+		return "", errors.New("cannot load int8 as struct field name")
+	case Int16T:
+		return "", errors.New("cannot load int16 as struct field name")
+	case Int32T:
+		return "", errors.New("cannot load int32 as struct field name")
+	case Int64T:
+		return "", errors.New("cannot load int64 as struct field name")
+	case Uint8T:
+		return "", errors.New("cannot load uint8 as struct field name")
+	case Uint16T:
+		return "", errors.New("cannot load uint16 as struct field name")
+	case Uint32T:
+		return "", errors.New("cannot load uint32 as struct field name")
+	case Uint64T:
+		return "", errors.New("cannot load uint64 as struct field name")
+	case BoolT:
+		return "", errors.New("cannot load bool as struct field name")
+	}
+	return "", errors.New("cannot load invalid type as struct field name")*/
 }

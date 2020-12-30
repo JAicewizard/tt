@@ -15,3 +15,9 @@ func StringToBytes(s string) []byte {
 func StringFromBytes(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
+
+//StringFromBytesclone converts bytes to a string by copying, since this is
+//required fo values not in maps.
+func StringFromBytesclone(b []byte) string {
+	return string(b)
+}
